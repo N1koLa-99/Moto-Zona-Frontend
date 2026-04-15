@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MotoZona | Вход</title>
+  <meta name="description" content="Вход в профила." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Първо общия стил -->
+  <link rel="stylesheet" href="../CSS/HomePageStyles.css" />
+  <!-- После auth стила -->
+  <link rel="stylesheet" href="../CSS/AuthPages.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar__inner">
+      <a href="HomePage.html" class="brand">
+        <img
+          src="../ImagesVideos/ChatGPT Image Apr 5, 2026, 01_39_42 PM.png"
+          alt="MotoZone logo"
+          class="brand__logo"
+        />
+        <span class="brand__divider" aria-hidden="true"></span>
+        <span class="brand__text">MotoZone</span>
+      </a>
+
+      <div class="topbar__actions">
+        <button class="auth-action-btn" type="button" onclick="window.location.href='Register.html'">
+          Регистрация
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="auth-page auth-page--login">
+    <div class="container auth-layout auth-layout--login">
+      <section class="auth-panel">
+        <article class="auth-card auth-card--main">
+          <div class="auth-card__head">
+            <div class="auth-card__eyebrow">MOTOZONA</div>
+            <h1>Вход в профила</h1>
+            <p>
+              Влез в акаунта си, за да управляваш обявите, профила и запазените си активности.
+            </p>
+          </div>
+
+          <div id="loginMessage" class="auth-message hidden"></div>
+
+          <form id="loginForm" class="auth-form" novalidate>
+            <div class="auth-field">
+              <label for="email">Имейл</label>
+              <input id="email" name="email" type="email" placeholder="name@example.com" required />
+            </div>
+
+            <div class="auth-field">
+              <label for="password">Парола</label>
+              <div class="auth-password-wrap">
+                <input id="password" name="password" type="password" placeholder="Въведи парола" required />
+                <button type="button" class="auth-show-btn toggle-password" data-target="password">Покажи</button>
+              </div>
+            </div>
+
+            <div class="auth-row auth-row--between">
+              <label class="inline-check" for="rememberMe">
+                <input id="rememberMe" name="rememberMe" type="checkbox" />
+                <span>Запомни ме</span>
+              </label>
+
+              <a href="#" class="auth-link">Забравена парола</a>
+            </div>
+
+            <button id="loginSubmitBtn" type="submit" class="primary-btn auth-submit">
+              Вход
+            </button>
+          </form>
+
+          <div class="auth-switch">
+            Нямаш профил?
+            <a href="Register.html">Регистрирай се</a>
+          </div>
+        </article>
+      </section>
+
+      <aside class="auth-side">
+        <article class="auth-side-card">
+          <h3>Какво получаваш</h3>
+          <ul class="auth-points">
+            <li>Любими обяви и бърз достъп до тях</li>
+            <li>Управление на личен или фирмен профил</li>
+            <li>Качване и редакция на обяви при фирмен акаунт</li>
+            <li>Следене на баланс и активност при дилъри</li>
+          </ul>
+        </article>
+
+        <article class="auth-side-card auth-side-card--highlight">
+          <h3>Фирмен профил</h3>
+          <p>
+            Ако си мотокъща, дилър или магазин, регистрирай фирмен акаунт. Така ще можеш
+            да публикуваш обяви, да ги управляваш по-лесно и да следиш начисленията си на едно място.
+          </p>
+        </article>
+      </aside>
+    </div>
+  </main>
+
+  <script src="../JS/auth.js"></script>
+  <script src="../JS/Login.js"></script>
+</body>
+</html>

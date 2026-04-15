@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MotoMarket | Обява</title>
+  <meta name="description" content="Детайли за обява в MotoMarket." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="../CSS/ListingDetails.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar__inner">
+      <a href="HomePage.html" class="brand">
+        <img
+          src="../ImagesVideos/ChatGPT Image Apr 5, 2026, 01_39_42 PM.png"
+          alt="MotoMarket logo"
+          class="brand__logo"
+        />
+        <span class="brand__divider" aria-hidden="true"></span>
+        <span class="brand__text">MotoMarket</span>
+      </a>
+
+      <div class="topbar__actions">
+        <button class="ghost-nav-btn" id="backToHomeBtn" type="button">Начало</button>
+
+        <div class="guest-actions hidden" id="guestActions">
+          <button class="auth-action-btn auth-action-btn--ghost" id="loginBtn" type="button">Вход</button>
+          <button class="auth-action-btn" id="registerBtn" type="button">Регистрация</button>
+        </div>
+
+        <div class="profile-menu hidden" id="profileMenu">
+          <button class="profile-btn" id="profileMenuBtn" type="button">
+            <span class="profile-btn__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M12 12a4.25 4.25 0 1 0 0-8.5 4.25 4.25 0 0 0 0 8.5Z" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M4 20.25c1.3-3.55 4.18-5.25 8-5.25s6.7 1.7 8 5.25" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="profile-btn__text" id="userDisplayName">Профил</span>
+          </button>
+
+          <div class="profile-menu__dropdown hidden" id="profileDropdown">
+            <button class="profile-menu__item" id="createListingBtn" type="button">Нова обява</button>
+            <button class="profile-menu__item profile-menu__item--danger" id="logoutBtn" type="button">Изход</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="container">
+      <div id="loadingState" class="page-state">
+        <div class="spinner" aria-hidden="true"></div>
+        <h2>Зареждаме обявата...</h2>
+        <p>Изчакай секунда. Взимаме снимките и основните детайли.</p>
+      </div>
+
+      <div id="errorState" class="page-state hidden">
+        <h2>Не успяхме да заредим обявата</h2>
+        <p id="errorText">Възникна проблем при зареждането.</p>
+        <div class="page-state__actions">
+          <button class="primary-btn" id="retryBtn" type="button">Опитай пак</button>
+          <a class="ghost-link-btn" href="HomePage.html">Към началото</a>
+        </div>
+      </div>
+
+      <div id="detailsContent" class="details hidden">
+        <section class="hero-detail">
+          <div class="hero-detail__media">
+            <img id="heroImage" alt="Снимка на обявата" />
+            <div class="hero-detail__overlay"></div>
+          </div>
+
+          <div class="hero-detail__content">
+            <div class="hero-detail__copy">
+              <div class="hero-detail__eyebrow-row hidden" id="heroEyebrowRow">
+                <span id="promotionBadge" class="promotion-badge hidden"></span>
+              </div>
+
+              <h1 id="heroTitle">Заглавие</h1>
+              <p class="hero-detail__subtitle" id="heroSubtitle"></p>
+              <div class="hero-detail__chips" id="heroChips"></div>
+            </div>
+
+            <div class="hero-detail__price-box">
+              <div class="hero-detail__price-label">Цена</div>
+              <div class="hero-detail__price" id="heroPrice">—</div>
+              <div class="hero-detail__price-secondary hidden" id="heroPriceSecondary"></div>
+            </div>
+          </div>
+        </section>
+
+        <div class="details-grid">
+          <section class="details-main">
+            <article class="card-box gallery-card">
+              <div class="section-head">
+                <div>
+                  <p class="section-eyebrow">Снимки</p>
+                  <h2>Галерия</h2>
+                </div>
+
+                <button class="ghost-small-btn" id="copyLinkBtn" type="button">Копирай линк</button>
+              </div>
+
+              <div class="gallery-stage">
+                <button class="gallery-nav gallery-nav--prev" id="prevPhotoBtn" type="button" aria-label="Предишна снимка">‹</button>
+                <img id="mainPhoto" alt="Снимка на обявата" />
+                <button class="gallery-nav gallery-nav--next" id="nextPhotoBtn" type="button" aria-label="Следваща снимка">›</button>
+
+                <button class="zoom-btn" id="zoomPhotoBtn" type="button">Увеличи</button>
+                <div class="gallery-counter" id="galleryCounter">1 / 1</div>
+              </div>
+
+              <div class="gallery-thumbs" id="galleryThumbs"></div>
+            </article>
+
+            <article class="card-box specs-card">
+              <div class="section-head">
+                <div>
+                  <p class="section-eyebrow">Детайли</p>
+                  <h2>Техническа информация</h2>
+                </div>
+              </div>
+
+              <div class="specs-grid" id="specsGrid"></div>
+            </article>
+
+            <article class="card-box description-card">
+              <div class="section-head">
+                <div>
+                  <p class="section-eyebrow">Описание</p>
+                  <h2>Всичко важно за обявата</h2>
+                </div>
+              </div>
+
+              <div class="description-content" id="descriptionContent"></div>
+            </article>
+          </section>
+
+          <aside class="details-sidebar">
+            <article class="card-box contact-card">
+              <div class="section-head">
+                <div>
+                  <p class="section-eyebrow">Контакт</p>
+                  <h2>Продавач</h2>
+                </div>
+              </div>
+
+              <div class="seller-box">
+                <div class="seller-box__logo">
+                  <img id="sellerLogo" class="hidden" alt="Лого на продавача" />
+                  <span id="sellerInitials">MM</span>
+                </div>
+
+                <div class="seller-box__info">
+                  <h3 id="sellerName">—</h3>
+                  <p id="sellerType">—</p>
+                </div>
+              </div>
+
+              <div class="info-list">
+                <div class="info-row">
+                  <span>Име за контакт</span>
+                  <strong id="contactName">—</strong>
+                </div>
+
+                <div class="info-row">
+                  <span>Телефон</span>
+                  <strong id="contactPhone">—</strong>
+                </div>
+
+                <div class="info-row">
+                  <span>Публикувана</span>
+                  <strong id="sidebarPublished">—</strong>
+                </div>
+
+                <div class="info-row">
+                  <span>Прегледи</span>
+                  <strong id="sidebarViews">—</strong>
+                </div>
+              </div>
+
+              <div class="contact-actions">
+                <a id="callBtn" class="primary-btn" href="#">Обади се</a>
+                <button id="copyPhoneBtn" class="ghost-btn" type="button">Копирай телефон</button>
+              </div>
+            </article>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="lightbox hidden" id="lightbox">
+    <button class="lightbox__close" id="closeLightboxBtn" type="button" aria-label="Затвори">×</button>
+
+    <button class="lightbox__nav lightbox__nav--prev" id="prevLightboxBtn" type="button" aria-label="Предишна снимка">‹</button>
+
+    <div class="lightbox__content">
+      <img id="lightboxImage" alt="Увеличена снимка" />
+      <div class="lightbox__counter" id="lightboxCounter">1 / 1</div>
+    </div>
+
+    <button class="lightbox__nav lightbox__nav--next" id="nextLightboxBtn" type="button" aria-label="Следваща снимка">›</button>
+  </div>
+
+  <script src="../JS/auth.js"></script>
+  <script src="../JS/ListingDetails.js"></script>
+</body>
+</html>

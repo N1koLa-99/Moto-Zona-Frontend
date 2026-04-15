@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MotoZone | Всичко за един моторист</title>
+  <meta
+    name="description"
+    content="MotoZone | Всичко за един моторист - мотори, екипировка, части, аксесоари"
+  />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="../CSS/HomePageStyles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar__inner">
+      <a href="HomePage.html" class="brand">
+        <img
+          src="../ImagesVideos/ChatGPT Image Apr 5, 2026, 01_39_42 PM.png"
+          alt="MotoZone logo"
+          class="brand__logo"
+        />
+        <span class="brand__divider" aria-hidden="true"></span>
+        <span class="brand__text">MotoZone</span>
+      </a>
+
+      <div class="topbar__actions">
+        <div class="guest-actions" id="guestActions">
+          <button class="auth-action-btn auth-action-btn--ghost" id="loginBtn" type="button">
+            Вход
+          </button>
+          <button class="auth-action-btn" id="registerBtn" type="button">
+            Регистрация
+          </button>
+        </div>
+
+        <div class="profile-menu hidden" id="profileMenuWrap">
+          <button class="profile-btn" id="profileBtn" type="button" aria-label="Профил">
+            <span class="profile-btn__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 12a4.25 4.25 0 1 0 0-8.5 4.25 4.25 0 0 0 0 8.5Z"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M4.75 20.25c1.25-3.35 4.1-5.25 7.25-5.25s6 1.9 7.25 5.25"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
+            <span class="profile-btn__text" id="profileBtnText">Профил</span>
+          </button>
+
+          <div class="profile-menu__dropdown hidden" id="profileDropdown">
+            <button class="profile-menu__item" id="profileDashboardBtn" type="button">
+              Моят профил
+            </button>
+            <button class="profile-menu__item" id="profileFavoritesBtn" type="button">
+              Любими обяви
+            </button>
+            <button class="profile-menu__item" id="uploadListingBtn" type="button">
+              Качи обява
+            </button>
+            <button class="profile-menu__item profile-menu__item--admin hidden" id="adminPanelBtn" type="button">
+              Админ панел
+            </button>
+            <button
+              class="profile-menu__item profile-menu__item--danger"
+              id="logoutBtn"
+              type="button"
+            >
+              Изход
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <video class="hero__video" id="heroVideo" autoplay muted playsinline loop>
+      <source id="heroVideoSource" src="../ImagesVideos/Moto1.mp4" type="video/mp4" />
+    </video>
+
+    <div class="hero__overlay"></div>
+
+    <div class="container hero__wrap">
+      <div class="hero__left">
+        <h1>Всичко за един моторист на едно място</h1>
+      </div>
+    </div>
+  </section>
+
+  <main class="main">
+    <div class="container page-grid">
+      <aside class="filters" id="filtersSection" aria-label="Филтри">
+        <div class="filters__drawer-handle mobile-only" aria-hidden="true"></div>
+
+        <div class="filters__head">
+          <h2>Какво търсиш?</h2>
+
+          <div class="filters__head-actions">
+            <button id="clearFiltersBtn" type="button" class="filters__clear-btn">
+              Изчисти
+            </button>
+            <button
+              id="closeFiltersBtn"
+              type="button"
+              class="filters-close-btn mobile-only"
+              aria-label="Затвори филтрите"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <div class="filters__scroll">
+          <div class="filter-group" id="categoryChooser">
+            <div class="filter-label"></div>
+            <div class="category-pills" id="mainCategoryList"></div>
+          </div>
+
+          <!-- VEHICLE -->
+          <div class="dynamic-filters hidden" id="vehicleFilters">
+            <div class="dynamic-filters__head">
+              <button
+                class="filters-back-btn"
+                id="backToCategoriesVehicleBtn"
+                type="button"
+                aria-label="Назад"
+                title="Назад"
+              >
+                <span class="filters-back-btn__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M15 6l-6 6 6 6"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </span>
+              </button>
+
+              <div class="dynamic-filters__copy">
+                <div class="dynamic-filters__eyebrow">Категория</div>
+                <div class="dynamic-filters__title">Мотори</div>
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="vehicleClassFilter">Клас</label>
+              <select id="vehicleClassFilter">
+                <option value="">Всички</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="vehicleTypeFilter">Вид</label>
+              <select id="vehicleTypeFilter">
+                <option value="">Всички</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="vehicleBrandSearch">Марка</label>
+
+              <div
+                class="searchable-select"
+                id="vehicleBrandSearchable"
+                data-target-select="vehicleBrandFilter"
+                data-search-input="vehicleBrandSearch"
+                data-options-list="vehicleBrandOptions"
+                data-placeholder="Търси марка..."
+              >
+                <input
+                  type="text"
+                  id="vehicleBrandSearch"
+                  class="searchable-select__input"
+                  placeholder="Търси марка..."
+                  autocomplete="off"
+                />
+                <div class="searchable-select__dropdown hidden" id="vehicleBrandOptions"></div>
+                <select id="vehicleBrandFilter" class="searchable-select__native hidden">
+                  <option value="">Всички</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="vehicleModelSearch">Модел</label>
+
+              <div
+                class="searchable-select"
+                id="vehicleModelSearchable"
+                data-target-select="vehicleModelFilter"
+                data-search-input="vehicleModelSearch"
+                data-options-list="vehicleModelOptions"
+                data-placeholder="Търси модел..."
+              >
+                <input
+                  type="text"
+                  id="vehicleModelSearch"
+                  class="searchable-select__input"
+                  placeholder="Търси модел..."
+                  autocomplete="off"
+                />
+                <div class="searchable-select__dropdown hidden" id="vehicleModelOptions"></div>
+                <select id="vehicleModelFilter" class="searchable-select__native hidden">
+                  <option value="">Всички</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="vehicleConditionFilter">Състояние</label>
+              <select id="vehicleConditionFilter">
+                <option value="">Всички</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="vehicleLocationModeFilter">Локация</label>
+              <select id="vehicleLocationModeFilter">
+                <option value="">Всички</option>
+                <option value="country">По държава</option>
+                <option value="region">По област</option>
+                <option value="city">По град</option>
+              </select>
+            </div>
+
+            <div class="filter-group hidden" id="vehicleCountryWrap">
+              <label class="filter-label" for="vehicleCountryFilter">Държава</label>
+              <select id="vehicleCountryFilter">
+                <option value="">Всички</option>
+              </select>
+            </div>
+
+            <div class="filter-group hidden" id="vehicleRegionWrap">
+              <label class="filter-label" for="vehicleRegionFilter">Област</label>
+              <select id="vehicleRegionFilter" disabled>
+                <option value="">Всички</option>
+              </select>
+            </div>
+
+            <div class="filter-group hidden" id="vehicleCityWrap">
+              <label class="filter-label" for="vehicleCityFilter">Град</label>
+              <select id="vehicleCityFilter" disabled>
+                <option value="">Всички</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">Цена</label>
+              <div class="range-row">
+                <input type="number" id="vehiclePriceMin" placeholder="От" min="0" />
+                <input type="number" id="vehiclePriceMax" placeholder="До" min="0" />
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">Година</label>
+              <div class="range-row">
+                <input type="number" id="vehicleYearFrom" placeholder="От" min="1900" max="2100" />
+                <input type="number" id="vehicleYearTo" placeholder="До" min="1900" max="2100" />
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">Кубици</label>
+              <div class="range-row">
+                <input type="number" id="vehicleEngineCcFrom" placeholder="От" min="0" />
+                <input type="number" id="vehicleEngineCcTo" placeholder="До" min="0" />
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">Конски сили</label>
+              <div class="range-row">
+                <input type="number" id="vehicleHorsePowerFrom" placeholder="От" min="0" />
+                <input type="number" id="vehicleHorsePowerTo" placeholder="До" min="0" />
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="vehicleLicenseCategoryFilter">Категория книжка</label>
+              <select id="vehicleLicenseCategoryFilter">
+                <option value="">Всички</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="vehicleMileageTo">Пробег (км)</label>
+              <input type="number" id="vehicleMileageTo" placeholder="Максимум" min="0" />
+            </div>
+
+            <div class="filter-group">
+              <div class="filter-label">Ниво на обява</div>
+              <div class="check-grid">
+                <label class="check-option" for="vehicleVipOnlyFilter">
+                  <input type="checkbox" id="vehicleVipOnlyFilter" />
+                  <span>Само VIP</span>
+                </label>
+
+                <label class="check-option" for="vehicleTopOnlyFilter">
+                  <input type="checkbox" id="vehicleTopOnlyFilter" />
+                  <span>Само TOP</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- GEAR -->
+          <div class="dynamic-filters hidden" id="gearFilters">
+            <div class="dynamic-filters__head">
+              <button
+                class="filters-back-btn"
+                id="backToCategoriesGearBtn"
+                type="button"
+                aria-label="Назад"
+                title="Назад"
+              >
+                <span class="filters-back-btn__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M15 6l-6 6 6 6"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </span>
+              </button>
+
+              <div class="dynamic-filters__copy">
+                <div class="dynamic-filters__eyebrow">Категория</div>
+                <div class="dynamic-filters__title">Екипировка</div>
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="gearTypeFilter">Тип екипировка</label>
+              <select id="gearTypeFilter">
+                <option value="">Всички</option>
+              </select>
+            </div>
+
+            <div class="filter-group hidden" id="gearHelmetTypeWrap">
+              <label class="filter-label" for="gearHelmetTypeFilter">Тип каска</label>
+              <select id="gearHelmetTypeFilter">
+                <option value="">Всички</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="gearBrandFilter">Марка</label>
+              <select id="gearBrandFilter">
+                <option value="">Всички</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="gearConditionFilter">Състояние</label>
+              <select id="gearConditionFilter">
+                <option value="">Всички</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="gearLocationModeFilter">Локация</label>
+              <select id="gearLocationModeFilter">
+                <option value="">Всички</option>
+                <option value="country">По държава</option>
+                <option value="region">По област</option>
+                <option value="city">По град</option>
+              </select>
+            </div>
+
+            <div class="filter-group hidden" id="gearCountryWrap">
+              <label class="filter-label" for="gearCountryFilter">Държава</label>
+              <select id="gearCountryFilter">
+                <option value="">Всички</option>
+              </select>
+            </div>
+
+            <div class="filter-group hidden" id="gearRegionWrap">
+              <label class="filter-label" for="gearRegionFilter">Област</label>
+              <select id="gearRegionFilter" disabled>
+                <option value="">Всички</option>
+              </select>
+            </div>
+
+            <div class="filter-group hidden" id="gearCityWrap">
+              <label class="filter-label" for="gearCityFilter">Град</label>
+              <select id="gearCityFilter" disabled>
+                <option value="">Всички</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">Цена</label>
+              <div class="range-row">
+                <input type="number" id="gearPriceMin" placeholder="От" min="0" />
+                <input type="number" id="gearPriceMax" placeholder="До" min="0" />
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">Година</label>
+              <div class="range-row">
+                <input type="number" id="gearYearFrom" placeholder="От" min="1900" max="2100" />
+                <input type="number" id="gearYearTo" placeholder="До" min="1900" max="2100" />
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <div class="filter-label">Ниво на обява</div>
+              <div class="check-grid">
+                <label class="check-option" for="gearVipOnlyFilter">
+                  <input type="checkbox" id="gearVipOnlyFilter" />
+                  <span>Само VIP</span>
+                </label>
+
+                <label class="check-option" for="gearTopOnlyFilter">
+                  <input type="checkbox" id="gearTopOnlyFilter" />
+                  <span>Само TOP</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- PART -->
+          <div class="dynamic-filters hidden" id="partFilters">
+            <div class="dynamic-filters__head">
+              <button
+                class="filters-back-btn"
+                id="backToCategoriesPartBtn"
+                type="button"
+                aria-label="Назад"
+                title="Назад"
+              >
+                <span class="filters-back-btn__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M15 6l-6 6 6 6"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </span>
+              </button>
+
+              <div class="dynamic-filters__copy">
+                <div class="dynamic-filters__eyebrow">Категория</div>
+                <div class="dynamic-filters__title">Части</div>
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="partTypeFilter">Тип част</label>
+              <select id="partTypeFilter">
+                <option value="">Всички</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="partBrandFilter">Марка</label>
+              <select id="partBrandFilter">
+                <option value="">Всички</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="partConditionFilter">Състояние</label>
+              <select id="partConditionFilter">
+                <option value="">Всички</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="partLocationModeFilter">Локация</label>
+              <select id="partLocationModeFilter">
+                <option value="">Всички</option>
+                <option value="country">По държава</option>
+                <option value="region">По област</option>
+                <option value="city">По град</option>
+              </select>
+            </div>
+
+            <div class="filter-group hidden" id="partCountryWrap">
+              <label class="filter-label" for="partCountryFilter">Държава</label>
+              <select id="partCountryFilter">
+                <option value="">Всички</option>
+              </select>
+            </div>
+
+            <div class="filter-group hidden" id="partRegionWrap">
+              <label class="filter-label" for="partRegionFilter">Област</label>
+              <select id="partRegionFilter" disabled>
+                <option value="">Всички</option>
+              </select>
+            </div>
+
+            <div class="filter-group hidden" id="partCityWrap">
+              <label class="filter-label" for="partCityFilter">Град</label>
+              <select id="partCityFilter" disabled>
+                <option value="">Всички</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">Цена</label>
+              <div class="range-row">
+                <input type="number" id="partPriceMin" placeholder="От" min="0" />
+                <input type="number" id="partPriceMax" placeholder="До" min="0" />
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <div class="filter-label">Ниво на обява</div>
+              <div class="check-grid">
+                <label class="check-option" for="partVipOnlyFilter">
+                  <input type="checkbox" id="partVipOnlyFilter" />
+                  <span>Само VIP</span>
+                </label>
+
+                <label class="check-option" for="partTopOnlyFilter">
+                  <input type="checkbox" id="partTopOnlyFilter" />
+                  <span>Само TOP</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- ACCESSORY -->
+          <div class="dynamic-filters hidden" id="accessoryFilters">
+            <div class="dynamic-filters__head">
+              <button
+                class="filters-back-btn"
+                id="backToCategoriesAccessoryBtn"
+                type="button"
+                aria-label="Назад"
+                title="Назад"
+              >
+                <span class="filters-back-btn__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M15 6l-6 6 6 6"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </span>
+              </button>
+
+              <div class="dynamic-filters__copy">
+                <div class="dynamic-filters__eyebrow">Категория</div>
+                <div class="dynamic-filters__title">Аксесоари</div>
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="accessoryTypeFilter">Тип аксесоар</label>
+              <select id="accessoryTypeFilter">
+                <option value="">Всички</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="accessoryBrandFilter">Марка</label>
+              <select id="accessoryBrandFilter">
+                <option value="">Всички</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="accessoryConditionFilter">Състояние</label>
+              <select id="accessoryConditionFilter">
+                <option value="">Всички</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="accessoryLocationModeFilter">Локация</label>
+              <select id="accessoryLocationModeFilter">
+                <option value="">Всички</option>
+                <option value="country">По държава</option>
+                <option value="region">По област</option>
+                <option value="city">По град</option>
+              </select>
+            </div>
+
+            <div class="filter-group hidden" id="accessoryCountryWrap">
+              <label class="filter-label" for="accessoryCountryFilter">Държава</label>
+              <select id="accessoryCountryFilter">
+                <option value="">Всички</option>
+              </select>
+            </div>
+
+            <div class="filter-group hidden" id="accessoryRegionWrap">
+              <label class="filter-label" for="accessoryRegionFilter">Област</label>
+              <select id="accessoryRegionFilter" disabled>
+                <option value="">Всички</option>
+              </select>
+            </div>
+
+            <div class="filter-group hidden" id="accessoryCityWrap">
+              <label class="filter-label" for="accessoryCityFilter">Град</label>
+              <select id="accessoryCityFilter" disabled>
+                <option value="">Всички</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">Цена</label>
+              <div class="range-row">
+                <input type="number" id="accessoryPriceMin" placeholder="От" min="0" />
+                <input type="number" id="accessoryPriceMax" placeholder="До" min="0" />
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <div class="filter-label">Ниво на обява</div>
+              <div class="check-grid">
+                <label class="check-option" for="accessoryVipOnlyFilter">
+                  <input type="checkbox" id="accessoryVipOnlyFilter" />
+                  <span>Само VIP</span>
+                </label>
+
+                <label class="check-option" for="accessoryTopOnlyFilter">
+                  <input type="checkbox" id="accessoryTopOnlyFilter" />
+                  <span>Само TOP</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <section class="content" id="listingsSection">
+        <div class="content__top">
+          <div class="hero-search">
+            <input
+              type="text"
+              id="globalSearch"
+              placeholder="Търси по заглавие, марка, модел или град..."
+            />
+            <button id="searchBtn" type="button">Търси</button>
+          </div>
+
+          <div class="content__actions">
+            <button class="mobile-filter-btn mobile-only" id="mobileFilterBtn" type="button">
+              Филтри
+            </button>
+
+            <select id="sortSelect">
+              <option value="newest">Най-нови</option>
+              <option value="priceasc">Цена: ниска към висока</option>
+              <option value="pricedesc">Цена: висока към ниска</option>
+              <option value="yeardesc">Най-нови по година</option>
+              <option value="yearasc">Най-стари по година</option>
+              <option value="oldest">Най-стари</option>
+            </select>
+          </div>
+        </div>
+
+        <p id="resultsCount">Зареждаме обявите...</p>
+
+        <div class="listings-grid" id="listingsGrid">
+          <div class="loading-state">Зареждаме обявите...</div>
+        </div>
+
+        <div class="pagination" id="pagination"></div>
+      </section>
+    </div>
+  </main>
+
+  <div
+    class="confirm-modal hidden"
+    id="logoutConfirmModal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="logoutConfirmTitle"
+    aria-describedby="logoutConfirmText"
+  >
+    <div class="confirm-modal__card" role="document">
+      <div class="confirm-modal__eyebrow">Потвърждение</div>
+      <h2 id="logoutConfirmTitle">Сигурен ли си, че искаш да излезеш от профила си?</h2>
+      <p id="logoutConfirmText">
+        Ако натиснеш „Да“, ще те отпишем от текущия профил.
+      </p>
+
+      <div class="confirm-modal__actions">
+        <button class="confirm-modal__btn confirm-modal__btn--secondary" id="cancelLogoutBtn" type="button">
+          Не
+        </button>
+        <button class="confirm-modal__btn confirm-modal__btn--primary" id="confirmLogoutBtn" type="button">
+          Да
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+
+  <script src="../JS/auth.js"></script>
+  <script src="../JS/HomePageScrypt.js"></script>
+</body>
+</html>

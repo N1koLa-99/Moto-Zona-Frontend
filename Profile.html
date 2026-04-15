@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MotoZone | Профил</title>
+  <meta name="description" content="Потребителски профил в MotoZone" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="../CSS/Profile.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar__inner">
+      <a href="HomePage.html" class="brand">
+        <img
+          src="../ImagesVideos/ChatGPT Image Apr 5, 2026, 01_39_42 PM.png"
+          alt="MotoZone logo"
+          class="brand__logo"
+        />
+        <span class="brand__divider" aria-hidden="true"></span>
+        <span class="brand__text">MotoZone</span>
+      </a>
+
+      <div class="topbar__actions">
+        <a href="HomePage.html" class="topbar-link">Начало</a>
+        <a href="AdminPage.html" class="topbar-link topbar-link--admin hidden" id="adminPanelLink">Админ панел</a>
+        <button class="header-btn header-btn--danger" id="logoutBtn" type="button">Изход</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="profile-page">
+    <div class="container profile-layout">
+      <aside class="profile-sidebar">
+        <div class="profile-user-card">
+          <div class="profile-avatar" id="profileAvatar">M</div>
+
+          <div class="profile-user-copy">
+            <div class="profile-user-copy__eyebrow">Профил</div>
+            <h1 id="profileName">MotoZone User</h1>
+            <p id="profileMeta">Потребителски акаунт</p>
+          </div>
+        </div>
+
+        <div class="profile-nav-card">
+          <button class="profile-nav__btn" type="button" data-section="dashboard">
+            <span class="profile-nav__icon">▣</span>
+            <span>Всичко</span>
+          </button>
+
+          <button class="profile-nav__btn" type="button" data-section="listings">
+            <span class="profile-nav__icon">◫</span>
+            <span>Моите обяви</span>
+          </button>
+
+          <button class="profile-nav__btn" type="button" data-section="favorites">
+            <span class="profile-nav__icon">❤</span>
+            <span>Любими обяви</span>
+          </button>
+
+          <button class="profile-nav__btn" type="button" data-section="payments">
+            <span class="profile-nav__icon">€</span>
+            <span>Плащания</span>
+          </button>
+
+          <button class="profile-nav__btn hidden" id="editProfileNavBtn" type="button" data-section="editProfile">
+            <span class="profile-nav__icon">✎</span>
+            <span>Редактиране на профила</span>
+          </button>
+        </div>
+
+        <div class="profile-side-note">
+          Секциите се зареждат при отваряне.<br />
+          „Редактиране на профила“ се показва само за частен акаунт. Редакцията на обяви, статусът, абонаментът и плащанията се управляват от „Моите обяви“.
+        </div>
+      </aside>
+
+      <section class="profile-content">
+        <div class="content-shell" id="sectionContent">
+          <div class="intro-state">
+            <div>
+              <div class="intro-state__badge">Профил</div>
+              <h2>Избери секция</h2>
+              <p>
+                Дашборд, Моите обяви, Любими, Плащания и при частен акаунт - Редактиране на профила.
+                Данните ще се заредят чак когато отвориш конкретната секция.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- EDIT LISTING MODAL -->
+  <div class="modal-overlay hidden" id="editListingModalOverlay">
+    <div
+      class="modal modal--xl"
+      id="editListingModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="editListingModalTitle"
+    >
+      <div class="modal__header">
+        <div class="modal__header-copy">
+          <div class="modal__eyebrow">Редакция на обява</div>
+          <h2 id="editListingModalTitle">Редактирай обява</h2>
+          <p id="editListingModalSubtitle">
+            Редакция на информацията, снимките и абонамента на обявата.
+          </p>
+        </div>
+
+        <button class="modal__close" id="closeEditListingModalBtn" type="button" aria-label="Затвори">
+          ✕
+        </button>
+      </div>
+
+      <div class="modal__body">
+        <div class="edit-layout">
+          <aside class="edit-side">
+            <div class="edit-side-card">
+              <div class="edit-main-preview" id="editMainPreview">
+                <div class="edit-main-preview__placeholder">Няма снимка</div>
+              </div>
+
+              <!-- STATUS SUMMARY -->
+              <section class="listing-status-panel">
+                <div class="listing-status-panel__head">
+                  <div>
+                    <div class="listing-status-panel__eyebrow">Статус на обявата</div>
+                    <h3 class="listing-status-panel__title">Текущ статус и време</h3>
+                  </div>
+
+                  <div
+                    class="edit-promo-pill edit-promo-pill--normal"
+                    id="editCurrentPromotionBadge"
+                  >
+                    NORMAL
+                  </div>
+                </div>
+
+                <div class="listing-status-panel__grid">
+                  <div class="listing-status-item">
+                    <span class="listing-status-item__label">Текущ статус</span>
+                    <strong class="listing-status-item__value" id="editCurrentPromotionType">NORMAL</strong>
+                  </div>
+
+                  <div class="listing-status-item listing-status-item--timer">
+                    <span class="listing-status-item__label">Оставащо време</span>
+                    <strong
+                      class="listing-status-item__value listing-status-item__value--time"
+                      id="editPromotionRemaining"
+                    >
+                      Няма активна промоция
+                    </strong>
+                  </div>
+
+                  <div class="listing-status-item">
+                    <span class="listing-status-item__label">Последен refresh</span>
+                    <strong class="listing-status-item__value" id="editLastRefreshInfo">-</strong>
+                  </div>
+                </div>
+
+                <div class="listing-status-panel__note" id="editPromotionStatusNote">
+                  Ако няма активен VIP или TOP, обявата е в нормален статус.
+                </div>
+              </section>
+
+              <!-- SUBSCRIPTION / ACTIONS -->
+              <section class="subscription-panel">
+                <div class="subscription-panel__head">
+                  <div class="subscription-panel__eyebrow">Абонамент на обявата</div>
+                  <h3 class="subscription-panel__title">Избери платено действие</h3>
+                  <p class="subscription-panel__text">
+                    Всяко действие е в отделна карта с цена и описание. Нищо не се натиска случайно.
+                  </p>
+                </div>
+
+                <div class="subscription-account-box">
+                  <div class="subscription-account-box__row">
+                    <span>Тип акаунт</span>
+                    <strong id="editAccountTypeValue">PRIVATE</strong>
+                  </div>
+
+                  <div class="subscription-account-box__row">
+                    <span>Цена за refresh</span>
+                    <strong id="editRefreshPriceValue">0.50 EUR</strong>
+                  </div>
+
+                  <div class="subscription-account-box__row">
+                    <span>Цена за качване над лимита</span>
+                    <strong id="editPublishOverLimitPriceValue">1.00 EUR</strong>
+                  </div>
+                </div>
+
+                <div class="subscription-actions-grid">
+                  <article class="subscription-action-card subscription-action-card--vip">
+                    <div class="subscription-action-card__top">
+                      <div>
+                        <div class="subscription-action-card__badge">VIP</div>
+                        <h4>Направи обявата VIP</h4>
+                      </div>
+
+                      <div class="subscription-action-card__price" id="editVipPriceText">
+                        7.00 EUR
+                      </div>
+                    </div>
+
+                    <p class="subscription-action-card__desc">
+                      VIP статус за <strong>7 дни</strong>. Обявата се отличава по-силно и е с най-висок приоритет.
+                    </p>
+
+                    <ul class="subscription-action-card__list">
+                      <li>Активна за 7 дни</li>
+                      <li>По-видимо позициониране</li>
+                      <li>Подходящо за по-бърза продажба</li>
+                    </ul>
+
+                    <button
+                      class="subscription-action-card__btn subscription-action-card__btn--vip"
+                      type="button"
+                      data-promotion="VIP"
+                      id="modalVipBtn"
+                    >
+                      Направи я VIP
+                    </button>
+                  </article>
+
+                  <article class="subscription-action-card subscription-action-card--top">
+                    <div class="subscription-action-card__top">
+                      <div>
+                        <div class="subscription-action-card__badge">TOP</div>
+                        <h4>Направи обявата TOP</h4>
+                      </div>
+
+                      <div class="subscription-action-card__price" id="editTopPriceText">
+                        4.00 EUR
+                      </div>
+                    </div>
+
+                    <p class="subscription-action-card__desc">
+                      TOP статус за <strong>7 дни</strong>. Обявата се качва по-напред и изпъква над нормалните.
+                    </p>
+
+                    <ul class="subscription-action-card__list">
+                      <li>Активна за 7 дни</li>
+                      <li>По-добро позициониране</li>
+                      <li>По-ниска цена от VIP</li>
+                    </ul>
+
+                    <button
+                      class="subscription-action-card__btn subscription-action-card__btn--top"
+                      type="button"
+                      data-promotion="TOP"
+                      id="modalTopBtn"
+                    >
+                      Направи я TOP
+                    </button>
+                  </article>
+
+                  <article class="subscription-action-card subscription-action-card--refresh">
+                    <div class="subscription-action-card__top">
+                      <div>
+                        <div class="subscription-action-card__badge">REFRESH</div>
+                        <h4>Направи refresh</h4>
+                      </div>
+
+                      <div class="subscription-action-card__price" id="editRefreshPriceText">
+                        0.50 EUR
+                      </div>
+                    </div>
+
+                    <p class="subscription-action-card__desc">
+                      Refresh не дава VIP или TOP. Просто качва обявата по-нагоре по дата и я прави отново по-видима.
+                    </p>
+
+                    <ul class="subscription-action-card__list">
+                      <li>Качва обявата по-напред</li>
+                      <li>Без VIP / TOP статус</li>
+                      <li>Добро за бързо освежаване</li>
+                    </ul>
+
+                    <button
+                      class="subscription-action-card__btn subscription-action-card__btn--refresh"
+                      type="button"
+                      id="modalRefreshBtn"
+                    >
+                      Направи refresh
+                    </button>
+                  </article>
+                </div>
+
+                <div class="subscription-rules-box" id="editSubscriptionRulesBox">
+                  <div class="subscription-rules-box__title">Цени за този акаунт</div>
+
+                  <div class="subscription-rules-box__content" id="editSubscriptionRulesText">
+                    Частен акаунт: VIP 7.00 EUR / 7 дни, TOP 4.00 EUR / 7 дни, Refresh 0.50 EUR, качване над лимита 1.00 EUR.
+                  </div>
+                </div>
+              </section>
+
+              <div class="edit-side-card__footer">
+                <button class="danger-ghost-btn" type="button" id="modalDeleteListingBtn">
+                  Изтрий обявата
+                </button>
+              </div>
+            </div>
+          </aside>
+
+          <div class="edit-main">
+            <form id="editListingForm" novalidate>
+              <input type="hidden" id="editListingId" />
+              <input type="hidden" id="editMainCategoryLookupId" />
+              <input type="hidden" id="editExistingPromotionType" />
+
+              <section class="edit-section">
+                <div class="edit-section__head">
+                  <h3>Основна информация</h3>
+                </div>
+
+                <div class="form-grid">
+                  <div class="form-group form-group--full">
+                    <label for="editTitle">Заглавие</label>
+                    <input type="text" id="editTitle" maxlength="160" placeholder="Например: Kawasaki Z750 A2" />
+                  </div>
+
+                  <div class="form-group form-group--full">
+                    <label for="editDescription">Описание</label>
+                    <textarea id="editDescription" rows="5" placeholder="Опиши обявата подробно..."></textarea>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="editBrandId">Марка</label>
+                    <select id="editBrandId">
+                      <option value="">Избери</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="editModelId">Модел</label>
+                    <select id="editModelId">
+                      <option value="">Избери</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="editItemModelText">Модел текст</label>
+                    <input type="text" id="editItemModelText" placeholder="Ако няма модел в списъка" />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="editConditionLookupId">Състояние</label>
+                    <select id="editConditionLookupId">
+                      <option value="">Избери</option>
+                    </select>
+                  </div>
+                </div>
+              </section>
+
+              <section class="edit-section" id="editVehicleSection">
+                <div class="edit-section__head">
+                  <h3>Детайли за мотор</h3>
+                </div>
+
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="editSubCategoryLookupId">Клас</label>
+                    <select id="editSubCategoryLookupId">
+                      <option value="">Избери</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="editSubCategory2LookupId">Вид</label>
+                    <select id="editSubCategory2LookupId">
+                      <option value="">Избери</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="editVehicleYear">Година</label>
+                    <input type="number" id="editVehicleYear" min="1900" max="2100" placeholder="Напр. 2009" />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="editEngineCC">Кубици</label>
+                    <input type="number" id="editEngineCC" min="0" placeholder="Напр. 750" />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="editHorsePower">Конски сили</label>
+                    <input type="number" id="editHorsePower" min="0" placeholder="Напр. 110" />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="editMileage">Пробег</label>
+                    <input type="number" id="editMileage" min="0" placeholder="Напр. 32000" />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="editLicenseCategoryLookupId">Категория книжка</label>
+                    <select id="editLicenseCategoryLookupId">
+                      <option value="">Избери</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="editColor">Цвят</label>
+                    <input type="text" id="editColor" placeholder="Напр. Черен" />
+                  </div>
+                </div>
+              </section>
+
+              <section class="edit-section hidden" id="editGearSection">
+                <div class="edit-section__head">
+                  <h3>Детайли за екипировка</h3>
+                </div>
+
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="editGearTypeId">Тип екипировка</label>
+                    <select id="editGearTypeId">
+                      <option value="">Избери</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="editHelmetTypeId">Тип каска</label>
+                    <select id="editHelmetTypeId">
+                      <option value="">Избери</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="editGearYear">Година</label>
+                    <input type="number" id="editGearYear" min="1900" max="2100" placeholder="Напр. 2024" />
+                  </div>
+                </div>
+              </section>
+
+              <section class="edit-section hidden" id="editPartAccessorySection">
+                <div class="edit-section__head">
+                  <h3>Категория</h3>
+                </div>
+
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="editPartAccessoryTypeId">Подкатегория</label>
+                    <select id="editPartAccessoryTypeId">
+                      <option value="">Избери</option>
+                    </select>
+                  </div>
+                </div>
+              </section>
+
+              <section class="edit-section">
+                <div class="edit-section__head">
+                  <h3>Цена и контакт</h3>
+                </div>
+
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="editPriceOriginal">Цена</label>
+                    <input type="number" id="editPriceOriginal" min="0" step="0.01" placeholder="Напр. 3900" />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="editCurrencyCode">Валута</label>
+                    <select id="editCurrencyCode">
+                      <option value="EUR">EUR</option>
+                      <option value="BGN">BGN</option>
+                      <option value="USD">USD</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="editExchangeRateToEUR">Курс към EUR</label>
+                    <input type="number" id="editExchangeRateToEUR" min="0" step="0.0001" placeholder="Напр. 1" />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="editContactName">Лице за контакт</label>
+                    <input type="text" id="editContactName" placeholder="Напр. Никола" />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="editContactPhone">Телефон</label>
+                    <input type="text" id="editContactPhone" placeholder="Напр. 0878123456" />
+                  </div>
+                </div>
+              </section>
+
+              <section class="edit-section">
+                <div class="edit-section__head">
+                  <h3>Локация</h3>
+                </div>
+
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="editCountryId">Държава</label>
+                    <select id="editCountryId">
+                      <option value="">Избери</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="editRegionId">Област</label>
+                    <select id="editRegionId">
+                      <option value="">Избери</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="editCityId">Град</label>
+                    <select id="editCityId">
+                      <option value="">Избери</option>
+                    </select>
+                  </div>
+                </div>
+              </section>
+
+              <section class="edit-section">
+                <div class="edit-section__head">
+                  <h3>Снимки</h3>
+                </div>
+
+                <div class="form-grid">
+                  <div class="form-group form-group--full">
+                    <label for="editPhotosInput">Добави нови снимки</label>
+                    <input type="file" id="editPhotosInput" accept=".jpg,.jpeg,.png,.webp" multiple />
+                    <small class="field-hint">
+                      Можеш да качваш jpg, jpeg, png и webp.
+                    </small>
+                  </div>
+
+                  <div class="form-group form-group--full">
+                    <div class="photo-manager" id="editPhotoManager">
+                      <div class="photo-manager__empty">Няма снимки</div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <div class="modal__footer">
+                <button class="header-btn header-btn--ghost" id="cancelEditListingBtn" type="button">
+                  Отказ
+                </button>
+                <button class="header-btn" id="saveEditListingBtn" type="submit">
+                  Запази промените
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GENERIC CONFIRM MODAL -->
+  <div class="modal-overlay hidden" id="confirmModalOverlay">
+    <div
+      class="modal modal--sm"
+      id="confirmModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="confirmModalTitle"
+    >
+      <div class="modal__header modal__header--simple">
+        <div class="modal__header-copy">
+          <h2 id="confirmModalTitle">Потвърждение</h2>
+          <p id="confirmModalText">Сигурен ли си?</p>
+        </div>
+
+        <button class="modal__close" id="closeConfirmModalBtn" type="button" aria-label="Затвори">
+          ✕
+        </button>
+      </div>
+
+      <div class="modal__footer modal__footer--simple">
+        <button class="header-btn header-btn--ghost" id="confirmCancelBtn" type="button">
+          Отказ
+        </button>
+        <button class="header-btn header-btn--danger" id="confirmOkBtn" type="button">
+          Потвърди
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-stack" id="toastStack"></div>
+
+  <script src="../JS/auth.js"></script>
+  <script src="../JS/Profile.js"></script>
+</body>
+</html>

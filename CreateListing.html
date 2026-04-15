@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MotoMarket | Качи обява</title>
+  <meta name="description" content="Създай нова обява в MotoMarket." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="../CSS/CreateListing.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar__inner">
+      <a href="HomePage.html" class="brand">
+        <img
+          src="../ImagesVideos/ChatGPT Image Apr 5, 2026, 01_39_42 PM.png"
+          alt="MotoMarket logo"
+          class="brand__logo"
+        />
+        <span class="brand__divider" aria-hidden="true"></span>
+        <span class="brand__text">MotoMarket</span>
+      </a>
+
+      <div class="topbar__actions">
+        <button class="ghost-btn" id="backToHomeBtn" type="button">Начало</button>
+        <button class="ghost-btn" id="logoutBtn" type="button">Изход</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="container">
+      <div class="page-head">
+        <div>
+          <p class="page-eyebrow">Публикуване</p>
+          <h1>Качи нова обява</h1>
+          <p class="page-subtitle">
+            Попълни само важното. Прегледът и сметката се обновяват автоматично.
+          </p>
+        </div>
+
+        <div class="user-box" id="userBox">
+          <span class="user-box__label">Профил</span>
+          <strong class="user-box__name" id="userDisplayName">...</strong>
+        </div>
+      </div>
+
+      <div id="statusMessage" class="status-message hidden"></div>
+
+      <div class="create-layout">
+        <section class="create-card">
+          <form id="createListingForm" novalidate>
+            <div class="section-block">
+              <div class="section-block__head">
+                <h2>Основна информация</h2>
+              </div>
+
+              <div class="form-grid form-grid--2">
+                <div class="form-field">
+                  <label for="mainCategorySelect">Категория *</label>
+                  <select id="mainCategorySelect" required></select>
+                </div>
+
+                <div class="form-field">
+                  <label for="promotionTypeSelect">Ниво на обявата</label>
+                  <select id="promotionTypeSelect">
+                    <option value="NORMAL">Нормална</option>
+                    <option value="TOP">TOP</option>
+                    <option value="VIP">VIP</option>
+                  </select>
+                </div>
+
+                <div class="form-field form-field--full">
+                  <label for="titleInput">Заглавие *</label>
+                  <input id="titleInput" type="text" maxlength="180" placeholder="Пример: Yamaha MT-07 2021 в отлично състояние" />
+                </div>
+
+                <div class="form-field form-field--full">
+                  <label for="descriptionInput">Описание</label>
+                  <textarea id="descriptionInput" rows="6" maxlength="4000" placeholder="Опиши състояние, екстри, история, забележки и всичко важно."></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="section-block hidden" id="vehicleFields">
+              <div class="section-block__head">
+                <h2>Данни за мотор</h2>
+              </div>
+
+              <div class="form-grid form-grid--3">
+                <div class="form-field">
+                  <label for="vehicleClassSelect">Клас *</label>
+                  <select id="vehicleClassSelect"></select>
+                </div>
+
+                <div class="form-field">
+                  <label for="vehicleTypeSelect">Вид</label>
+                  <select id="vehicleTypeSelect"></select>
+                </div>
+
+                <div class="form-field">
+                  <label for="vehicleConditionSelect">Състояние</label>
+                  <select id="vehicleConditionSelect"></select>
+                </div>
+
+                <div class="form-field">
+                  <label for="vehicleBrandSelect">Марка *</label>
+                  <select id="vehicleBrandSelect"></select>
+                </div>
+
+                <div class="form-field">
+                  <label for="vehicleModelSelect">Модел</label>
+                  <select id="vehicleModelSelect"></select>
+                </div>
+
+                <div class="form-field">
+                  <label for="vehicleLicenseCategorySelect">Категория книжка</label>
+                  <select id="vehicleLicenseCategorySelect"></select>
+                </div>
+
+                <div class="form-field">
+                  <label for="vehicleYearInput">Година</label>
+                  <input id="vehicleYearInput" type="number" min="1900" max="2100" placeholder="2022" />
+                </div>
+
+                <div class="form-field">
+                  <label for="vehicleHorsePowerInput">Конски сили</label>
+                  <input id="vehicleHorsePowerInput" type="number" min="1" max="5000" placeholder="74" />
+                </div>
+
+                <div class="form-field">
+                  <label for="vehicleEngineCcInput">Кубици</label>
+                  <input id="vehicleEngineCcInput" type="number" min="1" max="15000" placeholder="689" />
+                </div>
+
+                <div class="form-field">
+                  <label for="vehicleMileageInput">Пробег (км)</label>
+                  <input id="vehicleMileageInput" type="number" min="0" placeholder="18500" />
+                </div>
+
+                <div class="form-field">
+                  <label for="vehicleColorInput">Цвят</label>
+                  <input id="vehicleColorInput" type="text" maxlength="50" placeholder="Черен" />
+                </div>
+              </div>
+            </div>
+
+            <div class="section-block hidden" id="gearFields">
+              <div class="section-block__head">
+                <h2>Данни за екипировка</h2>
+              </div>
+
+              <div class="form-grid form-grid--3">
+                <div class="form-field">
+                  <label for="gearTypeSelect">Тип екипировка *</label>
+                  <select id="gearTypeSelect"></select>
+                </div>
+
+                <div class="form-field hidden" id="gearHelmetTypeWrap">
+                  <label for="gearHelmetTypeSelect">Тип каска</label>
+                  <select id="gearHelmetTypeSelect"></select>
+                </div>
+
+                <div class="form-field">
+                  <label for="gearBrandSelect">Марка *</label>
+                  <select id="gearBrandSelect"></select>
+                </div>
+
+                <div class="form-field">
+                  <label for="gearConditionSelect">Състояние</label>
+                  <select id="gearConditionSelect"></select>
+                </div>
+
+                <div class="form-field">
+                  <label for="gearYearInput">Година</label>
+                  <input id="gearYearInput" type="number" min="1900" max="2100" placeholder="2024" />
+                </div>
+
+                <div class="form-field">
+                  <label for="gearColorInput">Цвят</label>
+                  <input id="gearColorInput" type="text" maxlength="50" placeholder="Червен" />
+                </div>
+
+                <div class="form-field form-field--full">
+                  <label for="gearItemModelTextInput">Модел / размер / серия</label>
+                  <input id="gearItemModelTextInput" type="text" maxlength="100" placeholder="Shoei NXR2 / M / Matte Black" />
+                </div>
+              </div>
+            </div>
+
+            <div class="section-block hidden" id="partFields">
+              <div class="section-block__head">
+                <h2>Данни за част</h2>
+              </div>
+
+              <div class="form-grid form-grid--3">
+                <div class="form-field">
+                  <label for="partTypeSelect">Тип част *</label>
+                  <select id="partTypeSelect"></select>
+                </div>
+
+                <div class="form-field">
+                  <label for="partBrandSelect">Марка</label>
+                  <select id="partBrandSelect"></select>
+                </div>
+
+                <div class="form-field">
+                  <label for="partConditionSelect">Състояние</label>
+                  <select id="partConditionSelect"></select>
+                </div>
+
+                <div class="form-field form-field--full">
+                  <label for="partItemModelTextInput">Модел / съвместимост</label>
+                  <input id="partItemModelTextInput" type="text" maxlength="100" placeholder="Подходящо за Yamaha MT-07 2018-2023" />
+                </div>
+              </div>
+            </div>
+
+            <div class="section-block hidden" id="accessoryFields">
+              <div class="section-block__head">
+                <h2>Данни за аксесоар</h2>
+              </div>
+
+              <div class="form-grid form-grid--3">
+                <div class="form-field">
+                  <label for="accessoryTypeSelect">Тип аксесоар *</label>
+                  <select id="accessoryTypeSelect"></select>
+                </div>
+
+                <div class="form-field">
+                  <label for="accessoryBrandSelect">Марка</label>
+                  <select id="accessoryBrandSelect"></select>
+                </div>
+
+                <div class="form-field">
+                  <label for="accessoryConditionSelect">Състояние</label>
+                  <select id="accessoryConditionSelect"></select>
+                </div>
+
+                <div class="form-field form-field--full">
+                  <label for="accessoryItemModelTextInput">Модел / детайли</label>
+                  <input id="accessoryItemModelTextInput" type="text" maxlength="100" placeholder="Intercom Cardo Packtalk Edge" />
+                </div>
+              </div>
+            </div>
+
+            <div class="section-block">
+              <div class="section-block__head">
+                <h2>Цена и локация</h2>
+              </div>
+
+              <div class="form-grid form-grid--3">
+                <div class="form-field">
+                  <label for="priceOriginalInput">Цена *</label>
+                  <input id="priceOriginalInput" type="number" min="0" step="0.01" placeholder="15000" />
+                </div>
+
+                <div class="form-field">
+                  <label for="currencyCodeSelect">Валута *</label>
+                  <select id="currencyCodeSelect">
+                    <option value="EUR">EUR</option>
+                    <option value="BGN">BGN</option>
+                    <option value="USD">USD</option>
+                    <option value="GBP">GBP</option>
+                    <option value="RON">RON</option>
+                    <option value="TRY">TRY</option>
+                  </select>
+                </div>
+
+                <div class="form-field">
+                  <label for="exchangeRateToEURInput">Курс към EUR *</label>
+                  <input id="exchangeRateToEURInput" type="number" min="0.0001" step="0.0001" placeholder="1.0000" />
+                  <small id="exchangeRateHint">Може да редактираш курса ръчно.</small>
+                </div>
+
+                <div class="form-field">
+                  <label for="countrySelect">Държава *</label>
+                  <select id="countrySelect"></select>
+                </div>
+
+                <div class="form-field hidden" id="regionWrap">
+                  <label for="regionSelect">Област *</label>
+                  <select id="regionSelect"></select>
+                </div>
+
+                <div class="form-field hidden" id="cityWrap">
+                  <label for="citySelect">Град *</label>
+                  <select id="citySelect"></select>
+                </div>
+              </div>
+            </div>
+
+            <div class="section-block">
+              <div class="section-block__head">
+                <h2>Контакт</h2>
+              </div>
+
+              <div class="form-grid form-grid--2">
+                <div class="form-field">
+                  <label for="contactNameInput">Име за контакт</label>
+                  <input id="contactNameInput" type="text" maxlength="120" placeholder="Иван Петров" />
+                </div>
+
+                <div class="form-field">
+                  <label for="contactPhoneInput">Телефон *</label>
+                  <input id="contactPhoneInput" type="text" maxlength="40" placeholder="+359888123456" />
+                </div>
+              </div>
+            </div>
+
+            <div class="section-block">
+              <div class="section-block__head">
+                <h2>Снимки</h2>
+              </div>
+
+              <div class="upload-box">
+                <input id="photosInput" type="file" accept=".jpg,.jpeg,.png,.webp,image/*" multiple />
+                <p>
+                  Качи една или повече снимки. Първата автоматично става главна.
+                </p>
+              </div>
+
+              <div class="photo-grid" id="photoPreviewGrid"></div>
+            </div>
+
+            <div class="form-actions">
+              <button class="ghost-btn" id="resetFormBtn" type="button">Изчисти</button>
+              <button class="primary-btn" id="submitBtn" type="submit">Публикувай обявата</button>
+            </div>
+          </form>
+        </section>
+
+        <div class="side-column">
+          <aside class="side-card preview-side-card">
+            <div class="side-card__intro">
+              <span class="side-card__eyebrow">Преглед</span>
+              <h3>Така ще изглежда обявата</h3>
+              <p>Промените се виждат веднага, докато попълваш.</p>
+            </div>
+
+            <article class="listing-preview-card" id="listingPreviewCard">
+              <div class="listing-preview-card__image">
+                <div
+                  id="listingPreviewRibbon"
+                  class="listing-preview-card__ribbon listing-preview-card__ribbon--hidden"
+                ></div>
+
+                <button
+                  class="listing-preview-card__favorite"
+                  type="button"
+                  aria-label="Любима обява"
+                  tabindex="-1"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      d="M12 20.5l-1.1-1C5.14 14.36 2 11.39 2 7.75 2 5 4 3 6.75 3c1.56 0 3.06.73 4.03 1.88C11.94 3.73 13.44 3 15 3 17.75 3 19.75 5 19.75 7.75c0 3.64-3.14 6.61-8.9 11.75L12 20.5z"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </button>
+
+                <img
+                  id="listingPreviewImage"
+                  class="listing-preview-card__img hidden"
+                  src=""
+                  alt="Преглед на обявата"
+                />
+
+                <div id="listingPreviewPlaceholder" class="listing-preview-card__placeholder">
+                  Няма качена снимка
+                </div>
+              </div>
+
+              <div class="listing-preview-card__body">
+                <div class="listing-preview-card__top">
+                  <h4 id="listingPreviewTitle">Заглавието ще се покаже тук</h4>
+                  <strong id="listingPreviewPrice">0.00 EUR</strong>
+                </div>
+
+                <div class="listing-preview-card__meta" id="listingPreviewMeta">
+                  <span>Година</span>
+                  <span>Детайл 1</span>
+                  <span>Детайл 2</span>
+                </div>
+
+                <div class="listing-preview-card__bottom">
+                  <span id="listingPreviewLocation">Локацията ще се покаже тук</span>
+                </div>
+              </div>
+            </article>
+          </aside>
+
+          <aside class="side-card billing-side-card publish-summary-card">
+            <div class="side-card__intro">
+              <span class="side-card__eyebrow">Публикуване</span>
+              <h3>Всичко важно на едно място</h3>
+              <p id="pricingSummaryText">
+                Зареждаме информация за профила и лимита...
+              </p>
+            </div>
+
+            <div class="publish-summary-grid">
+              <div class="publish-summary-item">
+                <span>Тип профил</span>
+                <strong id="billingAccountType">-</strong>
+              </div>
+
+              <div class="publish-summary-item">
+                <span>Остават free качвания</span>
+                <strong id="billingFreeRemaining">-</strong>
+              </div>
+            </div>
+
+            <article class="selected-plan-card selected-plan-card--normal" id="selectedPlanCard">
+              <div class="selected-plan-card__top">
+                <div>
+                  <span class="selected-plan-card__eyebrow">Избрано ниво</span>
+                  <h4 id="selectedPlanName">NORMAL</h4>
+                </div>
+
+                <strong class="selected-plan-card__price" id="selectedPlanPrice">0.00 EUR</strong>
+              </div>
+
+              <p class="selected-plan-card__hint" id="selectedPlanHint">
+                Нормална обява без допълнителна промоция.
+              </p>
+            </article>
+
+            <div class="due-box">
+              <div class="due-box__head">
+                <span>Сметка за това качване</span>
+                <strong id="dueTotalEUR">0.00 EUR</strong>
+              </div>
+
+              <div class="billing-mini-row">
+                <span>Такса за качване</span>
+                <strong id="duePublishFee">0.00 EUR</strong>
+              </div>
+
+              <div class="billing-mini-row">
+                <span>Такса за ниво</span>
+                <strong id="duePromotionFee">0.00 EUR</strong>
+              </div>
+
+              <p class="due-box__note" id="dueBreakdownText">
+                Избери ниво на обявата, за да видиш какво ще се начисли.
+              </p>
+            </div>
+
+            <div class="quick-check-card">
+              <div class="quick-check-card__title">Преди да натиснеш „Публикувай“</div>
+              <ul class="tips-list tips-list--compact">
+                <li>Добави ясна снимка и провери коя е главна.</li>
+                <li>Попълни цена, телефон и точна локация.</li>
+                <li>Избери ниво NORMAL, TOP или VIP според това колко видимост искаш.</li>
+              </ul>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../JS/auth.js"></script>
+  <script src="../JS/CreateListing.js"></script>
+</body>
+</html>

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MotoZona | Регистрация</title>
+  <meta name="description" content="Регистрация в MotoZona." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="../CSS/HomePageStyles.css" />
+  <link rel="stylesheet" href="../CSS/AuthPages.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar__inner">
+      <a href="HomePage.html" class="brand">
+        <img
+          src="../ImagesVideos/ChatGPT Image Apr 5, 2026, 01_39_42 PM.png"
+          alt="MotoZone logo"
+          class="brand__logo"
+        />
+        <span class="brand__divider" aria-hidden="true"></span>
+        <span class="brand__text">MotoZone</span>
+      </a>
+
+      <div class="topbar__actions">
+        <button
+          class="auth-action-btn auth-action-btn--ghost"
+          type="button"
+          onclick="window.location.href='Login.html'"
+        >
+          Вход
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="auth-page auth-page--register">
+    <div class="container auth-layout">
+      <section class="auth-panel">
+        <article class="auth-card auth-card--main">
+          <div class="auth-card__head">
+            <div class="auth-card__eyebrow">MOTOZONA</div>
+            <h1>Създай профил</h1>
+            <p>
+              Първо избери дали регистрацията е за частен потребител или за фирма.
+              Формата по-долу е достъпна само за частни потребители.
+            </p>
+          </div>
+
+          <div class="chooser-box">
+            <div class="chooser-box__head">
+              <h3>Кой се регистрира?</h3>
+              <p>Избери типа потребител, за да продължиш.</p>
+            </div>
+
+            <div class="account-choice-grid">
+              <button type="button" class="account-choice-card active" data-type="PRIVATE">
+                <span class="account-choice-card__title">Частен потребител</span>
+                <span class="account-choice-card__text">
+                  За хора, които искат да пазят любими обяви, да управляват профила си и да се свързват по-лесно с продавачи.
+                </span>
+              </button>
+
+              <button type="button" class="account-choice-card" data-type="COMPANY">
+                <span class="account-choice-card__title">Фирма</span>
+                <span class="account-choice-card__text">
+                  За мотокъщи, дилъри и магазини. Фирменият достъп не се активира автоматично през тази форма.
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <div id="registerMessage" class="auth-message hidden"></div>
+
+          <section id="privateRegisterSection">
+            <form id="privateRegisterForm" novalidate>
+              <div class="register-progress">
+                <div class="register-progress__bar">
+                  <span id="registerProgressFill"></span>
+                </div>
+
+                <div class="register-progress__steps">
+                  <div class="register-step-dot active" data-step-dot="1">1</div>
+                  <div class="register-step-dot" data-step-dot="2">2</div>
+                  <div class="register-step-dot" data-step-dot="3">3</div>
+                </div>
+              </div>
+
+              <section class="step-panel active" data-step-panel="1">
+                <div class="step-panel__head">
+                  <h3>Стъпка 1: Основни данни</h3>
+                  <p>Попълни личните си данни, за да започнем регистрацията.</p>
+                </div>
+
+                <div class="auth-form">
+                  <div class="auth-field">
+                    <label for="firstName">Име</label>
+                    <input
+                      id="firstName"
+                      name="firstName"
+                      type="text"
+                      placeholder="Въведи име"
+                      autocomplete="given-name"
+                      minlength="2"
+                      required
+                    />
+                    <small id="firstNameError" class="auth-field-error" aria-live="polite"></small>
+                  </div>
+
+                  <div class="auth-field">
+                    <label for="lastName">Фамилия</label>
+                    <input
+                      id="lastName"
+                      name="lastName"
+                      type="text"
+                      placeholder="Въведи фамилия"
+                      autocomplete="family-name"
+                      minlength="2"
+                      required
+                    />
+                    <small id="lastNameError" class="auth-field-error" aria-live="polite"></small>
+                  </div>
+
+                  <div class="auth-field auth-field--full">
+                    <label for="phone">Телефон</label>
+                    <input
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      placeholder="+359..."
+                      autocomplete="tel"
+                      inputmode="tel"
+                      required
+                    />
+                    <small id="phoneError" class="auth-field-error" aria-live="polite"></small>
+                  </div>
+                </div>
+
+                <div class="step-actions step-actions--end">
+                  <button type="button" id="nextToStep2" class="primary-btn step-btn">Напред</button>
+                </div>
+              </section>
+
+              <section class="step-panel" data-step-panel="2">
+                <div class="step-panel__head">
+                  <h3>Стъпка 2: Данни за акаунта</h3>
+                  <p>Въведи имейл и парола за новия си профил.</p>
+                </div>
+
+                <div class="auth-form">
+                  <div class="auth-field auth-field--full">
+                    <label for="email">Имейл</label>
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder="name@example.com"
+                      autocomplete="email"
+                      required
+                    />
+                    <small id="emailError" class="auth-field-error" aria-live="polite"></small>
+                  </div>
+
+                  <div class="auth-field">
+                    <label for="password">Парола</label>
+                    <div class="auth-password-wrap">
+                      <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        placeholder="Въведи парола"
+                        autocomplete="new-password"
+                        minlength="6"
+                        required
+                      />
+                      <button type="button" class="auth-show-btn toggle-password" data-target="password">Покажи</button>
+                    </div>
+                    <small id="passwordError" class="auth-field-error" aria-live="polite"></small>
+                  </div>
+
+                  <div class="auth-field">
+                    <label for="confirmPassword">Потвърди парола</label>
+                    <div class="auth-password-wrap">
+                      <input
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        type="password"
+                        placeholder="Повтори паролата"
+                        autocomplete="new-password"
+                        minlength="6"
+                        required
+                      />
+                      <button type="button" class="auth-show-btn toggle-password" data-target="confirmPassword">Покажи</button>
+                    </div>
+                    <small id="confirmPasswordError" class="auth-field-error" aria-live="polite"></small>
+                  </div>
+                </div>
+
+                <div class="step-actions">
+                  <button type="button" id="backToStep1" class="secondary-btn step-btn">Назад</button>
+                  <button type="button" id="nextToStep3" class="primary-btn step-btn">Напред</button>
+                </div>
+              </section>
+
+              <section class="step-panel" data-step-panel="3">
+                <div class="step-panel__head">
+                  <h3>Стъпка 3: Локация</h3>
+                  <p>Избери държава, област и град за профила.</p>
+                </div>
+
+                <div class="auth-form">
+                  <div class="auth-field">
+                    <label for="countryId">Държава</label>
+                    <select id="countryId" name="countryId" required>
+                      <option value="">Избери държава</option>
+                    </select>
+                    <small id="countryIdError" class="auth-field-error" aria-live="polite"></small>
+                  </div>
+
+                  <div class="auth-field">
+                    <label for="regionId">Област</label>
+                    <select id="regionId" name="regionId" required disabled>
+                      <option value="">Избери област</option>
+                    </select>
+                    <small id="regionIdError" class="auth-field-error" aria-live="polite"></small>
+                  </div>
+
+                  <div class="auth-field auth-field--full">
+                    <label for="cityId">Град</label>
+                    <select id="cityId" name="cityId" required disabled>
+                      <option value="">Избери град</option>
+                    </select>
+                    <small id="cityIdError" class="auth-field-error" aria-live="polite"></small>
+                  </div>
+                </div>
+
+                <div class="consent-box">
+                  <label class="inline-check consent-check" for="privacyConsent">
+                    <input id="privacyConsent" name="privacyConsent" type="checkbox" required />
+                    <span>
+                      Запознат/а съм и приемам
+                      <a href="PrivacyPolicy.html" target="_blank" class="auth-link" rel="noopener noreferrer">
+                        Политиката за поверителност
+                      </a>
+                      и съм съгласен/а личните ми данни да бъдат обработвани съгласно изискванията на GDPR.
+                    </span>
+                  </label>
+                  <div id="privacyConsentError" class="consent-error" aria-live="polite"></div>
+                </div>
+
+                <div class="step-actions">
+                  <button type="button" id="backToStep2" class="secondary-btn step-btn">Назад</button>
+                  <button id="registerSubmitBtn" type="submit" class="primary-btn step-btn">Създай профил</button>
+                </div>
+              </section>
+            </form>
+          </section>
+
+          <section id="companyInfoSection" class="hidden">
+            <div class="company-alert">
+              <div class="company-alert__icon">!</div>
+
+              <div class="company-alert__content">
+                <h3>За фирмен профил трябва да се свържеш с нас.</h3>
+                <p>
+                  Регистрацията през тази форма е само за частни потребители.
+                  Ако представляваш фирма, мотокъща, дилър или магазин, пиши ни на
+                  <a id="companyEmailLink" href="mailto:contact@motozona.bg">contact@motozona.bg</a>
+                  и ще ти активираме фирмен достъп ръчно.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <div class="auth-switch">
+            Имаш профил?
+            <a href="Login.html">Влез</a>
+          </div>
+        </article>
+      </section>
+
+      <aside class="auth-side">
+        <article class="auth-side-card">
+          <h3>Защо да се регистрираш</h3>
+          <ul class="auth-points">
+            <li>Запазване на любими обяви</li>
+            <li>По-бърз контакт с продавачи</li>
+            <li>Управление на личния профил</li>
+            <li>По-удобно следене на активността ти</li>
+          </ul>
+        </article>
+
+        <article class="auth-side-card auth-side-card--highlight">
+          <h3>За фирми</h3>
+          <p>
+            Ако искаш фирмен достъп за качване и управление на обяви, той се активира
+            след контакт с администратора и ръчно одобрение.
+          </p>
+        </article>
+      </aside>
+    </div>
+  </main>
+
+  <script src="../JS/auth.js"></script>
+  <script src="../JS/Register.js"></script>
+</body>
+</html>

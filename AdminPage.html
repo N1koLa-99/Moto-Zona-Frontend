@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MotoZone | Админ панел</title>
+  <meta
+    name="description"
+    content="Административен панел за следене на потребители, обяви, плащания и чакащи действия."
+  />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="../CSS/AdminPage.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar__inner">
+      <a href="HomePage.html" class="brand">
+        <img
+          src="../ImagesVideos/ChatGPT Image Apr 5, 2026, 01_39_42 PM.png"
+          alt="MotoZone logo"
+          class="brand__logo"
+        />
+        <span class="brand__divider" aria-hidden="true"></span>
+        <span class="brand__text">MotoZone</span>
+      </a>
+
+      <div class="topbar__actions">
+        <a href="HomePage.html" class="topbar-link topbar-link--home">Начало</a>
+        <a href="Profile.html" class="topbar-link topbar-link--profile">Профил</a>
+        <button class="header-btn header-btn--danger" id="logoutBtn" type="button">Изход</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="admin-page">
+    <div class="container">
+      <section class="access-guard hidden" id="accessGuard">
+        <article class="access-guard__card">
+          <div class="section-eyebrow">ADMIN ACCESS</div>
+          <h1 id="accessGuardTitle">Проверяваме достъпа...</h1>
+          <p id="accessGuardText">
+            Тази страница е достъпна само за потребители с роля <strong>ADMIN</strong>.
+          </p>
+
+          <div class="access-guard__actions">
+            <a href="HomePage.html" class="topbar-link topbar-link--home topbar-link--inline">Начало</a>
+            <a href="Profile.html" class="header-btn header-btn--ghost">Профил</a>
+          </div>
+        </article>
+      </section>
+
+      <section class="admin-shell hidden" id="adminShell">
+        <section class="hero-card">
+          <div class="hero-card__copy">
+            <div class="section-eyebrow">ADMIN PANEL</div>
+            <h1>Административен панел</h1>
+            <p id="accessNotice">Проверяваме администраторските права и подготвяме данните...</p>
+          </div>
+
+          <div class="hero-card__actions">
+            <button class="header-btn" id="refreshAllBtn" type="button">Обнови всичко</button>
+          </div>
+        </section>
+
+        <section class="stats-grid" aria-label="Обобщение">
+          <article class="stat-card">
+            <span class="stat-card__label">Потребители</span>
+            <strong class="stat-card__value" id="usersCountValue">-</strong>
+            <span class="stat-card__meta" id="usersCountMeta">Очакваме данни</span>
+          </article>
+
+          <article class="stat-card">
+            <span class="stat-card__label">Плащания</span>
+            <strong class="stat-card__value" id="paymentsCountValue">-</strong>
+            <span class="stat-card__meta" id="paymentsCountMeta">Очакваме данни</span>
+          </article>
+
+          <article class="stat-card">
+            <span class="stat-card__label">Чакащи действия</span>
+            <strong class="stat-card__value" id="pendingCountValue">-</strong>
+            <span class="stat-card__meta" id="pendingCountMeta">Очакваме данни</span>
+          </article>
+
+          <article class="stat-card">
+            <span class="stat-card__label">Обяви на избрания потребител</span>
+            <strong class="stat-card__value" id="selectedListingsCountValue">-</strong>
+            <span class="stat-card__meta" id="selectedListingsMeta">Избери потребител</span>
+          </article>
+        </section>
+
+        <section class="admin-layout">
+          <article class="panel-card">
+            <div class="panel-card__head">
+              <div>
+                <div class="section-eyebrow">GET /api/admin/users</div>
+                <h2>Потребители</h2>
+                <p class="panel-card__meta" id="usersMeta">Зареждаме списъка...</p>
+              </div>
+
+              <button class="icon-btn" id="usersRefreshBtn" type="button" aria-label="Обнови потребителите">
+                ↻
+              </button>
+            </div>
+
+            <form class="toolbar" id="usersSearchForm">
+              <label class="field field--grow">
+                <span>Търсене</span>
+                <input
+                  type="search"
+                  id="usersSearchInput"
+                  placeholder="Име, имейл, телефон..."
+                  autocomplete="off"
+                />
+              </label>
+
+              <label class="field">
+                <span>На страница</span>
+                <select id="usersPageSize">
+                  <option value="10">10</option>
+                  <option value="20" selected>20</option>
+                  <option value="50">50</option>
+                </select>
+              </label>
+
+              <button class="header-btn header-btn--ghost" type="submit">Търси</button>
+            </form>
+
+            <div class="collection" id="usersList">
+              <div class="panel-state">Зареждаме потребителите...</div>
+            </div>
+
+            <div class="panel-pagination" id="usersPagination"></div>
+          </article>
+
+          <article class="panel-card panel-card--details">
+            <div class="panel-card__head">
+              <div>
+                <div class="section-eyebrow">GET /api/admin/users/{userId}</div>
+                <h2 id="selectedUserTitle">Детайли за потребител</h2>
+                <p class="panel-card__meta" id="selectedUserMeta">Избери потребител от списъка вляво.</p>
+              </div>
+
+              <button class="icon-btn" id="userDetailsRefreshBtn" type="button" aria-label="Обнови детайлите">
+                ↻
+              </button>
+            </div>
+
+            <div class="detail-grid" id="userDetailsGrid">
+              <div class="panel-state">Няма избран потребител.</div>
+            </div>
+
+            <div class="subpanel">
+              <div class="subpanel__head">
+                <div>
+                  <div class="section-eyebrow">GET /api/admin/users/{userId}/listings</div>
+                  <h3>Обяви на потребителя</h3>
+                  <p class="panel-card__meta" id="userListingsMeta">Избери потребител, за да заредим обявите му.</p>
+                </div>
+
+                <div class="subpanel__actions">
+                  <label class="field">
+                    <span>На страница</span>
+                    <select id="userListingsPageSize">
+                      <option value="10">10</option>
+                      <option value="20" selected>20</option>
+                      <option value="50">50</option>
+                    </select>
+                  </label>
+
+                  <button class="icon-btn" id="userListingsRefreshBtn" type="button" aria-label="Обнови обявите">
+                    ↻
+                  </button>
+                </div>
+              </div>
+
+              <div class="collection" id="userListingsList">
+                <div class="panel-state">Няма избран потребител.</div>
+              </div>
+
+              <div class="panel-pagination" id="userListingsPagination"></div>
+            </div>
+          </article>
+
+          <article class="panel-card">
+            <div class="panel-card__head">
+              <div>
+                <div class="section-eyebrow">GET /api/admin/payments</div>
+                <h2>Плащания</h2>
+                <p class="panel-card__meta" id="paymentsMeta">Зареждаме плащанията...</p>
+              </div>
+
+              <button class="icon-btn" id="paymentsRefreshBtn" type="button" aria-label="Обнови плащанията">
+                ↻
+              </button>
+            </div>
+
+            <form class="toolbar" id="paymentsSearchForm">
+              <label class="field field--grow">
+                <span>Търсене</span>
+                <input
+                  type="search"
+                  id="paymentsSearchInput"
+                  placeholder="Потребител, обява, статус..."
+                  autocomplete="off"
+                />
+              </label>
+
+              <label class="field">
+                <span>На страница</span>
+                <select id="paymentsPageSize">
+                  <option value="10">10</option>
+                  <option value="20" selected>20</option>
+                  <option value="50">50</option>
+                </select>
+              </label>
+
+              <button class="header-btn header-btn--ghost" type="submit">Търси</button>
+            </form>
+
+            <div class="collection" id="paymentsList">
+              <div class="panel-state">Зареждаме плащанията...</div>
+            </div>
+
+            <div class="panel-pagination" id="paymentsPagination"></div>
+          </article>
+
+          <article class="panel-card">
+            <div class="panel-card__head">
+              <div>
+                <div class="section-eyebrow">GET /api/admin/pending-actions</div>
+                <h2>Чакащи действия</h2>
+                <p class="panel-card__meta" id="pendingMeta">Зареждаме чакащите действия...</p>
+              </div>
+
+              <button class="icon-btn" id="pendingRefreshBtn" type="button" aria-label="Обнови чакащите действия">
+                ↻
+              </button>
+            </div>
+
+            <div class="toolbar toolbar--compact">
+              <label class="field field--grow">
+                <span>Статус</span>
+                <select id="pendingStatusFilter">
+                  <option value="">Всички</option>
+                  <option value="PENDING">PENDING</option>
+                  <option value="APPROVED">APPROVED</option>
+                  <option value="REJECTED">REJECTED</option>
+                  <option value="DONE">DONE</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>На страница</span>
+                <select id="pendingPageSize">
+                  <option value="10">10</option>
+                  <option value="20" selected>20</option>
+                  <option value="50">50</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="collection" id="pendingList">
+              <div class="panel-state">Зареждаме чакащите действия...</div>
+            </div>
+
+            <div class="panel-pagination" id="pendingPagination"></div>
+          </article>
+        </section>
+      </section>
+    </div>
+  </main>
+
+  <script src="../JS/auth.js"></script>
+  <script src="../JS/AdminPage.js"></script>
+</body>
+</html>
