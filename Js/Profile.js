@@ -2351,7 +2351,7 @@
   }
 
   async function completeDeletedProfile(message) {
-    await completeSessionEndingAction(message, "Index.html");
+    await completeSessionEndingAction(message, "index.html");
   }
 
   function setFormSubmitState(button, isLoading) {

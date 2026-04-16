@@ -64,7 +64,7 @@
 
   async function init() {
     if (window.Auth?.isLoggedIn?.()) {
-      window.location.href = "Index.html";
+      window.location.href = "index.html";
       return;
     }
 
@@ -359,7 +359,7 @@
 
       showMessage("Регистрацията е успешна. Пренасочваме...", "success");
 
-      window.location.href = "Index.html";
+      window.location.href = "index.html";
     } catch (error) {
       console.error(error);
       showMessage("Възникна проблем при регистрацията. Опитай пак.", "error");
