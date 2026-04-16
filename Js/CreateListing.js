@@ -178,7 +178,7 @@
 
   function bindEvents() {
     elements.backToHomeBtn?.addEventListener("click", () => {
-      window.location.href = "HomePage.html";
+      window.location.href = "Index.html";
     });
 
     elements.logoutBtn?.addEventListener("click", () => {
@@ -187,7 +187,7 @@
         return;
       }
 
-      window.location.href = "HomePage.html";
+      window.location.href = "Index.html";
     });
 
     elements.mainCategorySelect?.addEventListener("change", async () => {

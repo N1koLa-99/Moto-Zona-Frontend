@@ -76,7 +76,7 @@
 
   function bindEvents() {
     elements.backToHomeBtn?.addEventListener("click", () => {
-      window.location.href = "HomePage.html";
+      window.location.href = "Index.html";
     });
 
     elements.loginBtn?.addEventListener("click", () => {
@@ -111,7 +111,7 @@
       localStorage.removeItem("accessToken");
       localStorage.removeItem("jwtToken");
       localStorage.removeItem("user");
-      window.location.href = "HomePage.html";
+      window.location.href = "Index.html";
     });
 
     document.addEventListener("click", (event) => {

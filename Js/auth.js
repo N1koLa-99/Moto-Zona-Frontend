@@ -191,7 +191,7 @@ async function fetchCurrentUserFromApi() {
 }
 
 function getCurrentRelativeUrl() {
-  const currentPath = window.location.pathname.split("/").pop() || "HomePage.html";
+  const currentPath = window.location.pathname.split("/").pop() || "Index.html";
   return `${currentPath}${window.location.search || ""}`;
 }
 
@@ -241,7 +241,7 @@ function redirectToAdminPanel() {
 async function ensureAdminAccess(options = {}) {
   const returnUrl = options.returnUrl || getCurrentRelativeUrl();
   const redirect = options.redirect !== false;
-  const redirectUrl = options.redirectUrl || "HomePage.html";
+  const redirectUrl = options.redirectUrl || "Index.html";
 
   if (!isLoggedIn()) {
     redirectToLogin(returnUrl);
@@ -299,7 +299,7 @@ async function logoutUser() {
     // умишлено празно
   } finally {
     clearAuthData();
-    window.location.href = "HomePage.html";
+    window.location.href = "Index.html";
   }
 }
 

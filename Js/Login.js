@@ -114,7 +114,7 @@
 
   function getRedirectUrl() {
     const params = new URLSearchParams(window.location.search);
-    return params.get("returnUrl") || "HomePage.html";
+    return params.get("returnUrl") || "Index.html";
   }
 
   function setLoading(isLoading) {
