@@ -250,7 +250,7 @@
   }
 
   function renderListing(listing) {
-    document.title = `MotoMarket | ${listing.title || "Обява"}`;
+    document.title = `MotoZone | ${listing.title || "Обява"}`;
 
     elements.heroTitle.textContent = listing.title || "Без заглавие";
     elements.heroSubtitle.textContent = buildHeroSubtitle(listing);
@@ -287,11 +287,12 @@
     renderSpecs(listing);
     renderDescription(listing);
     renderContactCard(listing);
+    updateSeoMetadata(listing);
   }
 
   function renderGallery() {
     const currentPhoto = getCurrentPhoto();
-    const fallbackImage = createPlaceholderImage(state.listing?.title || "MotoMarket");
+    const fallbackImage = createPlaceholderImage(state.listing?.title || "MotoZone");
     const mainPhotoUrl = currentPhoto?.fileUrl || fallbackImage;
     const mainPhotoAlt = currentPhoto?.fileName || state.listing?.title || "Снимка на обявата";
 
@@ -443,6 +444,34 @@
     }
   }
 
+  function updateSeoMetadata(listing) {
+    const pageTitle = `MotoZone | ${cleanNullableText(listing.title) || "Обява"}`;
+    const priceText = formatCurrency(
+      listing.displayPrice ?? listing.priceEUR ?? listing.priceOriginal ?? 0,
+      listing.displayCurrencyCode || listing.currencyCode || "EUR"
+    );
+    const locationText = buildLocationText(listing);
+    const typeText = cleanNullableText([listing.subCategoryName, listing.subCategory2Name].filter(Boolean).join(" / "));
+    const summary = [
+      cleanNullableText(listing.title),
+      typeText,
+      locationText !== "вЂ”" ? locationText : null,
+      priceText !== "вЂ”" ? priceText : null
+    ].filter(Boolean).join(" | ");
+    const pageDescription = summary || "Разгледай детайли за обява в MotoZone.";
+    const imageUrl = resolveSeoImageUrl(state.photos[0]?.fileUrl || "ImagesVideos/Moto-ZoneLogo.png");
+
+    document.title = pageTitle;
+    setMetaContent('meta[name="description"]', pageDescription);
+    setMetaContent('meta[property="og:title"]', pageTitle);
+    setMetaContent('meta[property="og:description"]', pageDescription);
+    setMetaContent('meta[property="og:image"]', imageUrl);
+    setMetaContent('meta[property="og:image:alt"]', cleanNullableText(listing.title) || "MotoZone listing");
+    setMetaContent('meta[name="twitter:title"]', pageTitle);
+    setMetaContent('meta[name="twitter:description"]', pageDescription);
+    setMetaContent('meta[name="twitter:image"]', imageUrl);
+  }
+
   function renderPromotionBadge(targetElement, promotionType) {
     if (!targetElement) return false;
 
@@ -513,7 +542,7 @@
     if (elements.lightbox.classList.contains("hidden")) return;
 
     const currentPhoto = getCurrentPhoto();
-    const imageUrl = currentPhoto?.fileUrl || elements.mainPhoto?.src || createPlaceholderImage("MotoMarket");
+    const imageUrl = currentPhoto?.fileUrl || elements.mainPhoto?.src || createPlaceholderImage("MotoZone");
 
     elements.lightboxImage.src = imageUrl;
     elements.lightboxImage.alt = currentPhoto?.fileName || state.listing?.title || "Снимка на обявата";
@@ -733,7 +762,7 @@
   }
 
   function createPlaceholderImage(label) {
-    const safeLabel = escapeXml(label || "MotoMarket");
+    const safeLabel = escapeXml(label || "MotoZone");
 
     const svg = `
       <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
@@ -748,11 +777,26 @@
         <circle cx="950" cy="160" r="160" fill="#ffffff" fill-opacity="0.32"/>
         <circle cx="240" cy="660" r="220" fill="#ff6a2a" fill-opacity="0.09"/>
         <text x="50%" y="48%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-size="68" font-weight="700" fill="#596a7d">${safeLabel}</text>
-        <text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="600" fill="#707f91">MotoMarket</text>
+        <text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="600" fill="#707f91">MotoZone</text>
       </svg>
     `.trim();
 
     return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+  }
+
+  function resolveSeoImageUrl(value) {
+    try {
+      return new URL(value, window.location.href).toString();
+    } catch {
+      return value;
+    }
+  }
+
+  function setMetaContent(selector, content) {
+    const element = document.querySelector(selector);
+    if (element && content) {
+      element.setAttribute("content", content);
+    }
   }
 
   function escapeXml(value) {

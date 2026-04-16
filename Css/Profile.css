@@ -80,6 +80,11 @@ body {
   line-height: 1.45;
 }
 
+.profile-page-wide {
+  --container: 100%;
+  --page-pad: clamp(20px, 2.6vw, 40px);
+}
+
 body.modal-open {
   overflow: hidden;
 }

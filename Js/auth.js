@@ -3,7 +3,7 @@ const USER_STORAGE_KEY = "moto_user";
 const ADMIN_ROLE = "ADMIN";
 const JWT_ROLE_CLAIM = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
 
-const API_BASE_URL = window.APP_CONFIG?.apiBaseUrl || "https://localhost:7119";
+const API_BASE_URL = "https://motomarketapi.azurewebsites.net";
 
 function setAccessToken(token) {
   if (!token) {

@@ -40,6 +40,11 @@ body {
   overflow-x: hidden;
 }
 
+.home-page {
+  --container: 100%;
+  --page-pad: clamp(20px, 2.6vw, 40px);
+}
+
 body.modal-open {
   overflow: hidden;
 }

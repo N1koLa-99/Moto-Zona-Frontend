@@ -59,6 +59,11 @@ body {
   overflow-x: hidden;
 }
 
+.create-listing-page-wide {
+  --container: 100%;
+  --page-pad: clamp(20px, 2.6vw, 40px);
+}
+
 img {
   max-width: 100%;
   display: block;

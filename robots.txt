@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Disallow: /AdminPage.html
+Disallow: /CreateListing.html
+Disallow: /Login.html
+Disallow: /Profile.html
+Disallow: /Register.html
