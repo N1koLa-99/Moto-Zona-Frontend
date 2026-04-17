@@ -24,6 +24,14 @@
   --radius-md: 14px;
 }
 
+@media (hover: none) and (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
 * {
   box-sizing: border-box;
 }
