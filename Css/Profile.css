@@ -143,9 +143,7 @@ textarea {
   position: sticky;
   top: 0;
   z-index: 120;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  background: rgba(255, 255, 255, 0.9);
+  background: #ffffff;
   border-bottom: 1px solid var(--line);
 }
 

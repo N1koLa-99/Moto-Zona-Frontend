@@ -459,7 +459,7 @@
       priceText !== "вЂ”" ? priceText : null
     ].filter(Boolean).join(" | ");
     const pageDescription = summary || "Разгледай детайли за обява в MotoZone.";
-    const imageUrl = resolveSeoImageUrl(state.photos[0]?.fileUrl || "ImagesVideos/Moto-ZoneLogo.png");
+    const imageUrl = resolveSeoImageUrl(state.photos[0]?.fileUrl || "ImagesVideos/MzLogoBlack.png");
 
     document.title = pageTitle;
     setMetaContent('meta[name="description"]', pageDescription);

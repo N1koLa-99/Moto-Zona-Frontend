@@ -20,15 +20,19 @@
   <meta property="og:title" content="Мото Зона | Всичко за един моторист на едно място" />
   <meta property="og:description" content="Открий мотори, мото екипировка, части и аксесоари в Мото Зона. Разгледай обяви от цяла България и намери всичко за един моторист на едно място." />
   <meta property="og:url" content="https://moto-zona.com/" />
-  <meta property="og:image" content="https://moto-zona.com/ImagesVideos/Moto-ZoneLogo.png" />
+  <meta property="og:image" content="https://moto-zona.com/ImagesVideos/MzLogoBlack.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="778" />
+  <meta property="og:image:height" content="452" />
   <meta property="og:image:alt" content="Лого на Мото Зона" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Мото Зона | Всичко за един моторист на едно място" />
   <meta name="twitter:description" content="Открий мотори, мото екипировка, части и аксесоари в Мото Зона. Разгледай обяви от цяла България и намери всичко за един моторист на едно място." />
-  <meta name="twitter:image" content="https://moto-zona.com/ImagesVideos/Moto-ZoneLogo.png" />
+  <meta name="twitter:image" content="https://moto-zona.com/ImagesVideos/MzLogoBlack.png" />
+  <meta name="twitter:image:alt" content="Лого на Мото Зона" />
   <link rel="canonical" href="https://moto-zona.com/" />
-  <link rel="icon" type="image/png" href="ImagesVideos/Moto-ZoneLogo.png" />
-  <link rel="apple-touch-icon" href="ImagesVideos/Moto-ZoneLogo.png" />
+  <link rel="icon" type="image/png" href="ImagesVideos/MzLogoBlack.png" />
+  <link rel="apple-touch-icon" href="ImagesVideos/MzLogoBlack.png" />
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -38,7 +42,15 @@
       "alternateName": ["MotoZona", "MotoZone", "Moto Zona", "Moto Zone"],
       "url": "https://moto-zona.com/",
       "email": "contact@moto-zona.com",
-      "logo": "https://moto-zona.com/ImagesVideos/Moto-ZoneLogo.png",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://moto-zona.com/ImagesVideos/MzLogoBlack.png",
+        "contentUrl": "https://moto-zona.com/ImagesVideos/MzLogoBlack.png",
+        "width": 778,
+        "height": 452,
+        "caption": "MotoZona logo"
+      },
+      "image": "https://moto-zona.com/ImagesVideos/MzLogoBlack.png",
       "description": "Платформа за обяви за мотори, мото екипировка, части и аксесоари."
     }
   </script>
@@ -63,13 +75,14 @@
     rel="stylesheet"
   />
   <link rel="stylesheet" href="Css/index.css" />
+  <link rel="stylesheet" href="Css/Footer.css" />
 </head>
 <body class="home-page">
   <header class="topbar">
     <div class="container topbar__inner">
       <a href="index.html" class="brand">
         <img
-          src="ImagesVideos/ChatGPT Image Apr 5, 2026, 01_39_42 PM.png"
+          src="ImagesVideos/MzLogoWhite2.png"
           alt="Лого на Мото Зона"
           class="brand__logo"
         />
@@ -147,21 +160,6 @@
       <div class="hero__left">
         <h1>Мото Зона - всичко за един моторист на едно място</h1>
       </div>
-    </div>
-  </section>
-
-  <section class="seo-copy" aria-labelledby="seoCopyTitle">
-    <div class="container seo-copy__inner">
-      <div class="seo-copy__eyebrow">Мотори, екипировка, части и аксесоари</div>
-      <h2 id="seoCopyTitle">Открий обяви за мотори и мото оборудване от цяла България</h2>
-      <p>
-        Мото Зона събира на едно място обяви за мотори, мото екипировка, части и аксесоари. Платформата е създадена,
-        за да намираш по-бързо точния мотор, каска, яке, гуми, части или аксесоари, които търсиш.
-      </p>
-      <p>
-        Разглеждай предложения по марка, модел, клас, цена, година, кубатура и локация, следи нови обяви и открий
-        всичко за един моторист на едно място.
-      </p>
     </div>
   </section>
 
@@ -784,19 +782,72 @@
   <div class="overlay" id="overlay"></div>
 
   <footer class="site-footer">
-    <div class="container site-footer__inner">
-      <div class="site-footer__brand-block">
-        <div class="site-footer__brand">Мото Зона</div>
-        <p class="site-footer__copy">
-          Онлайн платформа за обяви за мотори, мото екипировка, части и аксесоари.
-        </p>
-      </div>
+    <div class="site-footer__shell">
+      <div class="site-footer__panel">
+        <div class="site-footer__grid">
+          <section class="site-footer__brand-column" aria-label="За MotoZona">
+            <a href="index.html" class="site-footer__brand-link">
+              <span class="site-footer__brand-badge">
+                <img
+                  src="ImagesVideos/MzLogoWhite2.png"
+                  alt="MotoZona лого"
+                  class="site-footer__logo"
+                />
+              </span>
+              <span class="site-footer__brand-copy">
+                <span class="site-footer__brand-name">MotoZona</span>
+                <span class="site-footer__brand-tag">Всичко за един моторист на едно място</span>
+              </span>
+            </a>
+            <p class="site-footer__lead">
+              Платформа за обяви за мотори, екипировка, части и аксесоари, създадена за бързо търсене,
+              по-добра видимост и по-удобно управление на профила.
+            </p>
+            <div class="site-footer__chips">
+              <span>Мотори</span>
+              <span>Екипировка</span>
+              <span>Части</span>
+              <span>Аксесоари</span>
+            </div>
+          </section>
 
-      <nav class="site-footer__nav" aria-label="Полезни връзки">
-        <a href="index.html">Начало</a>
-        <a href="PrivacyPolicy.html">Политика за поверителност</a>
-        <a href="mailto:contact@moto-zona.com">contact@moto-zona.com</a>
-      </nav>
+          <nav class="site-footer__group" aria-label="Основна навигация">
+            <div class="site-footer__title">Навигация</div>
+            <div class="site-footer__list">
+              <a href="index.html">Начало</a>
+              <a href="index.html#listingsSection">Разгледай обяви</a>
+              <a href="CreateListing.html">Качи обява</a>
+            </div>
+          </nav>
+
+          <nav class="site-footer__group" aria-label="Акаунт">
+            <div class="site-footer__title">Акаунт</div>
+            <div class="site-footer__list">
+              <a href="Login.html">Вход</a>
+              <a href="Register.html">Регистрация</a>
+              <a href="Profile.html">Профил</a>
+            </div>
+          </nav>
+
+          <section class="site-footer__group site-footer__group--contact" aria-labelledby="footerContactTitleIndex">
+            <div class="site-footer__title" id="footerContactTitleIndex">Контакт</div>
+            <div class="site-footer__contact-list">
+              <a class="site-footer__contact-link" href="mailto:contact@moto-zona.com">contact@moto-zona.com</a>
+              <a class="site-footer__contact-link" href="PrivacyPolicy.html">Политика за поверителност</a>
+              <a class="site-footer__contact-link" href="https://moto-zona.com/">moto-zona.com</a>
+            </div>
+            <a class="site-footer__cta" href="Register.html">Създай профил</a>
+          </section>
+        </div>
+
+        <div class="site-footer__bottom">
+          <p>© 2026 MotoZona. Професионална среда за мотористи, търговци и любители.</p>
+          <div class="site-footer__bottom-links">
+            <a href="PrivacyPolicy.html">Поверителност</a>
+            <a href="mailto:contact@moto-zona.com">Имейл за контакт</a>
+          </div>
+        </div>
+      </div>
     </div>
   </footer>
 
