@@ -6,3 +6,5 @@ Disallow: /CreateListing.html
 Disallow: /Login.html
 Disallow: /Profile.html
 Disallow: /Register.html
+
+Sitemap: https://moto-zona.com/sitemap.xml

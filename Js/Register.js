@@ -1,6 +1,6 @@
 (() => {
   const API_BASE_URL = window.Auth?.API_BASE_URL || "https://motomarketapi.azurewebsites.net";
-  const COMPANY_CONTACT_EMAIL = "contact@motozona.bg";
+  const COMPANY_CONTACT_EMAIL = "contact@moto-zona.com";
 
   const STEP_FIELDS = {
     1: ["firstName", "lastName", "phone"],
