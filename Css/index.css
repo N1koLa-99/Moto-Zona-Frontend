@@ -1491,23 +1491,29 @@ button {
   }
 
   .hero {
-    min-height: 180px;
+    min-height: 220px;
   }
 
   .hero__wrap {
-    padding: 16px 0 18px;
+    padding: 22px 0 24px;
+    justify-content: center;
   }
 
   .hero__left {
     max-width: 100%;
+    width: 100%;
   }
 
-  .hero__left h1 {
-    margin-left: 0;
-    font-size: 1.55rem;
-    line-height: 1.05;
-    max-width: 300px;
-  }
+    .hero__left h1 {
+        margin-left: 0;
+        margin-right: 0;
+        font-size: 1.50rem;
+        line-height: 1.28;
+        max-width: 340px;
+        text-align: center;
+        margin-inline: auto;
+        margin-top: 22%;
+    }
 
   .main {
     padding: 12px 0 28px;
@@ -1879,13 +1885,15 @@ button {
 
 @media (max-width: 420px) {
   .hero {
-    min-height: 170px;
+    min-height: 210px;
   }
 
   .hero__left h1 {
-    font-size: 1.42rem;
-    max-width: 272px;
-    margin-left: 4%;
+    font-size: 1.34rem;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
   }
 
   .seo-copy__inner {

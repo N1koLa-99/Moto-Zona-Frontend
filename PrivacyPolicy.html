@@ -9,7 +9,6 @@
     name="description"
     content="Политика за поверителност на Мото Зона с информация за обработката на лични данни, сигурността, сроковете за съхранение и правата на потребителите."
   />
-
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
   <meta name="theme-color" content="#ff6a2a" />
   <meta name="application-name" content="Мото Зона" />
@@ -22,219 +21,10 @@
     rel="stylesheet"
   />
   <link rel="stylesheet" href="Css/index.css" />
+  <link rel="stylesheet" href="Css/PrivacyPolicy.css" />
   <link rel="stylesheet" href="Css/Footer.css" />
-  <style>
-    .legal-page {
-      padding: 42px 0 24px;
-    }
-
-    .legal-layout {
-      display: grid;
-      grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
-      gap: 28px;
-      align-items: start;
-    }
-
-    .legal-aside,
-    .legal-card {
-      background: linear-gradient(180deg, #ffffff 0%, #f9fbfe 100%);
-      border: 1px solid #dfe6ef;
-      border-radius: 28px;
-      box-shadow: 0 16px 40px rgba(23, 32, 45, 0.08);
-    }
-
-    .legal-aside {
-      position: sticky;
-      top: calc(var(--topbar-height) + 22px);
-      padding: 24px;
-    }
-
-    .legal-aside__eyebrow,
-    .legal-hero__eyebrow,
-    .legal-section__eyebrow {
-      display: inline-flex;
-      align-items: center;
-      min-height: 34px;
-      padding: 0 14px;
-      border-radius: 999px;
-      background: rgba(255, 106, 42, 0.08);
-      color: #143d8f;
-      font-size: 0.78rem;
-      font-weight: 800;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    .legal-aside h2 {
-      margin: 16px 0 10px;
-      font-size: 1.28rem;
-    }
-
-    .legal-aside p {
-      margin: 0;
-      color: #6f7b8b;
-      line-height: 1.7;
-    }
-
-    .legal-nav {
-      display: flex;
-      margin-top: 24px;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .legal-nav a {
-      display: block;
-      padding: 12px 14px;
-      border-radius: 16px;
-      background: #ffffff;
-      border: 1px solid #dfe6ef;
-      font-weight: 700;
-      color: #17202d;
-      transition: border-color 0.2s ease, transform 0.2s ease, color 0.2s ease;
-    }
-
-    .legal-nav a:hover {
-      color: #143d8f;
-      border-color: #cad6e4;
-      transform: translateY(-1px);
-    }
-
-    .legal-stack {
-      display: flex;
-      flex-direction: column;
-      gap: 22px;
-    }
-
-    .legal-card {
-      padding: 30px;
-      color: #17202d;
-    }
-
-    .legal-hero h1 {
-      margin: 18px 0 14px;
-      font-size: clamp(2rem, 4vw, 3rem);
-      line-height: 1.02;
-      letter-spacing: -0.03em;
-    }
-
-    .legal-hero p,
-    .legal-section p,
-    .legal-section li {
-      color: #5f6d7f;
-      line-height: 1.8;
-    }
-
-    .legal-hero p:last-child,
-    .legal-section p:last-child {
-      margin-bottom: 0;
-    }
-
-    .legal-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 22px;
-    }
-
-    .legal-meta span {
-      display: inline-flex;
-      align-items: center;
-      min-height: 38px;
-      padding: 0 14px;
-      border-radius: 999px;
-      background: #ffffff;
-      border: 1px solid #dfe6ef;
-      color: #143d8f;
-      font-weight: 700;
-    }
-
-    .legal-section h2 {
-      margin: 16px 0 12px;
-      font-size: 1.52rem;
-      line-height: 1.1;
-    }
-
-    .legal-section ul {
-      margin: 0;
-      padding-left: 20px;
-    }
-
-    .legal-section li + li {
-      margin-top: 8px;
-    }
-
-    .legal-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-      margin-top: 18px;
-    }
-
-    .legal-grid__item {
-      padding: 18px;
-      border-radius: 20px;
-      background: #ffffff;
-      border: 1px solid #dfe6ef;
-    }
-
-    .legal-grid__item strong {
-      display: block;
-      margin-bottom: 8px;
-      color: #143d8f;
-      font-size: 0.95rem;
-    }
-
-    .legal-note {
-      padding: 18px 20px;
-      border-radius: 20px;
-      background: linear-gradient(180deg, #fffaf4 0%, #fef2ea 100%);
-      border: 1px solid rgba(255, 106, 42, 0.18);
-    }
-
-    .legal-note strong {
-      color: #143d8f;
-    }
-
-    .legal-actions {
-      display: flex;
-      gap: 12px;
-      margin-top: 22px;
-      flex-wrap: wrap;
-    }
-
-    @media (max-width: 980px) {
-      .legal-layout {
-        grid-template-columns: 1fr;
-      }
-
-      .legal-aside {
-        position: static;
-      }
-    }
-
-    @media (max-width: 640px) {
-      .legal-page {
-        padding-top: 26px;
-      }
-
-      .legal-card,
-      .legal-aside {
-        padding: 22px 18px;
-        border-radius: 22px;
-      }
-
-      .legal-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .legal-hero h1 {
-        font-size: 1.9rem;
-      }
-    }
-  </style>
 </head>
-<body>
+<body class="legal-document">
   <header class="topbar">
     <div class="container topbar__inner">
       <a href="index.html" class="brand">
@@ -251,76 +41,140 @@
 
   <main class="legal-page">
     <div class="container legal-layout">
-      <aside class="legal-aside">
-        <div class="legal-aside__eyebrow">Правна информация</div>
+      <aside class="legal-panel legal-sidebar">
+        <span class="legal-kicker">Правна информация</span>
         <h2>Какво ще намериш тук</h2>
         <p>
-          Тази страница описва как Мото Зона обработва лични данни, каква информация събираме,
-          защо я използваме и какви са твоите права като потребител.
+          Тази страница описва как MotoZona събира, използва и пази личните данни на своите
+          потребители, както и какви права имаш, когато използваш платформата.
         </p>
 
         <nav class="legal-nav" aria-label="Секции на политиката">
-          <a href="#generalInfo">Обща информация</a>
-          <a href="#dataCollection">Какви данни събираме</a>
-          <a href="#processingPurpose">Защо ги обработваме</a>
-          <a href="#retention">Срокове за съхранение</a>
+          <a href="#overview">Обща информация</a>
+          <a href="#platform">За нас</a>
+          <a href="#sitePolicy">Политика на сайта</a>
+          <a href="#dataTypes">Какви данни може да бъдат събирани</a>
+          <a href="#purposes">За какво използваме тези данни</a>
+          <a href="#retention">Колко време пазим информацията</a>
           <a href="#rights">Твоите права</a>
-          <a href="#contact">Контакт</a>
+          <a href="#contact">Контакти</a>
         </nav>
       </aside>
 
-      <div class="legal-stack">
-        <section class="legal-card legal-hero" id="generalInfo">
-          <div class="legal-hero__eyebrow">Политика за поверителност</div>
-          <h1>Поверителност и защита на личните данни в Мото Зона</h1>
+      <div class="legal-content">
+        <section class="legal-panel legal-hero" id="overview">
+          <span class="legal-kicker">Политика за поверителност</span>
+          <h1>Поверителност и защита на личните данни в MotoZona</h1>
           <p>
-            Мото Зона е платформа за публикуване и разглеждане на обяви за мотори, мото екипировка,
+            MotoZona е платформа за публикуване и разглеждане на обяви за мотори, мото екипировка,
             части и аксесоари. При използването на сайта може да обработваме определени лични данни,
-            когато създаваш профил, публикуваш обява, изпращаш запитване или използваш основните функции
-            на платформата.
+            когато създаваш профил, публикуваш обява, изпращаш запитване или използваш основните
+            функции на платформата.
           </p>
           <p>
             Полагаме разумни организационни и технически мерки, за да защитим информацията ти и да
-            ограничим достъпа до нея само до необходимите процеси и оторизирани лица.
+            ограничим достъпа до нея само до процеси и лица, които са свързани с нормалната работа на сайта.
           </p>
 
           <div class="legal-meta">
-            <span>Последна актуализация: 19.04.2026</span>
+            <span>Последна актуализация: 20.04.2026</span>
             <span>Домейн: moto-zona.com</span>
             <span>Контакт: contact@moto-zona.com</span>
           </div>
+
+          <div class="legal-actions">
+            <a class="legal-button legal-button--primary" href="#contact">Свържи се с нас</a>
+            <a class="legal-button" href="#dataTypes">Какви данни събираме</a>
+            <a class="legal-button" href="index.html">Към сайта</a>
+          </div>
         </section>
 
-        <section class="legal-card legal-section" id="dataCollection">
-          <div class="legal-section__eyebrow">Събирани данни</div>
-          <h2>Каква информация може да бъде събирана</h2>
-          <p>В зависимост от това как използваш сайта, Мото Зона може да обработва следните категории данни:</p>
+        <section class="legal-panel legal-section" id="platform">
+          <span class="legal-kicker">За нас</span>
+          <h2>Какво представлява MotoZona</h2>
+          <p>
+            MotoZona е сайт за публикуване и разглеждане на обяви за мотори, екипировка, части и
+            аксесоари. Целта на платформата е обявите да се управляват лесно, да се откриват бързо
+            и при нужда да получават допълнителна видимост чрез платени действия.
+          </p>
+          <p>
+            Плащанията за платени действия в сайта се обработват чрез myPOS. Потребителят плаща само
+            когато избере конкретно платено действие, а след успешно потвърждение обявата се публикува
+            над безплатния лимит или получава избраната услуга. Refresh не активира VIP или TOP,
+            а само качва обявата по-напред по дата.
+          </p>
 
-          <div class="legal-grid">
-            <article class="legal-grid__item">
-              <strong>Акаунт данни</strong>
+          <div class="legal-info-grid">
+            <article class="legal-info-card">
+              <h3>Частен акаунт</h3>
+              <p>До 3 безплатни качвания общо. След това качване над лимита е 1.00 EUR, а Refresh е 0.50 EUR.</p>
+            </article>
+            <article class="legal-info-card">
+              <h3>Фирмен акаунт</h3>
+              <p>До 30 стартови безплатни качвания, след което има 10 безплатни качвания на месец. След изчерпване на лимита всяко качване над него е 0.50 EUR, а Refresh е 0.25 EUR.</p>
+            </article>
+            <article class="legal-info-card">
+              <h3>TOP</h3>
+              <p>TOP струва 4.00 EUR и се активира за 7 дни. Ако безплатният лимит е изчерпан, към него се добавя и таксата за качване над лимита.</p>
+            </article>
+            <article class="legal-info-card">
+              <h3>VIP</h3>
+              <p>VIP струва 7.00 EUR и се активира за 7 дни. Ако безплатният лимит е изчерпан, към него се добавя и таксата за качване над лимита.</p>
+            </article>
+          </div>
+
+          <div class="legal-note">
+            <strong>Как работи плащането:</strong> myPOS се използва само при избрано платено действие.
+            След успешно плащане обявата се публикува над лимита или се активира избраната услуга за
+            конкретната обява.
+          </div>
+        </section>
+
+        <section class="legal-panel legal-section" id="sitePolicy">
+          <span class="legal-kicker">Правила на сайта</span>
+          <h2>Основни правила за използване на MotoZona</h2>
+          <p>
+            За да поддържаме платформата полезна, ясна и сигурна за всички, очакваме съдържанието и
+            поведението в сайта да отговарят на няколко основни принципа:
+          </p>
+          <ul>
+            <li>Публикуваната информация трябва да бъде точна, актуална и свързана с предназначението на сайта.</li>
+            <li>Не се допуска подвеждащо, обидно, незаконно или чуждо съдържание без право за използване.</li>
+            <li>Потребителските профили и обяви не трябва да се използват за измами, спам или злоупотреби.</li>
+            <li>При нужда MotoZona може да ограничи или премахне съдържание, което нарушава правилата на платформата.</li>
+          </ul>
+        </section>
+
+        <section class="legal-panel legal-section" id="dataTypes">
+          <span class="legal-kicker">Събирани данни</span>
+          <h2>Каква информация може да бъде събирана</h2>
+          <p>
+            В зависимост от начина, по който използваш сайта, MotoZona може да обработва следните
+            категории информация:
+          </p>
+
+          <div class="legal-info-grid">
+            <article class="legal-info-card">
+              <h3>Акаунт данни</h3>
               <p>Име, имейл адрес, парола, тип профил и информация, необходима за регистрация и вход.</p>
             </article>
-
-            <article class="legal-grid__item">
-              <strong>Профил и обяви</strong>
+            <article class="legal-info-card">
+              <h3>Профил и обяви</h3>
               <p>Телефон, населено място, описание, снимки и други данни, които добавяш към профила или обявите си.</p>
             </article>
-
-            <article class="legal-grid__item">
-              <strong>Технически данни</strong>
+            <article class="legal-info-card">
+              <h3>Технически данни</h3>
               <p>IP адрес, тип устройство, браузър, дата и час на посещения, логове за сигурност и системни събития.</p>
             </article>
-
-            <article class="legal-grid__item">
-              <strong>Комуникация</strong>
+            <article class="legal-info-card">
+              <h3>Комуникация</h3>
               <p>Съобщения и запитвания, изпратени към нас по имейл или чрез функционалности на платформата.</p>
             </article>
           </div>
         </section>
 
-        <section class="legal-card legal-section" id="processingPurpose">
-          <div class="legal-section__eyebrow">Обработка</div>
+        <section class="legal-panel legal-section" id="purposes">
+          <span class="legal-kicker">Обработка на данни</span>
           <h2>За какво използваме тези данни</h2>
           <ul>
             <li>За създаване, поддръжка и защита на потребителски профили.</li>
@@ -331,19 +185,18 @@
           </ul>
 
           <div class="legal-note">
-            <strong>Важно:</strong>
-            Ако към сайта бъдат добавени аналитични услуги, рекламни инструменти, системи за плащане
-            или външни интеграции, политиката следва да бъде актуализирана с точните доставчици и
-            правни основания за обработка.
+            <strong>Важно:</strong> ако в бъдеще към сайта бъдат добавени аналитични услуги, рекламни
+            инструменти, системи за плащане или външни интеграции, тази политика трябва да бъде
+            актуализирана с конкретните доставчици и цели на обработка.
           </div>
         </section>
 
-        <section class="legal-card legal-section" id="retention">
-          <div class="legal-section__eyebrow">Съхранение</div>
+        <section class="legal-panel legal-section" id="retention">
+          <span class="legal-kicker">Съхранение</span>
           <h2>Колко време пазим информацията</h2>
           <p>
-            Пазим лични данни само за срок, необходим за предоставяне на услугата, изпълнение на законови
-            задължения, защита на легитимни интереси или разрешаване на възникнали спорове.
+            Пазим лични данни само за срок, необходим за предоставяне на услугата, изпълнение на
+            законови задължения, защита на легитимни интереси или разрешаване на възникнали спорове.
           </p>
           <ul>
             <li>Данните в активен профил се съхраняват, докато акаунтът е активен или докато е необходимо за услугата.</li>
@@ -352,8 +205,8 @@
           </ul>
         </section>
 
-        <section class="legal-card legal-section" id="rights">
-          <div class="legal-section__eyebrow">Права на потребителите</div>
+        <section class="legal-panel legal-section" id="rights">
+          <span class="legal-kicker">Права на потребителите</span>
           <h2>Какви права имаш</h2>
           <p>При приложимост можеш да поискаш:</p>
           <ul>
@@ -366,18 +219,28 @@
           </ul>
         </section>
 
-        <section class="legal-card legal-section" id="contact">
-          <div class="legal-section__eyebrow">Контакт</div>
+        <section class="legal-panel legal-section" id="contact">
+          <span class="legal-kicker">Контакт</span>
           <h2>Как да се свържеш с нас</h2>
           <p>
             Ако имаш въпроси относно поверителността, обработката на данни, профила си или искаш да
-            подадеш искане, можеш да ни пишеш на:
+            подадеш искане, можеш да ни пишеш на следните канали:
           </p>
-          <p><strong>contact@moto-zona.com</strong></p>
+
+          <div class="legal-contact-grid">
+            <article class="legal-info-card">
+              <h3>Имейл</h3>
+              <p><strong>contact@moto-zona.com</strong></p>
+            </article>
+            <article class="legal-info-card">
+              <h3>Сайт</h3>
+              <p><strong>moto-zona.com</strong></p>
+            </article>
+          </div>
 
           <div class="legal-actions">
-            <a href="index.html" class="auth-action-btn">Към началото</a>
-            <a href="Register.html" class="auth-action-btn auth-action-btn--ghost">Към регистрация</a>
+            <a class="legal-button legal-button--primary" href="mailto:contact@moto-zona.com">Изпрати имейл</a>
+            <a class="legal-button" href="index.html">Към началото</a>
           </div>
         </section>
       </div>
@@ -387,68 +250,28 @@
   <footer class="site-footer">
     <div class="site-footer__shell">
       <div class="site-footer__panel">
-        <div class="site-footer__grid">
-          <section class="site-footer__brand-column" aria-label="За MotoZona">
-            <a href="index.html" class="site-footer__brand-link">
-              <span class="site-footer__brand-badge">
-                <img
-                  src="ImagesVideos/MzLogoWhite2.png"
-                  alt="MotoZona лого"
-                  class="site-footer__logo"
-                />
-              </span>
-              <span class="site-footer__brand-copy">
-                <span class="site-footer__brand-name">MotoZona</span>
-                <span class="site-footer__brand-tag">Всичко за един моторист на едно място</span>
-              </span>
-            </a>
-            <p class="site-footer__lead">
-              Платформа за обяви за мотори, екипировка, части и аксесоари, създадена за бързо търсене,
-              по-добра видимост и по-удобно управление на профила.
-            </p>
-            <div class="site-footer__chips">
-              <span>Мотори</span>
-              <span>Екипировка</span>
-              <span>Части</span>
-              <span>Аксесоари</span>
-            </div>
-          </section>
-
-          <nav class="site-footer__group" aria-label="Основна навигация">
-            <div class="site-footer__title">Навигация</div>
-            <div class="site-footer__list">
-              <a href="index.html">Начало</a>
-              <a href="index.html#listingsSection">Разгледай обяви</a>
-              <a href="CreateListing.html">Качи обява</a>
-            </div>
-          </nav>
-
-          <nav class="site-footer__group" aria-label="Акаунт">
-            <div class="site-footer__title">Акаунт</div>
-            <div class="site-footer__list">
-              <a href="Login.html">Вход</a>
-              <a href="Register.html">Регистрация</a>
-              <a href="Profile.html">Профил</a>
-            </div>
-          </nav>
-
-          <section class="site-footer__group site-footer__group--contact" aria-labelledby="footerContactTitlePolicy">
-            <div class="site-footer__title" id="footerContactTitlePolicy">Контакт</div>
-            <div class="site-footer__contact-list">
-              <a class="site-footer__contact-link" href="mailto:contact@moto-zona.com">contact@moto-zona.com</a>
-              <a class="site-footer__contact-link" href="PrivacyPolicy.html">Политика за поверителност</a>
-              <a class="site-footer__contact-link" href="https://moto-zona.com/">moto-zona.com</a>
-            </div>
-            <a class="site-footer__cta" href="Register.html">Създай профил</a>
-          </section>
+        <div class="site-footer__brand-row">
+          <a href="index.html" class="site-footer__brand-link" aria-label="MotoZona начало">
+            <img
+              src="ImagesVideos/MzLogoWhite2.png"
+              alt="MotoZona лого"
+              class="site-footer__logo"
+            />
+            <span class="site-footer__brand-copy">
+              <span class="site-footer__brand-name">MotoZona</span>
+              <span class="site-footer__brand-tag">Всичко за един моторист на едно място</span>
+            </span>
+          </a>
         </div>
 
         <div class="site-footer__bottom">
           <p>© 2026 MotoZona. Професионална среда за мотористи, търговци и любители.</p>
-          <div class="site-footer__bottom-links">
+          <nav class="site-footer__bottom-links" aria-label="Footer навигация">
             <a href="PrivacyPolicy.html">Поверителност</a>
-            <a href="mailto:contact@moto-zona.com">Имейл за контакт</a>
-          </div>
+            <a href="PrivacyPolicy.html#sitePolicy">Политика на сайта</a>
+            <a href="index.html">За нас</a>
+            <a href="mailto:contact@moto-zona.com">contact@moto-zona.com</a>
+          </nav>
         </div>
       </div>
     </div>
