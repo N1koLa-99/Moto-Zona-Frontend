@@ -2,6 +2,9 @@
   const API_BASE_URL = window.Auth?.API_BASE_URL || "https://motomarketapi.azurewebsites.net";
   const FETCH_PAGE_SIZE = 100;
   const MAX_FETCH_PAGES = 50;
+  const ACCESSORY_OTHER_FILTER_VALUE = "__other__";
+  const FOR_PARTS_CONDITION_LABEL = "\u0437\u0430 \u0447\u0430\u0441\u0442\u0438";
+  const OTHER_ACCESSORY_LABEL = "\u0414\u0440\u0443\u0433\u0438";
 
   const state = {
     currentUser: null,
@@ -173,8 +176,6 @@
     gearCityFilter: document.getElementById("gearCityFilter"),
     gearPriceMin: document.getElementById("gearPriceMin"),
     gearPriceMax: document.getElementById("gearPriceMax"),
-    gearYearFrom: document.getElementById("gearYearFrom"),
-    gearYearTo: document.getElementById("gearYearTo"),
     gearVipOnlyFilter: document.getElementById("gearVipOnlyFilter"),
     gearTopOnlyFilter: document.getElementById("gearTopOnlyFilter"),
 
@@ -398,8 +399,6 @@
       elements.gearCityFilter,
       elements.gearPriceMin,
       elements.gearPriceMax,
-      elements.gearYearFrom,
-      elements.gearYearTo,
       elements.gearVipOnlyFilter,
       elements.gearTopOnlyFilter,
 
@@ -634,15 +633,15 @@
       fillSelect(elements.gearTypeFilter, state.lookups.gearTypes);
       fillSelect(elements.gearHelmetTypeFilter, state.lookups.helmetTypes);
       fillSelect(elements.gearBrandFilter, state.lookups.gearBrands, "name");
-      fillSelect(elements.gearConditionFilter, state.lookups.conditions);
+      fillSelect(elements.gearConditionFilter, getConditionOptionsForCategory("GEAR"));
 
       fillSelect(elements.partTypeFilter, state.lookups.partTypes);
       fillSelect(elements.partBrandFilter, state.lookups.partBrands, "name");
       fillSelect(elements.partConditionFilter, state.lookups.conditions);
 
-      fillSelect(elements.accessoryTypeFilter, state.lookups.accessoryTypes);
+      fillSelect(elements.accessoryTypeFilter, getAccessoryTypeOptions());
       fillSelect(elements.accessoryBrandFilter, state.lookups.accessoryBrands, "name");
-      fillSelect(elements.accessoryConditionFilter, state.lookups.conditions);
+      fillSelect(elements.accessoryConditionFilter, getConditionOptionsForCategory("ACCESSORY"));
 
       fillCountries();
 
@@ -1198,8 +1197,6 @@
       appendLocationParams(params, "gear");
       appendIfValue(params, "priceFrom", elements.gearPriceMin.value);
       appendIfValue(params, "priceTo", elements.gearPriceMax.value);
-      appendIfValue(params, "yearFrom", elements.gearYearFrom.value);
-      appendIfValue(params, "yearTo", elements.gearYearTo.value);
     }
 
     if (state.selectedMainCategoryCode === "PART") {
@@ -1214,7 +1211,9 @@
 
     if (state.selectedMainCategoryCode === "ACCESSORY") {
       appendIfValue(params, "mainCategoryCode", "ACCESSORY");
-      appendIfValue(params, "subCategoryLookupId", elements.accessoryTypeFilter.value);
+      if (elements.accessoryTypeFilter.value !== ACCESSORY_OTHER_FILTER_VALUE) {
+        appendIfValue(params, "subCategoryLookupId", elements.accessoryTypeFilter.value);
+      }
       appendIfValue(params, "brandId", elements.accessoryBrandFilter.value);
       appendIfValue(params, "conditionLookupId", elements.accessoryConditionFilter.value);
       appendLocationParams(params, "accessory");
@@ -1253,6 +1252,7 @@
     let items = [...state.allListings];
 
     items = filterBySelectedMainCategory(items);
+    items = filterBySyntheticAccessoryType(items);
     items = filterBySearchTerm(items);
     items = filterByPromotion(items);
     items = sortListings(items, elements.sortSelect?.value || "newest");
@@ -1275,6 +1275,53 @@
     return (Array.isArray(items) ? items : []).filter((item) => {
       const itemCategoryCode = getItemMainCategoryCode(item);
       return itemCategoryCode === selectedCode;
+    });
+  }
+
+  function filterBySyntheticAccessoryType(items) {
+    if (
+      state.selectedMainCategoryCode !== "ACCESSORY" ||
+      elements.accessoryTypeFilter?.value !== ACCESSORY_OTHER_FILTER_VALUE
+    ) {
+      return items;
+    }
+
+    const knownTypeIds = new Set(
+      state.lookups.accessoryTypes
+        .map((item) => normalizeLookupValue(item?.id ?? item?.code ?? ""))
+        .filter(Boolean)
+    );
+    const knownTypeLabels = new Set(
+      state.lookups.accessoryTypes
+        .map((item) => normalizeLookupLabel(item))
+        .filter(Boolean)
+    );
+
+    return items.filter((item) => {
+      const itemTypeIds = [
+        item?.accessoryTypeId,
+        item?.subCategoryLookupId,
+        item?.subCategoryId
+      ]
+        .map((value) => normalizeLookupValue(value))
+        .filter(Boolean);
+
+      if (itemTypeIds.some((value) => knownTypeIds.has(value))) {
+        return false;
+      }
+
+      const itemTypeLabels = [
+        item?.accessoryTypeName,
+        item?.subCategoryName
+      ]
+        .map((value) => normalizeLookupLabel(value))
+        .filter(Boolean);
+
+      if (itemTypeLabels.some((value) => knownTypeLabels.has(value))) {
+        return false;
+      }
+
+      return true;
     });
   }
 
@@ -1793,8 +1840,6 @@
       "gearCityFilter",
       "gearPriceMin",
       "gearPriceMax",
-      "gearYearFrom",
-      "gearYearTo",
       "gearVipOnlyFilter",
       "gearTopOnlyFilter",
 
@@ -1999,6 +2044,35 @@
     refreshSearchableSelect(select.id);
   }
 
+  function getConditionOptionsForCategory(categoryCode) {
+    if (categoryCode !== "GEAR" && categoryCode !== "ACCESSORY") {
+      return state.lookups.conditions;
+    }
+
+    return state.lookups.conditions.filter((item) => !isForPartsCondition(item));
+  }
+
+  function getAccessoryTypeOptions() {
+    const items = [...state.lookups.accessoryTypes];
+    const normalizedOtherLabel = OTHER_ACCESSORY_LABEL.toLocaleLowerCase("bg").trim();
+    const hasOtherOption = items.some((item) => normalizeLookupLabel(item) === normalizedOtherLabel);
+
+    if (hasOtherOption) {
+      return items;
+    }
+
+    items.push({
+      id: ACCESSORY_OTHER_FILTER_VALUE,
+      nameBg: OTHER_ACCESSORY_LABEL
+    });
+
+    return items;
+  }
+
+  function isForPartsCondition(item) {
+    return normalizeLookupLabel(item).includes(FOR_PARTS_CONDITION_LABEL);
+  }
+
   async function getJson(url) {
     const response = await fetch(url, {
       method: "GET",
@@ -2038,6 +2112,10 @@
   }
 
   function getLookupLabel(item, labelKey = "nameBg") {
+    if (typeof item === "string" || typeof item === "number") {
+      return String(item).trim();
+    }
+
     return String(
       item?.[labelKey] ??
       item?.nameBg ??
@@ -2045,6 +2123,14 @@
       item?.code ??
       ""
     ).trim();
+  }
+
+  function normalizeLookupLabel(item, labelKey = "nameBg") {
+    return getLookupLabel(item, labelKey).toLocaleLowerCase("bg").trim();
+  }
+
+  function normalizeLookupValue(value) {
+    return String(value ?? "").trim();
   }
 
   function getPromotionType(item) {
