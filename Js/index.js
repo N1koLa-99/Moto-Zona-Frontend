@@ -29,7 +29,55 @@
     filteredResults: [],
     currentDisplayCurrencyCode: "EUR",
     favoriteIds: new Set(),
-    searchableSelects: new Map()
+    searchableSelects: new Map(),
+    isMobileFiltersCollapsed: false
+  };
+
+  const MAIN_CATEGORY_META = {
+    VEHICLE: {
+      label: "Мотори",
+      tag: "Машини",
+      description: "Спортни, туристически, кросови и градски мотори на едно място.",
+      footer: "Марка, модел, клас и мощност",
+      image: "ImagesVideos/motorcycle.png",
+      accent: "#143d8f",
+      soft: "rgba(20, 61, 143, 0.12)",
+      border: "rgba(20, 61, 143, 0.34)",
+      ring: "rgba(20, 61, 143, 0.14)"
+    },
+    GEAR: {
+      label: "Екипировка",
+      tag: "Защита",
+      description: "Каски, якета, ботуши, ръкавици и защита за каране.",
+      footer: "Тип, марка и състояние",
+      image: "ImagesVideos/racing-helmet.png",
+      accent: "#ff6a2a",
+      soft: "rgba(255, 106, 42, 0.12)",
+      border: "rgba(255, 106, 42, 0.34)",
+      ring: "rgba(255, 106, 42, 0.16)"
+    },
+    ACCESSORY: {
+      label: "Аксесоари",
+      tag: "Комфорт",
+      description: "Куфари, стойки, електроника и удобства за мотора.",
+      footer: "Тип, марка и цена",
+      image: "ImagesVideos/trunk.png",
+      accent: "#0f7b72",
+      soft: "rgba(15, 123, 114, 0.12)",
+      border: "rgba(15, 123, 114, 0.34)",
+      ring: "rgba(15, 123, 114, 0.14)"
+    },
+    PART: {
+      label: "Части",
+      tag: "Сервиз",
+      description: "Части за ремонт, поддръжка и подобрения.",
+      footer: "Тип част, марка и цена",
+      image: "ImagesVideos/disc-brake.png",
+      accent: "#c84a1b",
+      soft: "rgba(200, 74, 27, 0.12)",
+      border: "rgba(200, 74, 27, 0.34)",
+      ring: "rgba(200, 74, 27, 0.14)"
+    }
   };
 
   const elements = {
@@ -59,6 +107,12 @@
     searchBtn: document.getElementById("searchBtn"),
     sortSelect: document.getElementById("sortSelect"),
     clearFiltersBtn: document.getElementById("clearFiltersBtn"),
+    filtersEmptyState: document.getElementById("filtersEmptyState"),
+    mainCategoryHeroList: document.getElementById("mainCategoryHeroList"),
+    showAllCategoriesBtn: document.getElementById("showAllCategoriesBtn"),
+    pageGrid: document.getElementById("pageGrid"),
+    listingsSection: document.getElementById("listingsSection"),
+    mobileFiltersMount: document.getElementById("mobileFiltersMount"),
 
     filtersSection: document.getElementById("filtersSection"),
     overlay: document.getElementById("overlay"),
@@ -170,8 +224,14 @@
     handleLocationModeVisibility("part");
     handleLocationModeVisibility("accessory");
     handleAppHeight();
-    window.addEventListener("resize", handleAppHeight);
+    handleResponsiveFiltersPlacement();
+    window.addEventListener("resize", handleViewportChange);
     await loadInitialListings();
+  }
+
+  function handleViewportChange() {
+    handleAppHeight();
+    handleResponsiveFiltersPlacement();
   }
 
   async function loadInitialListings() {
@@ -240,11 +300,24 @@
       elements.profileDropdown?.classList.add("hidden");
     });
 
-    elements.mobileFilterBtn?.addEventListener("click", openMobileFilters);
+    elements.mobileFilterBtn?.addEventListener("click", () => {
+      if (!isMobileFiltersMode()) {
+        openMobileFilters();
+        return;
+      }
+
+      if (state.isMobileFiltersCollapsed) {
+        openMobileFilters();
+        return;
+      }
+
+      closeMobileFilters();
+    });
     elements.closeFiltersBtn?.addEventListener("click", closeMobileFilters);
     elements.overlay?.addEventListener("click", closeMobileFilters);
 
     elements.clearFiltersBtn?.addEventListener("click", clearAllFilters);
+    elements.showAllCategoriesBtn?.addEventListener("click", backToCategories);
 
     elements.searchBtn?.addEventListener("click", async () => {
       await executeSearch();
@@ -611,17 +684,186 @@
     elements.mainCategoryList.innerHTML = categories
       .map((category) => {
         const code = normalizeMainCategoryCode(category.code);
-        const label = category.nameBg || category.name || code;
-        return `<button class="category-pill" type="button" data-category-code="${escapeHtml(code)}">${escapeHtml(label)}</button>`;
+        const meta = getMainCategoryMeta(code);
+        return `<button class="category-pill" type="button" data-category-code="${escapeHtml(code)}">${escapeHtml(meta.label)}</button>`;
       })
       .join("");
 
-    [...elements.mainCategoryList.querySelectorAll(".category-pill")].forEach((button) => {
+    elements.mainCategoryHeroList.innerHTML = categories
+      .map((category) => {
+        const code = normalizeMainCategoryCode(category.code);
+        const meta = getMainCategoryMeta(code);
+
+        return `
+          <button
+            class="category-feature-card"
+            type="button"
+            data-category-code="${escapeHtml(code)}"
+            style="--category-accent:${escapeHtml(meta.accent)}; --category-soft:${escapeHtml(meta.soft)}; --category-border:${escapeHtml(meta.border)}; --category-ring:${escapeHtml(meta.ring)};"
+          >
+            <span class="category-feature-card__header">
+              <span class="category-feature-card__icon">
+                <img src="${escapeHtml(meta.image)}" alt="${escapeHtml(meta.label)}" loading="lazy" />
+              </span>
+              <span class="category-feature-card__title">${escapeHtml(meta.label)}</span>
+            </span>
+            <span class="category-feature-card__description">${escapeHtml(meta.description)}</span>
+          </button>
+        `;
+      })
+      .join("");
+
+    bindMainCategoryButtons(elements.mainCategoryList?.querySelectorAll("[data-category-code]"));
+    bindMainCategoryButtons(elements.mainCategoryHeroList?.querySelectorAll("[data-category-code]"));
+    syncMainCategoryButtons();
+    updateCategoryPromptState();
+  }
+
+  function getMainCategoryMeta(code, fallbackLabel = "") {
+    const normalizedCode = normalizeMainCategoryCode(code);
+    const meta = MAIN_CATEGORY_META[normalizedCode] || {};
+
+    return {
+      label: fallbackLabel || meta.label || normalizedCode,
+      tag: meta.tag || "Категория",
+      description: meta.description || "Ще покажем подходящите филтри.",
+      footer: meta.footer || "Зареди филтрите",
+      image: meta.image || "ImagesVideos/MzLogoSquare.png",
+      accent: meta.accent || "#ff6a2a",
+      soft: meta.soft || "rgba(255, 106, 42, 0.12)",
+      border: meta.border || "rgba(255, 106, 42, 0.34)",
+      ring: meta.ring || "rgba(255, 106, 42, 0.14)"
+    };
+  }
+
+  function bindMainCategoryButtons(buttons) {
+    if (!buttons) return;
+
+    [...buttons].forEach((button) => {
       button.addEventListener("click", async () => {
         const code = normalizeMainCategoryCode(button.dataset.categoryCode);
+
+        if (!code) {
+          return;
+        }
+
+        if (state.selectedMainCategoryCode === code) {
+          backToCategories();
+          return;
+        }
+
         await chooseStartupCategory(code);
       });
     });
+  }
+
+  function syncMainCategoryButtons() {
+    document.querySelectorAll("[data-category-code]").forEach((button) => {
+      const code = normalizeMainCategoryCode(button.dataset.categoryCode);
+      button.classList.toggle("active", code === state.selectedMainCategoryCode);
+    });
+  }
+
+  function updateCategoryPromptState() {
+    const meta = state.selectedMainCategoryCode
+      ? getMainCategoryMeta(state.selectedMainCategoryCode)
+      : null;
+
+    elements.showAllCategoriesBtn?.classList.toggle("hidden", !meta);
+  }
+
+  function isMobileFiltersMode() {
+    return window.matchMedia("(max-width: 980px)").matches;
+  }
+
+  function handleResponsiveFiltersPlacement() {
+    const shouldUseInlineMobileFilters = isMobileFiltersMode();
+
+    if (shouldUseInlineMobileFilters) {
+      if (
+        elements.filtersSection &&
+        elements.mobileFiltersMount &&
+        elements.filtersSection.parentElement !== elements.mobileFiltersMount
+      ) {
+        elements.mobileFiltersMount.appendChild(elements.filtersSection);
+      }
+
+      elements.filtersSection?.classList.add("filters--mobile-inline");
+      elements.filtersSection?.classList.remove("open");
+      elements.overlay?.classList.remove("open");
+    } else {
+      if (
+        elements.filtersSection &&
+        elements.pageGrid &&
+        elements.filtersSection.parentElement !== elements.pageGrid
+      ) {
+        elements.pageGrid.insertBefore(elements.filtersSection, elements.listingsSection);
+      }
+
+      elements.filtersSection?.classList.remove("filters--mobile-inline");
+      elements.filtersSection?.classList.remove("open");
+      elements.overlay?.classList.remove("open");
+      state.isMobileFiltersCollapsed = false;
+    }
+
+    updateFiltersLayoutState();
+  }
+
+  function updateFiltersLayoutState() {
+    const hasSelectedCategory = Boolean(state.selectedMainCategoryCode);
+    const useInlineMobileFilters = isMobileFiltersMode();
+
+    elements.filtersEmptyState?.classList.add("hidden");
+    elements.categoryChooser?.classList.add("hidden");
+
+    if (elements.closeFiltersBtn) {
+      elements.closeFiltersBtn.textContent = useInlineMobileFilters ? "Скрий филтрите" : "✕";
+      elements.closeFiltersBtn.setAttribute(
+        "aria-label",
+        useInlineMobileFilters ? "Скрий филтрите" : "Затвори филтрите"
+      );
+    }
+
+    if (useInlineMobileFilters) {
+      elements.mobileFiltersMount?.classList.toggle(
+        "hidden",
+        !hasSelectedCategory || state.isMobileFiltersCollapsed
+      );
+      elements.filtersSection?.classList.toggle(
+        "hidden",
+        !hasSelectedCategory || state.isMobileFiltersCollapsed
+      );
+      elements.mobileFilterBtn?.classList.toggle("hidden", !hasSelectedCategory);
+
+      if (elements.mobileFilterBtn) {
+        elements.mobileFilterBtn.textContent = "Филтри";
+        elements.mobileFilterBtn.setAttribute(
+          "aria-expanded",
+          state.isMobileFiltersCollapsed ? "false" : "true"
+        );
+        elements.mobileFilterBtn.setAttribute(
+          "aria-label",
+          state.isMobileFiltersCollapsed ? "Покажи филтрите" : "Скрий филтрите"
+        );
+        elements.mobileFilterBtn.classList.toggle(
+          "mobile-filter-btn--active",
+          !state.isMobileFiltersCollapsed
+        );
+      }
+
+      elements.pageGrid?.classList.remove("page-grid--filters-hidden");
+      syncModalOpenState();
+      return;
+    }
+
+    state.isMobileFiltersCollapsed = false;
+    elements.mobileFiltersMount?.classList.add("hidden");
+    elements.mobileFilterBtn?.classList.add("hidden");
+    elements.mobileFilterBtn?.classList.remove("mobile-filter-btn--active");
+    elements.mobileFilterBtn?.setAttribute("aria-expanded", "false");
+    elements.filtersSection?.classList.toggle("hidden", !hasSelectedCategory);
+    elements.pageGrid?.classList.toggle("page-grid--filters-hidden", !hasSelectedCategory);
+    syncModalOpenState();
   }
 
   async function chooseStartupCategory(code, options = {}) {
@@ -629,7 +871,13 @@
     const { scrollToListings = true } = options;
 
     activateMainCategory(code);
-    closeMobileFilters();
+    state.isMobileFiltersCollapsed = false;
+
+    if (!isMobileFiltersMode()) {
+      closeMobileFilters();
+    } else {
+      updateFiltersLayoutState();
+    }
 
     state.page = 1;
     await loadListings();
@@ -652,14 +900,9 @@
     state.allListings = [];
     state.filteredResults = [];
 
-    [...elements.mainCategoryList.querySelectorAll(".category-pill")].forEach((button) => {
-      button.classList.toggle(
-        "active",
-        normalizeMainCategoryCode(button.dataset.categoryCode) === state.selectedMainCategoryCode
-      );
-    });
-
+    syncMainCategoryButtons();
     elements.categoryChooser.classList.add("hidden");
+    elements.filtersEmptyState?.classList.add("hidden");
     elements.vehicleFilters.classList.add("hidden");
     elements.gearFilters.classList.add("hidden");
     elements.partFilters.classList.add("hidden");
@@ -675,22 +918,26 @@
     handleLocationModeVisibility("gear");
     handleLocationModeVisibility("part");
     handleLocationModeVisibility("accessory");
+    updateCategoryPromptState();
+    updateFiltersLayoutState();
   }
 
   function showAllCategoriesView() {
     state.selectedMainCategoryCode = null;
     state.page = 1;
     state.filteredResults = [];
+    state.isMobileFiltersCollapsed = false;
 
-    elements.categoryChooser.classList.remove("hidden");
+    elements.categoryChooser.classList.add("hidden");
+    elements.filtersEmptyState?.classList.add("hidden");
     elements.vehicleFilters.classList.add("hidden");
     elements.gearFilters.classList.add("hidden");
     elements.partFilters.classList.add("hidden");
     elements.accessoryFilters.classList.add("hidden");
 
-    [...elements.mainCategoryList.querySelectorAll(".category-pill")].forEach((button) => {
-      button.classList.remove("active");
-    });
+    syncMainCategoryButtons();
+    updateCategoryPromptState();
+    updateFiltersLayoutState();
   }
 
   function backToCategories() {
@@ -1684,12 +1931,28 @@
   }
 
   function openMobileFilters() {
+    if (isMobileFiltersMode()) {
+      if (!state.selectedMainCategoryCode) {
+        return;
+      }
+
+      state.isMobileFiltersCollapsed = false;
+      updateFiltersLayoutState();
+      return;
+    }
+
     elements.filtersSection?.classList.add("open");
     elements.overlay?.classList.add("open");
     syncModalOpenState();
   }
 
   function closeMobileFilters() {
+    if (isMobileFiltersMode()) {
+      state.isMobileFiltersCollapsed = true;
+      updateFiltersLayoutState();
+      return;
+    }
+
     elements.filtersSection?.classList.remove("open");
     elements.overlay?.classList.remove("open");
     syncModalOpenState();

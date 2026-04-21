@@ -192,12 +192,12 @@
   </section>
 
   <main class="main">
-    <div class="container page-grid">
-      <aside class="filters" id="filtersSection" aria-label="Филтри">
+    <div class="container page-grid page-grid--filters-hidden" id="pageGrid">
+      <aside class="filters hidden" id="filtersSection" aria-label="Филтри">
         <div class="filters__drawer-handle mobile-only" aria-hidden="true"></div>
 
         <div class="filters__head">
-          <h2>Какво търсиш?</h2>
+          <h2>Филтри</h2>
 
           <div class="filters__head-actions">
             <button id="clearFiltersBtn" type="button" class="filters__clear-btn">
@@ -215,7 +215,16 @@
         </div>
 
         <div class="filters__scroll">
-          <div class="filter-group" id="categoryChooser">
+          <div class="filters-empty-state" id="filtersEmptyState">
+            <span class="filters-empty-state__eyebrow">Филтри</span>
+            <h3>Филтрите ще се покажат тук</h3>
+            <p>
+              Под търсачката има 4 големи бутона. Избери Мотори, Екипировка,
+              Аксесоари или Части и ще заредим точните филтри.
+            </p>
+          </div>
+
+          <div class="filter-group hidden" id="categoryChooser">
             <div class="filter-label"></div>
             <div class="category-pills" id="mainCategoryList"></div>
           </div>
@@ -744,6 +753,26 @@
       </aside>
 
       <section class="content" id="listingsSection">
+        <section class="category-prompt" aria-labelledby="categoryPromptTitle">
+          <div class="category-prompt__head">
+            <div class="category-prompt__copy">
+              <h2 id="categoryPromptTitle">Какво търсиш?</h2>
+            </div>
+
+            <button
+              id="showAllCategoriesBtn"
+              type="button"
+              class="category-prompt__reset hidden"
+            >
+              Всички обяви
+            </button>
+          </div>
+
+          <div class="category-feature-grid" id="mainCategoryHeroList"></div>
+        </section>
+
+        <div class="mobile-filters-mount hidden" id="mobileFiltersMount"></div>
+
         <div class="content__top">
           <div class="hero-search">
             <input
@@ -755,7 +784,7 @@
           </div>
 
           <div class="content__actions">
-            <button class="mobile-filter-btn mobile-only" id="mobileFilterBtn" type="button">
+            <button class="mobile-filter-btn mobile-only hidden" id="mobileFilterBtn" type="button">
               Филтри
             </button>
 
