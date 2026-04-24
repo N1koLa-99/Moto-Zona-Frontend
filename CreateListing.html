@@ -63,15 +63,39 @@
       <div class="create-layout">
         <section class="create-card">
           <form id="createListingForm" novalidate>
-            <div class="section-block">
+            <div class="section-block section-block--smart-category">
               <div class="section-block__head">
                 <h2>Основна информация</h2>
               </div>
 
               <div class="form-grid form-grid--2">
+                <div class="form-field form-field--full smart-category-field">
+                  <label for="smartCategoryInput">Какво продаваш? *</label>
+
+                  <div class="smart-category">
+                    <input
+                      id="smartCategoryInput"
+                      type="text"
+                      autocomplete="off"
+                      placeholder="Напр. мотор, каска, яке, куфар..."
+                    />
+
+                    <div
+                      class="smart-category__dropdown hidden"
+                      id="smartCategorySuggestions"
+                      role="listbox"
+                      aria-label="Предложения за какво продаваш"
+                    ></div>
+                  </div>
+
+                  <small>Пиши какво продаваш и избери от списъка.</small>
+                  <div class="smart-category__hint hidden" id="smartCategoryHint"></div>
+                </div>
+
                 <div class="form-field">
                   <label for="mainCategorySelect">Категория *</label>
                   <select id="mainCategorySelect" required></select>
+                  <small>Ако не е правилна, можеш да я смениш ръчно.</small>
                 </div>
 
                 <div class="form-field">
@@ -83,15 +107,6 @@
                   </select>
                 </div>
 
-                <div class="form-field form-field--full">
-                  <label for="titleInput">Заглавие *</label>
-                  <input id="titleInput" type="text" maxlength="180" placeholder="Пример: Yamaha MT-07 2021 в отлично състояние" />
-                </div>
-
-                <div class="form-field form-field--full">
-                  <label for="descriptionInput">Описание</label>
-                  <textarea id="descriptionInput" rows="6" maxlength="4000" placeholder="Опиши състояние, екстри, история, забележки и всичко важно."></textarea>
-                </div>
               </div>
             </div>
 
@@ -263,6 +278,11 @@
               </div>
 
               <div class="form-grid form-grid--3">
+                <div class="form-field form-field--full">
+                  <label for="titleInput">Заглавие *</label>
+                  <input id="titleInput" type="text" maxlength="180" placeholder="Пример: Yamaha MT-07 2021 в отлично състояние" />
+                </div>
+
                 <div class="form-field">
                   <label for="priceOriginalInput">Цена *</label>
                   <input id="priceOriginalInput" type="number" min="0" step="0.01" placeholder="15000" />
@@ -278,12 +298,6 @@
                     <option value="RON">RON</option>
                     <option value="TRY">TRY</option>
                   </select>
-                </div>
-
-                <div class="form-field">
-                  <label for="exchangeRateToEURInput">Курс към EUR *</label>
-                  <input id="exchangeRateToEURInput" type="number" min="0.0001" step="0.0001" placeholder="1.0000" />
-                  <small id="exchangeRateHint">Може да редактираш курса ръчно.</small>
                 </div>
 
                 <div class="form-field">
@@ -317,6 +331,19 @@
                 <div class="form-field">
                   <label for="contactPhoneInput">Телефон *</label>
                   <input id="contactPhoneInput" type="text" maxlength="40" placeholder="+359888123456" />
+                </div>
+              </div>
+            </div>
+
+            <div class="section-block">
+              <div class="section-block__head">
+                <h2>Описание</h2>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-field form-field--full">
+                  <label for="descriptionInput">Описание</label>
+                  <textarea id="descriptionInput" rows="6" maxlength="4000" placeholder="Опиши състояние, екстри, история, забележки и всичко важно."></textarea>
                 </div>
               </div>
             </div>

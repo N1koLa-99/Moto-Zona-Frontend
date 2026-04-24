@@ -1,5 +1,5 @@
 (() => {
-  const API_BASE_URL = window.Auth?.API_BASE_URL || "https://motomarketapi.azurewebsites.net";
+  const API_BASE_URL = (window.Auth?.API_BASE_URL || "https://motomarketapi.azurewebsites.net").replace(/\/+$/, "");
   const REMEMBER_EMAIL_KEY = "motozona_remember_email";
 
   const elements = {

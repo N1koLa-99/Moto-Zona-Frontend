@@ -1227,6 +1227,9 @@ button {
 }
 
 .card__price {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   color: var(--blue);
   font-weight: 900;
   white-space: nowrap;
@@ -1240,6 +1243,103 @@ button {
 
 .card--top .card__price {
   color: #156fae;
+}
+
+.price-change-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  font-size: 0.92rem;
+  font-weight: 900;
+  line-height: 1;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.price-change-indicator:focus-visible {
+  outline: 2px solid rgba(20, 61, 143, 0.35);
+  outline-offset: 2px;
+}
+
+.price-change-indicator--down {
+  color: #177245;
+  background: rgba(23, 114, 69, 0.12);
+  border: 1px solid rgba(23, 114, 69, 0.22);
+}
+
+.price-change-indicator--up {
+  color: #c62828;
+  background: rgba(198, 40, 40, 0.12);
+  border: 1px solid rgba(198, 40, 40, 0.22);
+}
+
+.price-change-indicator.is-active {
+  transform: scale(1.05);
+}
+
+.price-change-popover {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 3000;
+  min-width: 210px;
+  max-width: min(280px, calc(100vw - 24px));
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(17, 24, 39, 0.96);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.28);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px);
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+  pointer-events: none;
+}
+
+.price-change-popover.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.price-change-popover__title {
+  font-size: 0.84rem;
+  font-weight: 900;
+  letter-spacing: 0.01em;
+}
+
+.price-change-popover__row {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  font-size: 0.88rem;
+}
+
+.price-change-popover__row span {
+  color: rgba(255, 255, 255, 0.72);
+  font-weight: 700;
+}
+
+.price-change-popover__row strong {
+  font-weight: 900;
+  text-align: right;
+}
+
+.price-change-popover__row--new.price-change-popover__row--down span,
+.price-change-popover__row--new.price-change-popover__row--down strong {
+  color: #63e6a3;
+}
+
+.price-change-popover__row--new.price-change-popover__row--up span,
+.price-change-popover__row--new.price-change-popover__row--up strong {
+  color: #ff8f8f;
 }
 
 .card__meta {
@@ -1408,6 +1508,27 @@ button {
   background: var(--surface);
   color: var(--text);
   border: 1px solid var(--line);
+}
+
+.topbar-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  white-space: nowrap;
+}
+
+.topbar-upload-btn::before {
+  content: "+";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .profile-menu {

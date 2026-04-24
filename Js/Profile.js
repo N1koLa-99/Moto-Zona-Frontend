@@ -1,5 +1,5 @@
 (() => {
-  const API_BASE_URL = window.Auth?.API_BASE_URL || "https://motomarketapi.azurewebsites.net";
+  const API_BASE_URL = (window.Auth?.API_BASE_URL || "https://motomarketapi.azurewebsites.net").replace(/\/+$/, "");
 
   const PRICING = {
     VIP_PRICE_EUR: 7.0,
@@ -10,6 +10,15 @@
     COMPANY_REFRESH_EUR: 0.25,
     PRIVATE_OVER_LIMIT_PUBLISH_EUR: 1.0,
     COMPANY_OVER_LIMIT_PUBLISH_EUR: 0.5
+  };
+
+  const AUTO_RATES_TO_EUR = {
+    EUR: 1,
+    BGN: 0.51129,
+    USD: 0.92,
+    GBP: 1.17,
+    RON: 0.20,
+    TRY: 0.028
   };
 
   const state = {
@@ -78,6 +87,9 @@
       categoryCode: null
     }
   };
+
+  let priceChangePopoverEl = null;
+  let activePriceChangeIndicator = null;
 
   const elements = {
     profileName: document.getElementById("profileName"),
@@ -150,7 +162,6 @@
 
     editPriceOriginal: document.getElementById("editPriceOriginal"),
     editCurrencyCode: document.getElementById("editCurrencyCode"),
-    editExchangeRateToEUR: document.getElementById("editExchangeRateToEUR"),
     editContactName: document.getElementById("editContactName"),
     editContactPhone: document.getElementById("editContactPhone"),
 
@@ -190,6 +201,7 @@
 
   function bindStaticEvents() {
     elements.logoutBtn?.addEventListener("click", onLogoutClick);
+    bindPriceChangeIndicatorEvents();
 
     elements.navButtons.forEach((button) => {
       button.addEventListener("click", () => {
@@ -222,7 +234,6 @@
     elements.editCountryId?.addEventListener("change", onEditCountryChange);
     elements.editRegionId?.addEventListener("change", onEditRegionChange);
     elements.editGearTypeId?.addEventListener("change", onGearTypeChange);
-    elements.editCurrencyCode?.addEventListener("change", onCurrencyChange);
 
     elements.editPhotosInput?.addEventListener("change", onNewPhotosSelected);
     elements.editPhotoManager?.addEventListener("click", onPhotoManagerClick);
@@ -1960,6 +1971,7 @@
     const licenseCategoryName = pick(item, "licenseCategoryName");
     const price = pick(item, "displayPrice", "priceOriginal", "priceEUR", "amountEUR") ?? 0;
     const currency = pick(item, "displayCurrencyCode", "currencyCode") || "EUR";
+    const priceChangeIndicator = renderPriceChangeIndicatorHtml(item);
 
     const city = pick(item, "cityName") || "";
     const region = pick(item, "regionName") || "";
@@ -2032,7 +2044,10 @@
               <p class="listing-card__subtitle">${escapeHtml(subtitle || "MotoZone")}</p>
             </div>
 
-            <div class="listing-card__price">${escapeHtml(formatMoney(price, currency))}</div>
+            <div class="listing-card__price">
+              <span>${escapeHtml(formatMoney(price, currency))}</span>
+              ${priceChangeIndicator}
+            </div>
           </div>
 
           <div class="listing-meta">
@@ -2552,7 +2567,6 @@
 
     setInputValue(elements.editPriceOriginal, details?.priceOriginal);
     setSelectValue(elements.editCurrencyCode, details?.currencyCode || "EUR");
-    setInputValue(elements.editExchangeRateToEUR, details?.exchangeRateToEUR);
     setInputValue(elements.editContactName, details?.contactName);
     setInputValue(elements.editContactPhone, details?.contactPhone);
 
@@ -3256,18 +3270,6 @@
     handleGearHelmetVisibility();
   }
 
-  function onCurrencyChange() {
-    const currency = (elements.editCurrencyCode.value || "EUR").toUpperCase();
-
-    if (!elements.editExchangeRateToEUR.value) {
-      if (currency === "EUR") {
-        elements.editExchangeRateToEUR.value = "1";
-      } else if (currency === "BGN") {
-        elements.editExchangeRateToEUR.value = "0.51129";
-      }
-    }
-  }
-
   async function cleanupUnsavedUploadedPhotos() {
     const unsavedNewPhotos = state.modal.photos.filter((photo) => photo.isNewUpload && photo.blobName);
 
@@ -3688,6 +3690,304 @@
     return `${numeric.toFixed(2)} ${currency}`;
   }
 
+  function normalizePriceChangeType(value) {
+    const normalized = String(value || "").trim().toUpperCase();
+
+    if (normalized === "DOWN" || normalized === "UP") {
+      return normalized;
+    }
+
+    return null;
+  }
+
+  function toFiniteNumber(value) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  function normalizeCurrencyCode(value) {
+    const normalized = String(value || "").trim().toUpperCase();
+    return normalized || null;
+  }
+
+  function areSamePrices(left, right) {
+    return Math.round(Number(left) * 100) === Math.round(Number(right) * 100);
+  }
+
+  function buildPriceChangeSummary(item) {
+    const changeType = normalizePriceChangeType(pick(item, "lastPriceChangeType", "LastPriceChangeType"));
+
+    if (!changeType) {
+      return null;
+    }
+
+    const originalCurrency = normalizeCurrencyCode(pick(item, "currencyCode", "CurrencyCode"));
+    const displayCurrency = normalizeCurrencyCode(pick(item, "displayCurrencyCode", "DisplayCurrencyCode"));
+    const currentOriginal = toFiniteNumber(pick(item, "priceOriginal", "PriceOriginal"));
+    const previousOriginal = toFiniteNumber(pick(item, "previousPriceOriginal", "PreviousPriceOriginal"));
+    const currentEur = toFiniteNumber(pick(item, "priceEUR", "PriceEUR"));
+    const previousEur = toFiniteNumber(pick(item, "previousPriceEUR", "PreviousPriceEUR"));
+
+    if (
+      originalCurrency &&
+      displayCurrency === originalCurrency &&
+      currentOriginal !== null &&
+      previousOriginal !== null &&
+      !areSamePrices(currentOriginal, previousOriginal)
+    ) {
+      return {
+        changeType,
+        oldText: formatMoney(previousOriginal, originalCurrency),
+        newText: formatMoney(currentOriginal, originalCurrency)
+      };
+    }
+
+    if (
+      currentEur !== null &&
+      previousEur !== null &&
+      !areSamePrices(currentEur, previousEur)
+    ) {
+      return {
+        changeType,
+        oldText: formatMoney(previousEur, "EUR"),
+        newText: formatMoney(currentEur, "EUR")
+      };
+    }
+
+    if (
+      originalCurrency &&
+      currentOriginal !== null &&
+      previousOriginal !== null &&
+      !areSamePrices(currentOriginal, previousOriginal)
+    ) {
+      return {
+        changeType,
+        oldText: formatMoney(previousOriginal, originalCurrency),
+        newText: formatMoney(currentOriginal, originalCurrency)
+      };
+    }
+
+    return null;
+  }
+
+  function renderPriceChangeIndicatorHtml(item) {
+    const summary = buildPriceChangeSummary(item);
+
+    if (!summary) {
+      return "";
+    }
+
+    const isDown = summary.changeType === "DOWN";
+    const label = isDown
+      ? `\u0426\u0435\u043d\u0430\u0442\u0430 \u0435 \u0441\u0432\u0430\u043b\u0435\u043d\u0430. \u0411\u0438\u043b\u0430 \u0435 ${summary.oldText}, \u0441\u0442\u0430\u043d\u0430\u043b\u0430 \u0435 ${summary.newText}.`
+      : `\u0426\u0435\u043d\u0430\u0442\u0430 \u0435 \u043f\u043e\u0432\u0438\u0448\u0435\u043d\u0430. \u0411\u0438\u043b\u0430 \u0435 ${summary.oldText}, \u0441\u0442\u0430\u043d\u0430\u043b\u0430 \u0435 ${summary.newText}.`;
+
+    return `
+      <span
+        class="price-change-indicator price-change-indicator--${isDown ? "down" : "up"}"
+        role="button"
+        tabindex="0"
+        aria-label="${escapeHtml(label)}"
+        aria-expanded="false"
+        data-price-old="${escapeHtml(summary.oldText)}"
+        data-price-new="${escapeHtml(summary.newText)}"
+      >${isDown ? "&darr;" : "&uarr;"}</span>
+    `.trim();
+  }
+
+  function bindPriceChangeIndicatorEvents() {
+    document.addEventListener("click", onPriceChangeIndicatorClick);
+    document.addEventListener("keydown", onPriceChangeIndicatorKeydown);
+    document.addEventListener("mouseover", onPriceChangeIndicatorMouseOver);
+    document.addEventListener("mouseout", onPriceChangeIndicatorMouseOut);
+    document.addEventListener("focusin", onPriceChangeIndicatorFocusIn);
+    document.addEventListener("focusout", onPriceChangeIndicatorFocusOut);
+    window.addEventListener("resize", closePriceChangePopover);
+    document.addEventListener("scroll", closePriceChangePopover, true);
+  }
+
+  function findPriceChangeIndicator(target) {
+    return target instanceof Element
+      ? target.closest(".price-change-indicator[data-price-old][data-price-new]")
+      : null;
+  }
+
+  function supportsHoverPopover() {
+    return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  }
+
+  function onPriceChangeIndicatorClick(event) {
+    const indicator = findPriceChangeIndicator(event.target);
+
+    if (indicator) {
+      event.preventDefault();
+      togglePriceChangePopover(indicator);
+      return;
+    }
+
+    if (activePriceChangeIndicator) {
+      closePriceChangePopover();
+    }
+  }
+
+  function onPriceChangeIndicatorKeydown(event) {
+    const indicator = findPriceChangeIndicator(event.target);
+
+    if (event.key === "Escape" && activePriceChangeIndicator) {
+      closePriceChangePopover();
+      return;
+    }
+
+    if (!indicator) {
+      return;
+    }
+
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      togglePriceChangePopover(indicator);
+    }
+  }
+
+  function onPriceChangeIndicatorMouseOver(event) {
+    if (!supportsHoverPopover()) {
+      return;
+    }
+
+    const indicator = findPriceChangeIndicator(event.target);
+    if (indicator) {
+      openPriceChangePopover(indicator);
+    }
+  }
+
+  function onPriceChangeIndicatorMouseOut(event) {
+    if (!supportsHoverPopover()) {
+      return;
+    }
+
+    const indicator = findPriceChangeIndicator(event.target);
+    if (!indicator) {
+      return;
+    }
+
+    if (indicator.contains(event.relatedTarget)) {
+      return;
+    }
+
+    closePriceChangePopover();
+  }
+
+  function onPriceChangeIndicatorFocusIn(event) {
+    const indicator = findPriceChangeIndicator(event.target);
+    if (indicator) {
+      openPriceChangePopover(indicator);
+    }
+  }
+
+  function onPriceChangeIndicatorFocusOut(event) {
+    const indicator = findPriceChangeIndicator(event.target);
+    if (!indicator) {
+      return;
+    }
+
+    if (indicator.contains(event.relatedTarget)) {
+      return;
+    }
+
+    closePriceChangePopover();
+  }
+
+  function togglePriceChangePopover(indicator) {
+    if (activePriceChangeIndicator === indicator) {
+      closePriceChangePopover();
+      return;
+    }
+
+    openPriceChangePopover(indicator);
+  }
+
+  function ensurePriceChangePopover() {
+    if (priceChangePopoverEl) {
+      return priceChangePopoverEl;
+    }
+
+    priceChangePopoverEl = document.createElement("div");
+    priceChangePopoverEl.className = "price-change-popover";
+    priceChangePopoverEl.setAttribute("aria-hidden", "true");
+    document.body.appendChild(priceChangePopoverEl);
+
+    return priceChangePopoverEl;
+  }
+
+  function openPriceChangePopover(indicator) {
+    const oldText = indicator.dataset.priceOld;
+    const newText = indicator.dataset.priceNew;
+    const isDown = indicator.classList.contains("price-change-indicator--down");
+    const newPriceStateClass = isDown ? "price-change-popover__row--down" : "price-change-popover__row--up";
+
+    if (!oldText || !newText) {
+      return;
+    }
+
+    const popover = ensurePriceChangePopover();
+
+    if (activePriceChangeIndicator && activePriceChangeIndicator !== indicator) {
+      activePriceChangeIndicator.classList.remove("is-active");
+      activePriceChangeIndicator.setAttribute("aria-expanded", "false");
+    }
+
+    popover.innerHTML = `
+      <div class="price-change-popover__title">Промяна в цената</div>
+      <div class="price-change-popover__row">
+        <span>Стара:</span>
+        <strong>${escapeHtml(oldText)}</strong>
+      </div>
+      <div class="price-change-popover__row price-change-popover__row--new ${newPriceStateClass}">
+        <span>Нова:</span>
+        <strong>${escapeHtml(newText)}</strong>
+      </div>
+    `.trim();
+
+    popover.classList.add("is-visible");
+    popover.setAttribute("aria-hidden", "false");
+    activePriceChangeIndicator = indicator;
+    indicator.classList.add("is-active");
+    indicator.setAttribute("aria-expanded", "true");
+
+    positionPriceChangePopover(indicator, popover);
+  }
+
+  function positionPriceChangePopover(indicator, popover) {
+    const rect = indicator.getBoundingClientRect();
+    const popoverRect = popover.getBoundingClientRect();
+    const gap = 12;
+    const canPlaceAbove = rect.top >= popoverRect.height + gap + 12;
+    const top = canPlaceAbove
+      ? rect.top - popoverRect.height - gap
+      : Math.min(window.innerHeight - popoverRect.height - 12, rect.bottom + gap);
+    const left = Math.min(
+      Math.max(12, rect.left + rect.width / 2 - popoverRect.width / 2),
+      window.innerWidth - popoverRect.width - 12
+    );
+
+    popover.style.top = `${Math.max(12, top)}px`;
+    popover.style.left = `${left}px`;
+  }
+
+  function closePriceChangePopover() {
+    if (activePriceChangeIndicator) {
+      activePriceChangeIndicator.classList.remove("is-active");
+      activePriceChangeIndicator.setAttribute("aria-expanded", "false");
+      activePriceChangeIndicator = null;
+    }
+
+    if (!priceChangePopoverEl) {
+      return;
+    }
+
+    priceChangePopoverEl.classList.remove("is-visible");
+    priceChangePopoverEl.setAttribute("aria-hidden", "true");
+  }
+
   function formatDate(value) {
     try {
       const date = new Date(value);
@@ -3786,16 +4086,8 @@
   }
 
   function getExchangeRateValue(currencyCode) {
-    const raw = String(elements.editExchangeRateToEUR.value || "").trim();
-    if (raw) {
-      const parsed = Number(raw);
-      if (!Number.isNaN(parsed)) return parsed;
-    }
-
-    if (currencyCode === "EUR") return 1;
-    if (currencyCode === "BGN") return 0.51129;
-
-    return 1;
+    const normalizedCurrencyCode = String(currencyCode || "EUR").trim().toUpperCase();
+    return AUTO_RATES_TO_EUR[normalizedCurrencyCode] ?? 1;
   }
 
   function cryptoRandomKey() {

@@ -229,7 +229,7 @@ function redirectToFavorites() {
 }
 
 function redirectToCreateListing() {
-  if (!requireAuth()) return;
+  if (!requireAuth("CreateListing.html")) return;
   window.location.href = "CreateListing.html";
 }
 

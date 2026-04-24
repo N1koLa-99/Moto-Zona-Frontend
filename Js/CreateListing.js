@@ -21,10 +21,111 @@
     COMPANY_REFRESH_EUR: 0.25
   };
 
+  const SMART_CATEGORY_ALIAS_GROUPS = [
+    ["каска", "каски", "helmet", "helmets"],
+    ["яке", "якета", "jacket", "jackets"],
+    ["ръкавица", "ръкавици", "glove", "gloves"],
+    ["ботуш", "ботуши", "boot", "boots"],
+    ["протектор", "протектори", "protector", "protectors", "armor", "armour"],
+    ["куфар", "куфари", "top case", "topcase", "side case", "sidecase", "багажник", "багажници"],
+    ["стойка", "стойки", "държач", "държачи", "holder", "holders", "mount", "mounts"],
+    ["джанта", "джанти", "rim", "rims", "wheel", "wheels"],
+    ["гума", "гуми", "tire", "tires", "tyre", "tyres"],
+    ["фар", "фарове", "headlight", "headlights"],
+    ["огледало", "огледала", "mirror", "mirrors"],
+    ["ауспух", "ауспуси", "exhaust", "exhausts", "muffler", "mufflers", "slip on", "slip-on", "slipon"],
+    ["верига", "вериги", "chain", "chains"],
+    ["накладка", "накладки", "pad", "pads", "brake pad", "brake pads"]
+  ];
+
+  const SMART_CATEGORY_BASE_TERMS = {
+    VEHICLE: ["мотор", "мотори", "motor", "motors", "motorcycle", "motorcycles", "bike", "bikes", "скутер", "скутери", "atv", "крос", "ендуро", "чопър"],
+    GEAR: ["екипировка", "gear", "equipment", "каска", "каски", "яке", "якета", "ръкавици", "ботуши", "протектори"],
+    PART: ["част", "части", "part", "parts", "джанта", "джанти", "гума", "гуми", "фар", "фарове", "огледало", "огледала", "ауспух", "ауспуси"],
+    ACCESSORY: ["аксесоар", "аксесоари", "accessory", "accessories", "куфар", "куфари", "стойка", "стойки", "багажник", "багажници", "държач", "държачи", "зарядно", "навигация", "камера"]
+  };
+
+  const SMART_CATEGORY_ROUTE_RULES = [
+    {
+      terms: ["верига", "вериги", "chain", "chains", "пиньон", "пиньони", "sprocket", "sprockets", "венец", "венци", "зъбчатка", "зъбчатки"],
+      mainCategoryCode: "PART",
+      pathHint: "избери най-близкия тип част",
+      fallbackNote: "Няма точен тип за това. Избери най-близкия тип част от полето отдолу, а написаното остава в детайлите.",
+      prefillField: "partItemModelTextInput"
+    },
+    {
+      terms: ["краштапи", "краш тапи", "crash pad", "crash pads", "slider", "sliders", "frame slider", "frame sliders", "crash bar", "crash bars", "engine guard", "engine guards"],
+      mainCategoryCode: "ACCESSORY",
+      pathHint: "избери най-близкия тип аксесоар",
+      fallbackNote: "Няма точен тип за това. Избери най-близкия тип аксесоар от полето отдолу, а написаното остава в детайлите.",
+      prefillField: "accessoryItemModelTextInput"
+    }
+  ];
+
+  const CATEGORY_OVERVIEW_CONFIG = [
+    {
+      code: "VEHICLE",
+      label: "Превозни средства",
+      description: "Мотори, скутери, ATV и други превозни средства."
+    },
+    {
+      code: "GEAR",
+      label: "Екипировка",
+      description: "Каски, якета, ръкавици, ботуши и защита за каране."
+    },
+    {
+      code: "ACCESSORY",
+      label: "Аксесоари",
+      description: "Куфари, стойки, навигации и удобства за мотора."
+    },
+    {
+      code: "PART",
+      label: "Части",
+      description: "Части за поддръжка, ремонт и подобрения."
+    }
+  ];
+
+  const CATEGORY_OVERVIEW_META = {
+    VEHICLE: {
+      image: "ImagesVideos/motorcycle.png",
+      accent: "#143d8f",
+      soft: "rgba(20, 61, 143, 0.12)",
+      border: "rgba(20, 61, 143, 0.34)",
+      ring: "rgba(20, 61, 143, 0.14)"
+    },
+    GEAR: {
+      image: "ImagesVideos/racing-helmet.png",
+      accent: "#ff6a2a",
+      soft: "rgba(255, 106, 42, 0.12)",
+      border: "rgba(255, 106, 42, 0.34)",
+      ring: "rgba(255, 106, 42, 0.16)"
+    },
+    ACCESSORY: {
+      image: "ImagesVideos/trunk.png",
+      accent: "#0f7b72",
+      soft: "rgba(15, 123, 114, 0.12)",
+      border: "rgba(15, 123, 114, 0.34)",
+      ring: "rgba(15, 123, 114, 0.14)"
+    },
+    PART: {
+      image: "ImagesVideos/disc-brake.png",
+      accent: "#c84a1b",
+      soft: "rgba(200, 74, 27, 0.12)",
+      border: "rgba(200, 74, 27, 0.34)",
+      ring: "rgba(200, 74, 27, 0.14)"
+    }
+  };
+
   const state = {
     currentUser: null,
     uploadedPhotos: [],
     isSubmitting: false,
+    smartCategory: {
+      index: [],
+      visibleSuggestions: [],
+      activeSuggestionIndex: -1,
+      lastFallbackNote: ""
+    },
     billing: {
       accountType: "PRIVATE",
       freeUploadsRemainingNow: 0,
@@ -58,6 +159,11 @@
     createListingForm: document.getElementById("createListingForm"),
     submitBtn: document.getElementById("submitBtn"),
     resetFormBtn: document.getElementById("resetFormBtn"),
+
+    categoryOverviewGrid: document.getElementById("categoryOverviewGrid"),
+    smartCategoryInput: document.getElementById("smartCategoryInput"),
+    smartCategorySuggestions: document.getElementById("smartCategorySuggestions"),
+    smartCategoryHint: document.getElementById("smartCategoryHint"),
 
     mainCategorySelect: document.getElementById("mainCategorySelect"),
     promotionTypeSelect: document.getElementById("promotionTypeSelect"),
@@ -101,8 +207,6 @@
 
     priceOriginalInput: document.getElementById("priceOriginalInput"),
     currencyCodeSelect: document.getElementById("currencyCodeSelect"),
-    exchangeRateToEURInput: document.getElementById("exchangeRateToEURInput"),
-    exchangeRateHint: document.getElementById("exchangeRateHint"),
 
     countrySelect: document.getElementById("countrySelect"),
     regionWrap: document.getElementById("regionWrap"),
@@ -164,7 +268,6 @@
     try {
       setStatus("Зареждаме формата...", "info");
       await loadLookups();
-      applyAutoExchangeRate();
       await prefillUserCountry(currentUser);
       renderPhotoPreview();
       updateListingPreview();
@@ -190,17 +293,85 @@
       window.location.href = "index.html";
     });
 
+    elements.categoryOverviewGrid?.addEventListener("click", event => {
+      const categoryButton = event.target.closest("[data-category-code]");
+      if (categoryButton) {
+        const categoryCode = categoryButton.getAttribute("data-category-code") || "";
+        const entry = getMainCategoryEntry(categoryCode);
+
+        if (entry) {
+          applySmartCategorySelection(entry);
+        }
+
+        return;
+      }
+
+      const chipButton = event.target.closest("[data-entry-key]");
+      if (!chipButton) return;
+
+      const entryKey = chipButton.getAttribute("data-entry-key");
+      const entry = getSmartCategoryEntryByKey(entryKey);
+
+      if (entry) {
+        applySmartCategorySelection(entry);
+      }
+    });
+
+    elements.smartCategoryInput?.addEventListener("input", () => {
+      clearSmartCategoryFallbackNote();
+      updateSmartCategorySuggestions(elements.smartCategoryInput.value);
+    });
+
+    elements.smartCategoryInput?.addEventListener("focus", () => {
+      updateSmartCategorySuggestions(elements.smartCategoryInput.value);
+    });
+
+    elements.smartCategoryInput?.addEventListener("keydown", onSmartCategoryInputKeyDown);
+
+    elements.smartCategoryInput?.addEventListener("blur", () => {
+      window.setTimeout(() => {
+        closeSmartCategorySuggestions();
+      }, 120);
+    });
+
+    elements.smartCategorySuggestions?.addEventListener("pointerdown", event => {
+      const option = event.target.closest("[data-smart-key]");
+      if (!option) return;
+
+      event.preventDefault();
+
+      const key = option.getAttribute("data-smart-key");
+      const entry = state.smartCategory.index.find(item => item.key === key);
+      if (!entry) return;
+
+      applySmartCategorySelection(entry);
+      elements.smartCategoryInput?.focus();
+    });
+
+    document.querySelectorAll("[data-smart-term]").forEach(button => {
+      button.addEventListener("click", () => {
+        const term = button.getAttribute("data-smart-term") || "";
+        selectSmartCategoryByTerm(term);
+      });
+    });
+
     elements.mainCategorySelect?.addEventListener("change", async () => {
+      clearSmartCategoryFallbackNote();
       toggleCategorySections();
       clearIrrelevantFields();
       await maybeLoadVehicleModels();
+      syncSmartCategoryHint();
+      renderCategoryOverview();
       updateListingPreview();
       updateCreateChargePreview();
     });
 
     elements.vehicleClassSelect?.addEventListener("change", async () => {
+      clearSmartCategoryFallbackNote();
       fillVehicleTypesByClass();
       await maybeLoadVehicleModels();
+      syncSmartCategoryHint();
+      renderCategoryOverview();
       updateListingPreview();
       updateCreateChargePreview();
     });
@@ -212,9 +383,31 @@
     });
 
     elements.gearTypeSelect?.addEventListener("change", () => {
+      clearSmartCategoryFallbackNote();
       toggleHelmetTypeField();
+      syncSmartCategoryHint();
+      renderCategoryOverview();
       updateListingPreview();
       updateCreateChargePreview();
+    });
+
+    elements.vehicleTypeSelect?.addEventListener("change", () => {
+      clearSmartCategoryFallbackNote();
+      syncSmartCategoryHint();
+    });
+    elements.gearHelmetTypeSelect?.addEventListener("change", () => {
+      clearSmartCategoryFallbackNote();
+      syncSmartCategoryHint();
+    });
+    elements.partTypeSelect?.addEventListener("change", () => {
+      clearSmartCategoryFallbackNote();
+      syncSmartCategoryHint();
+      renderCategoryOverview();
+    });
+    elements.accessoryTypeSelect?.addEventListener("change", () => {
+      clearSmartCategoryFallbackNote();
+      syncSmartCategoryHint();
+      renderCategoryOverview();
     });
 
     elements.countrySelect?.addEventListener("change", async () => {
@@ -230,7 +423,6 @@
     });
 
     elements.currencyCodeSelect?.addEventListener("change", () => {
-      applyAutoExchangeRate();
       updateListingPreview();
       updateCreateChargePreview();
     });
@@ -423,9 +615,14 @@
     state.lookups.partBrands = data?.partBrands || [];
     state.lookups.accessoryBrands = data?.accessoryBrands || [];
 
-    fillSelect(elements.mainCategorySelect, state.lookups.mainCategories, {
+    const mainCategoryOptions = state.lookups.mainCategories.map(item => ({
+      ...item,
+      pickerLabel: buildMainCategoryPickerLabel(item)
+    }));
+
+    fillSelect(elements.mainCategorySelect, mainCategoryOptions, {
       placeholder: "Избери категория",
-      preferredLabelKey: "nameBg"
+      preferredLabelKey: "pickerLabel"
     });
 
     fillSelect(elements.vehicleClassSelect, state.lookups.vehicleClasses, {
@@ -510,9 +707,12 @@
       placeholder: "Избери град"
     });
 
+    buildSmartCategoryIndex();
+    renderCategoryOverview();
     toggleCategorySections();
     toggleHelmetTypeField();
     toggleLocationFields(false);
+    syncSmartCategoryHint();
     updateListingPreview();
     updateCreateChargePreview();
   }
@@ -568,6 +768,714 @@
       item.code ??
       ""
     );
+  }
+
+  function buildMainCategoryPickerLabel(item) {
+    const code = String(item?.code || "").trim().toUpperCase();
+    const label = resolveLookupLabel(item, "nameBg");
+
+    const summaries = {
+      VEHICLE: "мотори, скутери, ATV и още",
+      GEAR: "каски, якета, ръкавици и още",
+      ACCESSORY: "куфари, стойки, навигации и още",
+      PART: "джанти, гуми, ауспуси и още"
+    };
+
+    const summary = summaries[code];
+    return summary ? `${label} - ${summary}` : label;
+  }
+
+  function normalizeSearchText(value) {
+    return String(value || "")
+      .toLocaleLowerCase("bg")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zа-я0-9]+/gi, " ")
+      .trim();
+  }
+
+  function getMainCategoryByCode(code) {
+    const normalizedCode = String(code || "").trim().toUpperCase();
+    return state.lookups.mainCategories.find(item => String(item?.code || "").trim().toUpperCase() === normalizedCode) || null;
+  }
+
+  function findHelmetGearType() {
+    return (
+      state.lookups.gearTypes.find(item => String(item?.code || "").trim().toUpperCase() === "HELMET") ||
+      state.lookups.gearTypes.find(item => normalizeSearchText(resolveLookupLabel(item)).includes("каск")) ||
+      null
+    );
+  }
+
+  function addNormalizedTerms(targetSet, values) {
+    const items = Array.isArray(values) ? values : [values];
+
+    for (const value of items) {
+      const normalized = normalizeSearchText(value);
+      if (normalized) {
+        targetSet.add(normalized);
+      }
+    }
+  }
+
+  function enrichSmartCategoryTerms(termSet, label, mainCategoryCode, extraTerms = []) {
+    const labelNormalized = normalizeSearchText(label);
+
+    addNormalizedTerms(termSet, SMART_CATEGORY_BASE_TERMS[mainCategoryCode] || []);
+    addNormalizedTerms(termSet, extraTerms);
+
+    for (const group of SMART_CATEGORY_ALIAS_GROUPS) {
+      const normalizedGroup = group.map(normalizeSearchText).filter(Boolean);
+      const shouldIncludeGroup = normalizedGroup.some(term =>
+        labelNormalized.includes(term) ||
+        term.includes(labelNormalized)
+      );
+
+      if (shouldIncludeGroup) {
+        addNormalizedTerms(termSet, normalizedGroup);
+      }
+    }
+  }
+
+  function createSmartCategoryEntry({
+    key,
+    label,
+    mainCategoryCode,
+    subCategoryId = null,
+    subCategory2Id = null,
+    depth = 0,
+    pathParts = [],
+    extraTerms = [],
+    priority = 50
+  }) {
+    const mainCategory = getMainCategoryByCode(mainCategoryCode);
+    const safeLabel = cleanText(label);
+
+    if (!mainCategory || !safeLabel) {
+      return null;
+    }
+
+    const mainCategoryLabel = resolveLookupLabel(mainCategory, "nameBg");
+    const safePathParts = [mainCategoryLabel, ...pathParts.map(cleanText).filter(Boolean)];
+    const normalizedTerms = new Set();
+
+    addNormalizedTerms(normalizedTerms, [safeLabel, mainCategoryLabel, mainCategoryCode]);
+    enrichSmartCategoryTerms(normalizedTerms, safeLabel, mainCategoryCode, extraTerms);
+
+    const searchTerms = Array.from(normalizedTerms);
+    const pathLabel = safePathParts.join(" > ");
+
+    return {
+      key,
+      label: safeLabel,
+      mainCategoryCode,
+      mainCategoryId: Number(mainCategory.id),
+      subCategoryId: toNumberOrNull(subCategoryId),
+      subCategory2Id: toNumberOrNull(subCategory2Id),
+      depth,
+      tagLabel: mainCategoryLabel,
+      pathLabel,
+      labelNormalized: normalizeSearchText(safeLabel),
+      pathNormalized: normalizeSearchText(pathLabel),
+      searchTerms,
+      searchText: searchTerms.join(" | "),
+      priority
+    };
+  }
+
+  function buildSmartCategoryIndex() {
+    const entries = [];
+    const helmetGearType = findHelmetGearType();
+    const helmetGearTypeLabel = helmetGearType ? resolveLookupLabel(helmetGearType) : "";
+    const vehicleClassesById = new Map(state.lookups.vehicleClasses.map(item => [Number(item.id), item]));
+
+    for (const category of state.lookups.mainCategories) {
+      const code = String(category?.code || "").trim().toUpperCase();
+      const label = resolveLookupLabel(category, "nameBg");
+      const entry = createSmartCategoryEntry({
+        key: `main-${category.id}`,
+        label,
+        mainCategoryCode: code,
+        depth: 0,
+        priority: 90
+      });
+
+      if (entry) entries.push(entry);
+    }
+
+    for (const vehicleClass of state.lookups.vehicleClasses) {
+      const label = resolveLookupLabel(vehicleClass);
+      const entry = createSmartCategoryEntry({
+        key: `vehicle-class-${vehicleClass.id}`,
+        label,
+        mainCategoryCode: "VEHICLE",
+        subCategoryId: vehicleClass.id,
+        depth: 1,
+        pathParts: [label],
+        priority: 36
+      });
+
+      if (entry) entries.push(entry);
+    }
+
+    for (const vehicleType of state.lookups.vehicleTypes) {
+      const label = resolveLookupLabel(vehicleType);
+      const parent = vehicleClassesById.get(Number(vehicleType.parentId || 0));
+      const parentLabel = parent ? resolveLookupLabel(parent) : "";
+      const entry = createSmartCategoryEntry({
+        key: `vehicle-type-${vehicleType.id}`,
+        label,
+        mainCategoryCode: "VEHICLE",
+        subCategoryId: parent?.id ?? null,
+        subCategory2Id: vehicleType.id,
+        depth: 2,
+        pathParts: [parentLabel, label].filter(Boolean),
+        priority: 18
+      });
+
+      if (entry) entries.push(entry);
+    }
+
+    for (const gearType of state.lookups.gearTypes) {
+      const label = resolveLookupLabel(gearType);
+      const extraTerms = String(gearType?.code || "").trim().toUpperCase() === "HELMET"
+        ? ["каска", "каски", "helmet", "helmets"]
+        : [];
+
+      const entry = createSmartCategoryEntry({
+        key: `gear-type-${gearType.id}`,
+        label,
+        mainCategoryCode: "GEAR",
+        subCategoryId: gearType.id,
+        depth: 1,
+        pathParts: [label],
+        extraTerms,
+        priority: 26
+      });
+
+      if (entry) entries.push(entry);
+    }
+
+    if (helmetGearType) {
+      for (const helmetType of state.lookups.helmetTypes) {
+        const label = resolveLookupLabel(helmetType);
+        const entry = createSmartCategoryEntry({
+          key: `helmet-type-${helmetType.id}`,
+          label,
+          mainCategoryCode: "GEAR",
+          subCategoryId: helmetGearType.id,
+          subCategory2Id: helmetType.id,
+          depth: 2,
+          pathParts: [helmetGearTypeLabel, label].filter(Boolean),
+          extraTerms: ["каска", "каски", "helmet", "helmets"],
+          priority: 38
+        });
+
+        if (entry) entries.push(entry);
+      }
+    }
+
+    for (const partType of state.lookups.partTypes) {
+      const label = resolveLookupLabel(partType);
+      const entry = createSmartCategoryEntry({
+        key: `part-type-${partType.id}`,
+        label,
+        mainCategoryCode: "PART",
+        subCategoryId: partType.id,
+        depth: 1,
+        pathParts: [label],
+        priority: 26
+      });
+
+      if (entry) entries.push(entry);
+    }
+
+    for (const accessoryType of state.lookups.accessoryTypes) {
+      const label = resolveLookupLabel(accessoryType);
+      const entry = createSmartCategoryEntry({
+        key: `accessory-type-${accessoryType.id}`,
+        label,
+        mainCategoryCode: "ACCESSORY",
+        subCategoryId: accessoryType.id,
+        depth: 1,
+        pathParts: [label],
+        priority: 26
+      });
+
+      if (entry) entries.push(entry);
+    }
+
+    state.smartCategory.index = entries;
+  }
+
+  function getSmartCategoryRouteSuggestion(query) {
+    const rawQuery = cleanText(query);
+    const normalizedQuery = normalizeSearchText(rawQuery);
+
+    if (!normalizedQuery || normalizedQuery.length < 2) {
+      return null;
+    }
+
+    const matchedRule = SMART_CATEGORY_ROUTE_RULES.find(rule =>
+      rule.terms
+        .map(normalizeSearchText)
+        .filter(Boolean)
+        .some(term =>
+          normalizedQuery === term ||
+          normalizedQuery.includes(term) ||
+          term.includes(normalizedQuery)
+        )
+    );
+
+    if (!matchedRule) {
+      return null;
+    }
+
+    const entry = createSmartCategoryEntry({
+      key: `route-${matchedRule.mainCategoryCode}-${normalizedQuery.replace(/\s+/g, "-")}`,
+      label: rawQuery,
+      mainCategoryCode: matchedRule.mainCategoryCode,
+      depth: 1,
+      pathParts: [matchedRule.pathHint],
+      extraTerms: matchedRule.terms,
+      priority: 34
+    });
+
+    if (!entry) {
+      return null;
+    }
+
+    entry.fallbackNote = matchedRule.fallbackNote;
+    entry.fallbackPrefillField = matchedRule.prefillField;
+    entry.fallbackRawQuery = rawQuery;
+
+    return entry;
+  }
+
+  function getSmartCategoryEntryByKey(key) {
+    const safeKey = cleanText(key);
+    if (!safeKey) return null;
+
+    return state.smartCategory.index.find(entry => entry.key === safeKey) || null;
+  }
+
+  function getMainCategoryEntry(categoryCode) {
+    const normalizedCode = cleanText(categoryCode).toUpperCase();
+
+    return state.smartCategory.index.find(entry =>
+      entry.mainCategoryCode === normalizedCode && entry.depth === 0
+    ) || null;
+  }
+
+  function getCategoryOverviewEntries(categoryCode) {
+    const normalizedCode = cleanText(categoryCode).toUpperCase();
+
+    return state.smartCategory.index
+      .filter(entry => entry.mainCategoryCode === normalizedCode && entry.depth === 1)
+      .sort((a, b) => a.priority - b.priority || a.label.localeCompare(b.label, "bg"));
+  }
+
+  function getCurrentSelectedOverviewSubcategoryId(categoryCode) {
+    const normalizedCode = cleanText(categoryCode).toUpperCase();
+
+    if (normalizedCode === "VEHICLE") {
+      return toNumberOrNull(elements.vehicleClassSelect?.value);
+    }
+
+    if (normalizedCode === "GEAR") {
+      return toNumberOrNull(elements.gearTypeSelect?.value);
+    }
+
+    if (normalizedCode === "PART") {
+      return toNumberOrNull(elements.partTypeSelect?.value);
+    }
+
+    if (normalizedCode === "ACCESSORY") {
+      return toNumberOrNull(elements.accessoryTypeSelect?.value);
+    }
+
+    return null;
+  }
+
+  function renderCategoryOverview() {
+    if (!elements.categoryOverviewGrid) return;
+
+    const selectedMainCategoryCode = getSelectedCategoryCode();
+    const selectedSubcategoryId = getCurrentSelectedOverviewSubcategoryId(selectedMainCategoryCode);
+
+    elements.categoryOverviewGrid.innerHTML = CATEGORY_OVERVIEW_CONFIG.map(config => {
+      const mainEntry = getMainCategoryEntry(config.code);
+      if (!mainEntry) return "";
+
+      const meta = CATEGORY_OVERVIEW_META[config.code] || {};
+      const previewEntries = getCategoryOverviewEntries(config.code);
+      const isActive = selectedMainCategoryCode === config.code;
+      const visiblePreviewEntries = previewEntries.slice(0, 6);
+
+      const previewHtml = visiblePreviewEntries.map(entry => {
+        const isChipActive = isActive && selectedSubcategoryId !== null && selectedSubcategoryId === entry.subCategoryId;
+
+        return `
+          <button
+            class="category-feature-link ${isChipActive ? "category-feature-link--active" : ""}"
+            type="button"
+            data-entry-key="${escapeHtml(entry.key)}"
+          >
+            ${escapeHtml(entry.label)}
+          </button>
+        `;
+      }).join("");
+
+      const extraCount = Math.max(0, previewEntries.length - visiblePreviewEntries.length);
+
+      return `
+        <article
+          class="category-feature-card ${isActive ? "active" : ""}"
+          style="--category-accent:${escapeHtml(meta.accent || "#ff6a2a")}; --category-soft:${escapeHtml(meta.soft || "rgba(255, 106, 42, 0.12)")}; --category-border:${escapeHtml(meta.border || "rgba(255, 106, 42, 0.34)")}; --category-ring:${escapeHtml(meta.ring || "rgba(255, 106, 42, 0.14)")};"
+        >
+          <button
+            class="category-feature-card__main"
+            type="button"
+            data-category-code="${escapeHtml(config.code)}"
+          >
+            <span class="category-feature-card__header">
+              <span class="category-feature-card__icon">
+                <img src="${escapeHtml(meta.image || "ImagesVideos/MzLogoSquare.png")}" alt="${escapeHtml(config.label || mainEntry.label)}" loading="lazy" />
+              </span>
+              <span class="category-feature-card__title">${escapeHtml(config.label || mainEntry.label)}</span>
+            </span>
+            <span class="category-feature-card__description">${escapeHtml(config.description)}</span>
+          </button>
+
+          <div class="category-feature-card__links">
+            ${previewHtml}
+            ${extraCount > 0 ? `<span class="category-feature-links__more">+${extraCount} още</span>` : ""}
+          </div>
+        </article>
+      `;
+    }).join("");
+  }
+
+  function getSmartCategoryScore(entry, normalizedQuery, queryTokens) {
+    if (!entry || !normalizedQuery) return 0;
+
+    const matchedTokenCount = queryTokens.filter(token => entry.searchText.includes(token)).length;
+    if (matchedTokenCount !== queryTokens.length) {
+      return 0;
+    }
+
+    let score = 0;
+
+    if (entry.searchTerms.includes(normalizedQuery)) score += 140;
+    if (entry.labelNormalized === normalizedQuery) score += 120;
+    if (entry.pathNormalized === normalizedQuery) score += 96;
+    if (entry.labelNormalized.startsWith(normalizedQuery)) score += 82;
+    if (entry.searchText.includes(normalizedQuery)) score += 58;
+
+    score += matchedTokenCount * 12;
+    score += Math.max(0, 30 - entry.priority);
+
+    return score;
+  }
+
+  function getSmartCategorySuggestions(query) {
+    const normalizedQuery = normalizeSearchText(query);
+
+    if (!normalizedQuery || normalizedQuery.length < 2) {
+      return [];
+    }
+
+    const queryTokens = normalizedQuery.split(" ").filter(Boolean);
+    let suggestions = state.smartCategory.index
+      .map(entry => ({
+        entry,
+        score: getSmartCategoryScore(entry, normalizedQuery, queryTokens)
+      }))
+      .filter(item => item.score > 0)
+      .sort((a, b) =>
+        b.score - a.score ||
+        a.entry.priority - b.entry.priority ||
+        a.entry.label.localeCompare(b.entry.label, "bg")
+      );
+
+    const hasBroadMatch = queryTokens.length === 1 && suggestions.some(item =>
+      item.entry.depth <= 1 &&
+      (
+        item.entry.labelNormalized === normalizedQuery ||
+        item.entry.labelNormalized.startsWith(normalizedQuery) ||
+        item.entry.searchTerms.includes(normalizedQuery)
+      )
+    );
+
+    if (hasBroadMatch) {
+      suggestions = suggestions.filter(item =>
+        item.entry.depth <= 1 ||
+        item.entry.labelNormalized === normalizedQuery ||
+        item.entry.labelNormalized.startsWith(normalizedQuery)
+      );
+    }
+
+    const visibleSuggestions = suggestions
+      .slice(0, 8)
+      .map(item => item.entry);
+
+    if (visibleSuggestions.length) {
+      return visibleSuggestions;
+    }
+
+    const routeSuggestion = getSmartCategoryRouteSuggestion(query);
+    return routeSuggestion ? [routeSuggestion] : [];
+  }
+
+  function renderSmartCategorySuggestions() {
+    if (!elements.smartCategorySuggestions) return;
+
+    const suggestions = state.smartCategory.visibleSuggestions;
+    const query = cleanText(elements.smartCategoryInput?.value);
+
+    if (!query || normalizeSearchText(query).length < 2) {
+      elements.smartCategorySuggestions.innerHTML = "";
+      elements.smartCategorySuggestions.classList.add("hidden");
+      return;
+    }
+
+    if (!suggestions.length) {
+      elements.smartCategorySuggestions.innerHTML = `
+        <div class="smart-category__empty">
+          Няма точен тип. Избери най-близката категория и го допиши в детайлите отдолу.
+        </div>
+      `;
+      elements.smartCategorySuggestions.classList.remove("hidden");
+      return;
+    }
+
+    elements.smartCategorySuggestions.innerHTML = suggestions.map((entry, index) => `
+      <button
+        class="smart-category__option ${index === state.smartCategory.activeSuggestionIndex ? "is-active" : ""}"
+        type="button"
+        data-smart-key="${escapeHtml(entry.key)}"
+        role="option"
+        aria-selected="${index === state.smartCategory.activeSuggestionIndex ? "true" : "false"}"
+      >
+        <span class="smart-category__option-main">
+          <span class="smart-category__option-title">${escapeHtml(entry.label)}</span>
+          <span class="smart-category__option-meta">${escapeHtml(entry.pathLabel)}</span>
+        </span>
+        <span class="smart-category__option-tag">${escapeHtml(entry.tagLabel)}</span>
+      </button>
+    `).join("");
+
+    elements.smartCategorySuggestions.classList.remove("hidden");
+  }
+
+  function closeSmartCategorySuggestions() {
+    state.smartCategory.visibleSuggestions = [];
+    state.smartCategory.activeSuggestionIndex = -1;
+
+    if (elements.smartCategorySuggestions) {
+      elements.smartCategorySuggestions.innerHTML = "";
+      elements.smartCategorySuggestions.classList.add("hidden");
+    }
+  }
+
+  function updateSmartCategorySuggestions(query) {
+    state.smartCategory.visibleSuggestions = getSmartCategorySuggestions(query);
+    state.smartCategory.activeSuggestionIndex = state.smartCategory.visibleSuggestions.length ? 0 : -1;
+    renderSmartCategorySuggestions();
+  }
+
+  function moveSmartCategorySelection(direction) {
+    if (!state.smartCategory.visibleSuggestions.length) {
+      return;
+    }
+
+    const nextIndex = state.smartCategory.activeSuggestionIndex + direction;
+    const lastIndex = state.smartCategory.visibleSuggestions.length - 1;
+
+    if (nextIndex < 0) {
+      state.smartCategory.activeSuggestionIndex = lastIndex;
+    } else if (nextIndex > lastIndex) {
+      state.smartCategory.activeSuggestionIndex = 0;
+    } else {
+      state.smartCategory.activeSuggestionIndex = nextIndex;
+    }
+
+    renderSmartCategorySuggestions();
+  }
+
+  function onSmartCategoryInputKeyDown(event) {
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+
+      if (!state.smartCategory.visibleSuggestions.length) {
+        updateSmartCategorySuggestions(elements.smartCategoryInput?.value || "");
+      }
+
+      moveSmartCategorySelection(1);
+      return;
+    }
+
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      moveSmartCategorySelection(-1);
+      return;
+    }
+
+    if (event.key === "Escape") {
+      closeSmartCategorySuggestions();
+      return;
+    }
+
+    if (event.key === "Enter" && state.smartCategory.visibleSuggestions.length) {
+      event.preventDefault();
+
+      const entry =
+        state.smartCategory.visibleSuggestions[state.smartCategory.activeSuggestionIndex] ||
+        state.smartCategory.visibleSuggestions[0];
+
+      if (entry) {
+        applySmartCategorySelection(entry);
+      }
+    }
+  }
+
+  function selectSmartCategoryByTerm(term) {
+    if (!elements.smartCategoryInput) return;
+
+    elements.smartCategoryInput.value = term;
+
+    const suggestions = getSmartCategorySuggestions(term);
+    if (!suggestions.length) {
+      updateSmartCategorySuggestions(term);
+      return;
+    }
+
+    applySmartCategorySelection(suggestions[0]);
+  }
+
+  function clearSmartCategoryFallbackNote() {
+    state.smartCategory.lastFallbackNote = "";
+  }
+
+  function prefillSmartCategoryFallbackDetails(entry) {
+    const fieldKey = cleanText(entry?.fallbackPrefillField);
+    const rawQuery = cleanText(entry?.fallbackRawQuery || entry?.label);
+    const input = fieldKey ? elements[fieldKey] : null;
+
+    if (!input || !rawQuery) {
+      return;
+    }
+
+    if (!cleanText(input.value)) {
+      input.value = rawQuery;
+    }
+  }
+
+  function applySmartCategorySelection(entry) {
+    if (!entry || !elements.mainCategorySelect) return;
+
+    clearSmartCategoryFallbackNote();
+    elements.mainCategorySelect.value = String(entry.mainCategoryId);
+    toggleCategorySections();
+    clearIrrelevantFields();
+
+    if (entry.mainCategoryCode === "VEHICLE") {
+      elements.vehicleClassSelect.value = entry.subCategoryId ? String(entry.subCategoryId) : "";
+      fillVehicleTypesByClass();
+
+      if (entry.subCategory2Id) {
+        elements.vehicleTypeSelect.value = String(entry.subCategory2Id);
+      }
+    }
+
+    if (entry.mainCategoryCode === "GEAR") {
+      elements.gearTypeSelect.value = entry.subCategoryId ? String(entry.subCategoryId) : "";
+      toggleHelmetTypeField();
+
+      if (entry.subCategory2Id) {
+        elements.gearHelmetTypeSelect.value = String(entry.subCategory2Id);
+      }
+    }
+
+    if (entry.mainCategoryCode === "PART") {
+      elements.partTypeSelect.value = entry.subCategoryId ? String(entry.subCategoryId) : "";
+    }
+
+    if (entry.mainCategoryCode === "ACCESSORY") {
+      elements.accessoryTypeSelect.value = entry.subCategoryId ? String(entry.subCategoryId) : "";
+    }
+
+    if (elements.smartCategoryInput) {
+      elements.smartCategoryInput.value = entry.label;
+    }
+
+    prefillSmartCategoryFallbackDetails(entry);
+    state.smartCategory.lastFallbackNote = cleanText(entry.fallbackNote);
+
+    syncSmartCategoryHint();
+    closeSmartCategorySuggestions();
+    renderCategoryOverview();
+    updateListingPreview();
+    updateCreateChargePreview();
+  }
+
+  function getCurrentCategoryPathParts() {
+    const selectedCategory = getSelectedCategory();
+    const mainCategoryText = selectedCategory
+      ? resolveLookupLabel(selectedCategory, "nameBg")
+      : "";
+
+    if (!mainCategoryText) return [];
+
+    const parts = [mainCategoryText];
+    const categoryCode = getSelectedCategoryCode();
+
+    if (categoryCode === "VEHICLE") {
+      const vehicleClass = getSelectText(elements.vehicleClassSelect);
+      const vehicleType = getSelectText(elements.vehicleTypeSelect);
+
+      if (vehicleClass) parts.push(vehicleClass);
+      if (vehicleType) parts.push(vehicleType);
+    }
+
+    if (categoryCode === "GEAR") {
+      const gearType = getSelectText(elements.gearTypeSelect);
+      const helmetType = getSelectText(elements.gearHelmetTypeSelect);
+
+      if (gearType) parts.push(gearType);
+      if (helmetType) parts.push(helmetType);
+    }
+
+    if (categoryCode === "PART") {
+      const partType = getSelectText(elements.partTypeSelect);
+      if (partType) parts.push(partType);
+    }
+
+    if (categoryCode === "ACCESSORY") {
+      const accessoryType = getSelectText(elements.accessoryTypeSelect);
+      if (accessoryType) parts.push(accessoryType);
+    }
+
+    return parts.filter(Boolean);
+  }
+
+  function syncSmartCategoryHint() {
+    if (!elements.smartCategoryHint) return;
+
+    const pathParts = getCurrentCategoryPathParts();
+    const fallbackNote = cleanText(state.smartCategory.lastFallbackNote);
+
+    if (!pathParts.length) {
+      elements.smartCategoryHint.innerHTML = "";
+      elements.smartCategoryHint.classList.add("hidden");
+      return;
+    }
+
+    elements.smartCategoryHint.innerHTML = `
+      <strong>Избрано:</strong> ${escapeHtml(pathParts.join(" > "))}
+      ${fallbackNote ? `<span class="smart-category__hint-note">${escapeHtml(fallbackNote)}</span>` : ""}
+    `;
+    elements.smartCategoryHint.classList.remove("hidden");
   }
 
   function getSelectedCategory() {
@@ -783,15 +1691,9 @@
     }
   }
 
-  function applyAutoExchangeRate() {
-    const currencyCode = (elements.currencyCodeSelect?.value || "EUR").toUpperCase();
-    const rate = AUTO_RATES_TO_EUR[currencyCode] ?? 1;
-
-    elements.exchangeRateToEURInput.value = String(rate);
-
-    if (elements.exchangeRateHint) {
-      elements.exchangeRateHint.textContent = `Автоматично зададен курс за ${currencyCode}. Може да го редактираш ръчно.`;
-    }
+  function getAutoExchangeRateToEUR(currencyCode) {
+    const normalizedCurrencyCode = (currencyCode || "EUR").toUpperCase();
+    return AUTO_RATES_TO_EUR[normalizedCurrencyCode] ?? 1;
   }
 
   async function onPhotosSelected(event) {
@@ -1355,7 +2257,7 @@
       color: null,
       priceOriginal: toDecimalOrNull(elements.priceOriginalInput.value),
       currencyCode: cleanText(elements.currencyCodeSelect.value).toUpperCase(),
-      exchangeRateToEUR: toDecimalOrNull(elements.exchangeRateToEURInput.value),
+      exchangeRateToEUR: getAutoExchangeRateToEUR(elements.currencyCodeSelect.value),
       countryId: toNumberOrNull(elements.countrySelect.value),
       regionId: null,
       cityId: null,
@@ -1526,10 +2428,15 @@
     state.uploadedPhotos = [];
     state.isSubmitting = false;
 
+    if (elements.smartCategoryInput) {
+      elements.smartCategoryInput.value = "";
+    }
+
+    clearSmartCategoryFallbackNote();
     toggleCategorySections();
     toggleHelmetTypeField();
-    applyAutoExchangeRate();
     toggleLocationFields(false);
+    closeSmartCategorySuggestions();
 
     fillSelect(elements.vehicleTypeSelect, [], { placeholder: "Избери вид" });
     fillSelect(elements.vehicleModelSelect, [], { placeholder: "Избери модел", preferredLabelKey: "name" });
@@ -1540,6 +2447,8 @@
     await prefillUserCountry(state.currentUser || {});
 
     renderPhotoPreview();
+    renderCategoryOverview();
+    syncSmartCategoryHint();
     updateListingPreview();
     updateCreateChargePreview();
     setStatus("", "");
