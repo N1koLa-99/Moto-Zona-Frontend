@@ -100,11 +100,14 @@
 
                 <div class="form-field">
                   <label for="promotionTypeSelect">Ниво на обявата</label>
-                  <select id="promotionTypeSelect">
-                    <option value="NORMAL">Нормална</option>
-                    <option value="TOP">TOP</option>
-                    <option value="VIP">VIP</option>
+                  <select id="promotionTypeSelect" aria-describedby="promotionTypeHint">
+                    <option value="NORMAL">Нормална • стандартна видимост</option>
+                    <option value="TOP">TOP • над нормалните за 7 дни • +4.00 EUR</option>
+                    <option value="VIP">VIP • най-видима за 7 дни • +7.00 EUR</option>
                   </select>
+                  <small id="promotionTypeHint">
+                    Без допълнителна промоция. Обявата е със стандартна видимост.
+                  </small>
                 </div>
 
               </div>

@@ -76,6 +76,23 @@
     await loadListing();
   }
 
+  function setProfileDropdownExpanded(isExpanded) {
+    elements.profileMenuBtn?.setAttribute("aria-expanded", isExpanded ? "true" : "false");
+  }
+
+  function closeProfileDropdown() {
+    elements.profileDropdown?.classList.add("hidden");
+    setProfileDropdownExpanded(false);
+  }
+
+  function toggleProfileDropdown() {
+    if (!elements.profileDropdown) return;
+
+    const shouldOpen = elements.profileDropdown.classList.contains("hidden");
+    elements.profileDropdown.classList.toggle("hidden", !shouldOpen);
+    setProfileDropdownExpanded(shouldOpen);
+  }
+
   function bindEvents() {
     bindPriceChangeIndicatorEvents();
 
@@ -94,7 +111,7 @@
 
     elements.profileMenuBtn?.addEventListener("click", (event) => {
       event.stopPropagation();
-      elements.profileDropdown?.classList.toggle("hidden");
+      toggleProfileDropdown();
     });
 
     elements.createListingBtn?.addEventListener("click", () => {
@@ -121,7 +138,7 @@
 
     document.addEventListener("click", (event) => {
       if (!elements.profileMenu?.contains(event.target)) {
-        elements.profileDropdown?.classList.add("hidden");
+        closeProfileDropdown();
       }
     });
 
@@ -214,9 +231,13 @@
         cleanNullableText([user?.firstName, user?.lastName].filter(Boolean).join(" ")) ||
         "Профил";
 
-      elements.userDisplayName.textContent = displayName;
+      elements.userDisplayName.textContent = "Профил";
+      elements.profileMenuBtn?.setAttribute("title", displayName);
+      elements.profileMenuBtn?.setAttribute("aria-label", "Профил");
+      setProfileDropdownExpanded(false);
     } catch {
       elements.userDisplayName.textContent = "Профил";
+      setProfileDropdownExpanded(false);
     }
   }
 

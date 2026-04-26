@@ -38,6 +38,7 @@
 
   let priceChangePopoverEl = null;
   let activePriceChangeIndicator = null;
+  let toastHideTimer = null;
 
   const MAIN_CATEGORY_META = {
     VEHICLE: {
@@ -104,6 +105,7 @@
     logoutConfirmModal: document.getElementById("logoutConfirmModal"),
     cancelLogoutBtn: document.getElementById("cancelLogoutBtn"),
     confirmLogoutBtn: document.getElementById("confirmLogoutBtn"),
+    toastStack: document.getElementById("toastStack"),
 
     mainCategoryList: document.getElementById("mainCategoryList"),
     listingsGrid: document.getElementById("listingsGrid"),
@@ -231,7 +233,32 @@
     handleAppHeight();
     handleResponsiveFiltersPlacement();
     window.addEventListener("resize", handleViewportChange);
+    window.addEventListener("pageshow", onPageShow);
     await loadInitialListings();
+  }
+
+  async function onPageShow(event) {
+    if (!event.persisted) return;
+
+    await hydrateAuthUI();
+    syncFavoriteButtons();
+  }
+
+  function setProfileDropdownExpanded(isExpanded) {
+    elements.profileBtn?.setAttribute("aria-expanded", isExpanded ? "true" : "false");
+  }
+
+  function closeProfileDropdown() {
+    elements.profileDropdown?.classList.add("hidden");
+    setProfileDropdownExpanded(false);
+  }
+
+  function toggleProfileDropdown() {
+    if (!elements.profileDropdown) return;
+
+    const shouldOpen = elements.profileDropdown.classList.contains("hidden");
+    elements.profileDropdown.classList.toggle("hidden", !shouldOpen);
+    setProfileDropdownExpanded(shouldOpen);
   }
 
   function handleViewportChange() {
@@ -276,12 +303,12 @@
         return;
       }
 
-      elements.profileDropdown?.classList.toggle("hidden");
+      toggleProfileDropdown();
     });
 
     document.addEventListener("click", (e) => {
       if (!elements.profileMenuWrap?.contains(e.target)) {
-        elements.profileDropdown?.classList.add("hidden");
+        closeProfileDropdown();
       }
     });
 
@@ -302,7 +329,7 @@
         return;
       }
 
-      elements.profileDropdown?.classList.add("hidden");
+      closeProfileDropdown();
     });
 
     elements.mobileFilterBtn?.addEventListener("click", () => {
@@ -522,7 +549,9 @@
       elements.profileMenuWrap?.classList.add("hidden");
       elements.adminPanelBtn?.classList.add("hidden");
       elements.favoritesBtn?.classList.add("hidden");
+      state.favoriteIds = new Set();
       updateFavoritesCount(0);
+      syncFavoriteButtons();
       return;
     }
 
@@ -537,9 +566,12 @@
       "Профил";
 
     if (elements.profileBtnText) {
-      elements.profileBtnText.textContent =
-        displayName.length > 16 ? `${displayName.slice(0, 16)}…` : displayName;
+      elements.profileBtnText.textContent = "Профил";
     }
+
+    elements.profileBtn?.setAttribute("title", displayName);
+    elements.profileBtn?.setAttribute("aria-label", "Профил");
+    setProfileDropdownExpanded(false);
 
     elements.adminPanelBtn?.classList.toggle("hidden", !window.Auth.isAdminUser(user));
 
@@ -550,6 +582,7 @@
     if (!window.Auth.isLoggedIn()) {
       state.favoriteIds = new Set();
       updateFavoritesCount(0);
+      syncFavoriteButtons();
       return;
     }
 
@@ -559,7 +592,9 @@
       );
 
       if (!response.ok) {
+        state.favoriteIds = new Set();
         updateFavoritesCount(0);
+        syncFavoriteButtons();
         return;
       }
 
@@ -567,8 +602,11 @@
       const items = Array.isArray(data.items) ? data.items : [];
       state.favoriteIds = new Set(items.map((x) => String(x.id)));
       updateFavoritesCount(items.length);
+      syncFavoriteButtons();
     } catch {
+      state.favoriteIds = new Set();
       updateFavoritesCount(0);
+      syncFavoriteButtons();
     }
   }
 
@@ -1571,7 +1609,7 @@
     elements.listingsGrid.innerHTML = items.map(renderCard).join("");
 
     [...elements.listingsGrid.querySelectorAll(".favorite-btn")].forEach((button) => {
-      button.setAttribute("aria-pressed", button.classList.contains("active") ? "true" : "false");
+      setFavoriteButtonState(button, button.classList.contains("active"));
       button.addEventListener("click", onFavoriteClick);
     });
 
@@ -1715,6 +1753,8 @@
     const isActive = button.classList.contains("active");
 
     try {
+      button.disabled = true;
+
       const response = await window.Auth.authFetch(
         `${API_BASE_URL}/api/profile/favorites/${listingId}`,
         {
@@ -1728,19 +1768,70 @@
 
       if (isActive) {
         state.favoriteIds.delete(listingId);
-        button.classList.remove("active");
-        button.setAttribute("aria-pressed", "false");
+        setFavoriteButtonState(button, false);
+        showToast("Обявата е премахната от „Любими обяви“ в профила.", "info");
       } else {
         state.favoriteIds.add(listingId);
-        button.classList.add("active");
-        button.setAttribute("aria-pressed", "true");
+        setFavoriteButtonState(button, true);
+        showToast("Обявата е добавена в „Любими обяви“ в профила.", "success");
       }
 
       updateFavoritesCount(state.favoriteIds.size);
     } catch (error) {
       console.error(error);
-      alert("Не успяхме да обновим любимите обяви.");
+      showToast("Не успяхме да обновим любимите обяви.", "error");
+    } finally {
+      button.disabled = false;
     }
+  }
+
+  function setFavoriteButtonState(button, isActive) {
+    if (!(button instanceof HTMLButtonElement)) return;
+
+    button.classList.toggle("active", Boolean(isActive));
+    button.setAttribute("aria-pressed", isActive ? "true" : "false");
+    button.setAttribute(
+      "aria-label",
+      isActive ? "Обявата е в любими" : "Добави в любими"
+    );
+    button.title = isActive ? "Обявата е в любими" : "Добави в любими";
+  }
+
+  function syncFavoriteButtons() {
+    if (!elements.listingsGrid) return;
+
+    [...elements.listingsGrid.querySelectorAll(".favorite-btn")].forEach((button) => {
+      const listingId = String(button.dataset.id || "");
+      setFavoriteButtonState(button, state.favoriteIds.has(listingId));
+    });
+  }
+
+  function showToast(message, type = "info") {
+    if (!elements.toastStack || !message) return;
+
+    if (toastHideTimer) {
+      window.clearTimeout(toastHideTimer);
+      toastHideTimer = null;
+    }
+
+    elements.toastStack.innerHTML = `<div class="toast toast--${escapeHtml(type)}" role="status">${escapeHtml(message)}</div>`;
+
+    const toast = elements.toastStack.querySelector(".toast");
+    if (!toast) return;
+
+    window.requestAnimationFrame(() => {
+      toast.classList.add("is-visible");
+    });
+
+    toastHideTimer = window.setTimeout(() => {
+      toast.classList.remove("is-visible");
+
+      window.setTimeout(() => {
+        if (elements.toastStack?.contains(toast)) {
+          elements.toastStack.innerHTML = "";
+        }
+      }, 220);
+    }, 2800);
   }
 
   function renderPagination(page, totalPages) {
@@ -1927,7 +2018,7 @@
     }
 
     setLogoutConfirmLoading(false);
-    elements.profileDropdown?.classList.add("hidden");
+    closeProfileDropdown();
     state.isLogoutConfirmOpen = true;
     elements.logoutConfirmModal?.classList.remove("hidden");
     syncModalOpenState();

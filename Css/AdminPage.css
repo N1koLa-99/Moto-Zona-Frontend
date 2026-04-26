@@ -98,6 +98,7 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 18px;
+  min-width: 0;
 }
 
 .brand {
@@ -105,6 +106,8 @@ button {
   align-items: center;
   gap: 14px;
   min-width: 0;
+  flex: 1 1 auto;
+  flex-shrink: 1;
 }
 
 .brand__logo {
@@ -131,6 +134,9 @@ button {
   letter-spacing: -0.03em;
   line-height: 1;
   white-space: nowrap;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .topbar__actions {
@@ -138,7 +144,9 @@ button {
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  flex: 0 1 auto;
+  min-width: 0;
 }
 
 .topbar-link {
@@ -154,6 +162,8 @@ button {
   background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
   border: 1px solid #dce6f1;
   box-shadow: 0 12px 26px rgba(23, 32, 45, 0.06);
+  white-space: nowrap;
+  flex-shrink: 0;
   transition:
     transform 0.18s ease,
     border-color 0.18s ease,
@@ -192,6 +202,27 @@ button {
   box-shadow:
     0 16px 30px rgba(23, 32, 45, 0.08),
     0 8px 18px rgba(20, 61, 143, 0.06);
+}
+
+.topbar-link--logout {
+  color: var(--danger);
+  border-color: rgba(198, 59, 45, 0.18);
+  background: linear-gradient(180deg, #fffefe 0%, #fff7f7 100%);
+}
+
+.topbar-link--logout::before {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M14 7.5V5.8A1.8 1.8 0 0 0 12.2 4H6.8A1.8 1.8 0 0 0 5 5.8v12.4A1.8 1.8 0 0 0 6.8 20h5.4A1.8 1.8 0 0 0 14 18.2v-1.7' fill='none' stroke='%23c62828' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M10.5 12h8M16 8.5 19.5 12 16 15.5' fill='none' stroke='%23c62828' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+      center/15px 15px no-repeat,
+    linear-gradient(180deg, #fff9f9 0%, #fff1f1 100%);
+}
+
+.topbar-link--logout:hover {
+  color: #ab2020;
+  border-color: rgba(198, 59, 45, 0.26);
+  box-shadow:
+    0 16px 30px rgba(23, 32, 45, 0.08),
+    0 8px 18px rgba(198, 59, 45, 0.08);
 }
 
 .header-btn {
@@ -720,7 +751,6 @@ button {
     --page-pad: 18px;
   }
 
-  .topbar__inner,
   .hero-card,
   .panel-card__head,
   .subpanel__head {
@@ -728,14 +758,48 @@ button {
     align-items: stretch;
   }
 
-  .topbar__actions {
-    width: 100%;
-    justify-content: stretch;
+  .topbar__inner {
+    min-height: 64px;
+    gap: 8px;
   }
 
-  .topbar-link,
-  .header-btn {
-    width: 100%;
+  .brand {
+    gap: 8px;
+  }
+
+  .brand__logo {
+    width: 52px;
+    height: 52px;
+  }
+
+  .brand__divider {
+    height: 24px;
+  }
+
+  .brand__text {
+    font-size: 1rem;
+  }
+
+  .topbar__actions {
+    width: auto;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+
+  .topbar-link {
+    min-height: 38px;
+    padding: 0 10px 0 8px;
+    gap: 6px;
+    border-radius: 12px;
+    font-size: 0.74rem;
+    box-shadow: 0 8px 18px rgba(23, 32, 45, 0.06);
+  }
+
+  .topbar-link::before {
+    width: 20px;
+    height: 20px;
+    border-radius: 7px;
+    background-size: 11px 11px, auto;
   }
 
   .stats-grid,
@@ -754,6 +818,46 @@ button {
 }
 
 @media (max-width: 560px) {
+  .topbar__inner {
+    gap: 6px;
+  }
+
+  .brand {
+    gap: 6px;
+  }
+
+  .brand__logo {
+    width: 42px;
+    height: 42px;
+  }
+
+  .brand__divider {
+    display: none;
+  }
+
+  .brand__text {
+    font-size: 0.9rem;
+  }
+
+  .topbar__actions {
+    gap: 4px;
+  }
+
+  .topbar-link {
+    min-height: 36px;
+    padding: 0 8px 0 7px;
+    gap: 5px;
+    font-size: 0.68rem;
+    border-radius: 11px;
+  }
+
+  .topbar-link::before {
+    width: 18px;
+    height: 18px;
+    border-radius: 6px;
+    background-size: 10px 10px, auto;
+  }
+
   .hero-card,
   .panel-card,
   .access-guard__card {
@@ -775,5 +879,29 @@ button {
   .field,
   .field--grow {
     flex-basis: auto;
+  }
+}
+
+@media (max-width: 360px) {
+  .brand__text {
+    font-size: 0.82rem;
+  }
+
+  .topbar__actions {
+    gap: 3px;
+  }
+
+  .topbar-link {
+    min-height: 34px;
+    padding: 0 7px 0 6px;
+    gap: 4px;
+    font-size: 0.62rem;
+  }
+
+  .topbar-link::before {
+    width: 16px;
+    height: 16px;
+    border-radius: 5px;
+    background-size: 9px 9px, auto;
   }
 }

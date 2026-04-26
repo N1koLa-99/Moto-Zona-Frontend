@@ -120,7 +120,8 @@
 
       <div class="topbar__actions">
         <button class="auth-action-btn topbar-upload-btn" id="topbarUploadBtn" type="button">
-          Качи обява
+          <span class="topbar-upload-btn__label-full">Качи обява</span>
+          <span class="topbar-upload-btn__label-short">Качи</span>
         </button>
 
         <div class="guest-actions" id="guestActions">
@@ -130,7 +131,14 @@
         </div>
 
         <div class="profile-menu hidden" id="profileMenuWrap">
-          <button class="profile-btn" id="profileBtn" type="button" aria-label="Профил">
+          <button
+            class="profile-btn"
+            id="profileBtn"
+            type="button"
+            aria-label="Профил"
+            aria-haspopup="menu"
+            aria-expanded="false"
+          >
             <span class="profile-btn__icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none">
                 <path
@@ -830,6 +838,8 @@
   </div>
 
   <div class="overlay" id="overlay"></div>
+
+  <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="true"></div>
 
   <footer class="site-footer">
     <div class="site-footer__shell">

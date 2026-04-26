@@ -167,6 +167,7 @@
 
     mainCategorySelect: document.getElementById("mainCategorySelect"),
     promotionTypeSelect: document.getElementById("promotionTypeSelect"),
+    promotionTypeHint: document.getElementById("promotionTypeHint"),
     titleInput: document.getElementById("titleInput"),
     descriptionInput: document.getElementById("descriptionInput"),
 
@@ -1962,6 +1963,55 @@
     return `${numeric.toFixed(2)} ${currency}`;
   }
 
+  function getPromotionOptionText(promotionTypeRaw) {
+    const promotionType = cleanText(promotionTypeRaw || "NORMAL").toUpperCase();
+
+    if (promotionType === "TOP") {
+      return `TOP • над нормалните за ${PRICING.TOP_DAYS} дни • +${formatMoney(PRICING.TOP_PRICE_EUR, "EUR")}`;
+    }
+
+    if (promotionType === "VIP") {
+      return `VIP • най-видима за ${PRICING.VIP_DAYS} дни • +${formatMoney(PRICING.VIP_PRICE_EUR, "EUR")}`;
+    }
+
+    return "Нормална • стандартна видимост";
+  }
+
+  function getPromotionHintText(promotionTypeRaw) {
+    const breakdown = getCreateChargeBreakdown();
+    const promotionType = cleanText(promotionTypeRaw || breakdown.promotionType || "NORMAL").toUpperCase();
+
+    if (promotionType === "TOP") {
+      return breakdown.publishChargeEUR > 0
+        ? `TOP струва ${formatMoney(PRICING.TOP_PRICE_EUR, "EUR")} за ${PRICING.TOP_DAYS} дни, качва обявата по-напред и я отличава. Общо за това качване: ${formatMoney(breakdown.totalEUR, "EUR")} с включена такса за качване ${formatMoney(breakdown.publishChargeEUR, "EUR")}.`
+        : `TOP струва ${formatMoney(PRICING.TOP_PRICE_EUR, "EUR")} за ${PRICING.TOP_DAYS} дни, качва обявата по-напред и я отличава. Общо за това качване: ${formatMoney(breakdown.totalEUR, "EUR")}.`;
+    }
+
+    if (promotionType === "VIP") {
+      return breakdown.publishChargeEUR > 0
+        ? `VIP струва ${formatMoney(PRICING.VIP_PRICE_EUR, "EUR")} за ${PRICING.VIP_DAYS} дни и дава най-силна видимост с приоритетно позициониране. Общо за това качване: ${formatMoney(breakdown.totalEUR, "EUR")} с включена такса за качване ${formatMoney(breakdown.publishChargeEUR, "EUR")}.`
+        : `VIP струва ${formatMoney(PRICING.VIP_PRICE_EUR, "EUR")} за ${PRICING.VIP_DAYS} дни и дава най-силна видимост с приоритетно позициониране. Общо за това качване: ${formatMoney(breakdown.totalEUR, "EUR")}.`;
+    }
+
+    return breakdown.publishChargeEUR > 0
+      ? `Без допълнителна промоция. Обявата е със стандартна видимост. Таксата за качване се смята отделно, защото си над free лимита.`
+      : `Без допълнителна промоция. Обявата е със стандартна видимост.`;
+  }
+
+  function updatePromotionTypeCopy() {
+    const promotionSelect = elements.promotionTypeSelect;
+    if (!promotionSelect) return;
+
+    const options = Array.from(promotionSelect.options || []);
+    options.forEach(option => {
+      option.textContent = getPromotionOptionText(option.value);
+    });
+
+    if (elements.promotionTypeHint) {
+      elements.promotionTypeHint.textContent = getPromotionHintText(promotionSelect.value);
+    }
+  }
+
   function renderCreatePricingInfo() {
     const accountType = normalizeAccountType(state.billing.accountType || "PRIVATE");
     const freeRemaining = Number(state.billing.freeUploadsRemainingNow || 0);
@@ -2027,6 +2077,8 @@
       elements.vipPlanText.textContent =
         `VIP дава най-силна видимост и приоритетно позициониране за ${PRICING.VIP_DAYS} дни. Тази такса се добавя върху таксата за качване, ако си над лимита.`;
     }
+
+    updatePromotionTypeCopy();
   }
 
   function updateSelectedPlanSummary() {
@@ -2147,6 +2199,7 @@
         `${breakdown.totalExplanation} ${breakdown.promotionDescription}`;
     }
 
+    updatePromotionTypeCopy();
     updateSelectedPlanSummary();
 
     if (elements.submitBtn && !state.isSubmitting) {

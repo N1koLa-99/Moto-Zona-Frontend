@@ -21,6 +21,14 @@
     TRY: 0.028
   };
 
+  const PROFILE_SECTION_HASH_MAP = {
+    dashboard: "dashboard",
+    listings: "listings",
+    favorites: "favorites",
+    payments: "payments",
+    editprofile: "editProfile"
+  };
+
   const state = {
     currentSection: null,
     loaded: {
@@ -189,13 +197,19 @@
     }
 
     if (elements.logoutBtn) {
-      elements.logoutBtn.textContent = "Изход от профила";
       elements.logoutBtn.title = "Изход от профила";
       elements.logoutBtn.setAttribute("aria-label", "Изход от профила");
     }
 
     hydrateStaticUserInfo();
     bindStaticEvents();
+
+    const requestedSection = getSectionFromHash();
+    if (requestedSection) {
+      void openSection(requestedSection);
+      return;
+    }
+
     renderIntroState();
   }
 
@@ -250,6 +264,34 @@
         closeEditModal(true);
       }
     });
+
+    window.addEventListener("hashchange", () => {
+      const requestedSection = getSectionFromHash();
+      if (!requestedSection || requestedSection === state.currentSection) {
+        return;
+      }
+
+      void openSection(requestedSection);
+    });
+  }
+
+  function normalizeProfileSection(sectionRaw) {
+    const normalized = String(sectionRaw || "").trim().toLowerCase();
+    return PROFILE_SECTION_HASH_MAP[normalized] || null;
+  }
+
+  function getSectionFromHash() {
+    return normalizeProfileSection(window.location.hash.replace(/^#/, ""));
+  }
+
+  function syncSectionHash(section) {
+    const normalizedSection = normalizeProfileSection(section);
+    if (!normalizedSection) return;
+
+    const nextHash = `#${normalizedSection}`;
+    if (window.location.hash === nextHash) return;
+
+    window.history.replaceState(null, "", nextHash);
   }
 
   async function onLogoutClick() {
@@ -506,45 +548,47 @@
   }
 
   async function openSection(section, options = {}) {
-    if (!section) return;
+    const normalizedSection = normalizeProfileSection(section);
+    if (!normalizedSection) return;
 
     const force = Boolean(options.force);
     const targetPage = Number(options.page || 0);
 
-    if (targetPage > 0 && state.pages[section]) {
-      state.pages[section] = targetPage;
+    if (targetPage > 0 && state.pages[normalizedSection]) {
+      state.pages[normalizedSection] = targetPage;
     }
 
-    state.currentSection = section;
-    setActiveSectionButton(section);
+    state.currentSection = normalizedSection;
+    syncSectionHash(normalizedSection);
+    setActiveSectionButton(normalizedSection);
 
-    if (!force && state.loaded[section] && state.data[section]) {
+    if (!force && state.loaded[normalizedSection] && state.data[normalizedSection]) {
       renderCurrentSection();
       return;
     }
 
-    renderLoadingState(section);
+    renderLoadingState(normalizedSection);
 
     try {
-      await loadSectionData(section);
+      await loadSectionData(normalizedSection);
 
-      if (section !== "dashboard") {
-        const currentData = state.data[section];
-        const requestedPage = state.pages[section];
+      if (normalizedSection !== "dashboard") {
+        const currentData = state.data[normalizedSection];
+        const requestedPage = state.pages[normalizedSection];
         const totalPages = Number(currentData?.totalPages || 0);
 
         if (totalPages > 0 && requestedPage > totalPages) {
-          state.pages[section] = totalPages;
+          state.pages[normalizedSection] = totalPages;
 
-          if (section === "listings") {
+          if (normalizedSection === "listings") {
             syncListingsViewData();
           } else {
-            await loadSectionData(section);
+            await loadSectionData(normalizedSection);
           }
         }
       }
 
-      if (section === "payments") {
+      if (normalizedSection === "payments") {
         await preloadPaymentListingPreviews(state.data.payments?.items || []);
       }
 
@@ -2027,8 +2071,13 @@
         ? `<div class="listing-card__date">${escapeHtml(remainingText)}</div>`
         : `<div class="listing-card__remaining-time">${escapeHtml(remainingText)}</div>`;
 
+    const cardClassNames = [
+      "listing-card",
+      isFavoritesMode ? "listing-card--favorites" : "listing-card--my-listings"
+    ].join(" ");
+
     return `
-      <article class="listing-card">
+      <article class="${cardClassNames}">
         <div class="listing-card__media">
           <div class="listing-card__promotion">
             ${renderPromotionBadge(promotionType)}

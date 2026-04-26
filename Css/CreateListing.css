@@ -126,6 +126,7 @@ textarea {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  min-width: 0;
 }
 
 .brand {
@@ -133,6 +134,8 @@ textarea {
   display: inline-flex;
   align-items: center;
   gap: 14px;
+  flex: 1 1 auto;
+  flex-shrink: 1;
 }
 
 .brand__logo {
@@ -159,13 +162,23 @@ textarea {
   font-weight: 800;
   letter-spacing: -0.03em;
   white-space: nowrap;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .topbar__actions {
   display: flex;
   align-items: center;
   gap: 10px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.topbar__actions .ghost-btn {
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* PAGE */
@@ -1612,44 +1625,46 @@ textarea {
   }
 
   .topbar__inner {
-    min-height: auto;
+    min-height: 64px;
     padding: 10px 0;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
+    align-items: center;
+    gap: 8px;
   }
 
   .brand {
-    width: 100%;
+    width: auto;
+    flex: 1 1 auto;
     justify-content: flex-start;
-    gap: 12px;
-  }
-
-  .brand__logo {
-    width: 56px;
-    height: 56px;
-  }
-
-  .brand__divider {
-    height: 28px;
-  }
-
-  .brand__text {
-    font-size: 1.18rem;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .topbar__actions {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
   }
 
+  .brand__logo {
+    width: 52px;
+    height: 52px;
+  }
+
+  .brand__divider {
+    height: 24px;
+  }
+
+  .brand__text {
+    font-size: 1rem;
+  }
+
+  .topbar__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 1 auto;
+    flex-wrap: nowrap;
+  }
+
   .topbar__actions .ghost-btn {
-    width: 100%;
-    min-height: var(--tap-mobile);
+    width: auto;
+    min-height: 40px;
+    padding: 0 12px;
+    border-radius: 12px;
+    font-size: 0.82rem;
   }
 
   .page-head h1 {
@@ -2027,29 +2042,34 @@ textarea {
 
   .topbar__inner {
     padding: 8px 0;
-    gap: 8px;
+    gap: 6px;
   }
 
   .brand {
-    gap: 10px;
+    gap: 8px;
   }
 
   .brand__logo {
-    width: 46px;
-    height: 46px;
+    width: 42px;
+    height: 42px;
   }
 
   .brand__divider {
-    height: 24px;
+    display: none;
   }
 
   .brand__text {
-    font-size: 0.98rem;
+    font-size: 0.92rem;
   }
 
   .topbar__actions {
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    gap: 6px;
+  }
+
+  .topbar__actions .ghost-btn {
+    min-height: 36px;
+    padding: 0 10px;
+    font-size: 0.74rem;
   }
 
   .page-head {
@@ -2189,7 +2209,17 @@ textarea {
 
 @media (max-width: 360px) {
   .brand__text {
-    font-size: 0.92rem;
+    font-size: 0.86rem;
+  }
+
+  .topbar__actions {
+    gap: 4px;
+  }
+
+  .topbar__actions .ghost-btn {
+    min-height: 34px;
+    padding: 0 8px;
+    font-size: 0.68rem;
   }
 
   .page-head h1 {

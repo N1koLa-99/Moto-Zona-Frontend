@@ -101,6 +101,7 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  min-width: 0;
 }
 
 .brand {
@@ -138,12 +139,16 @@ button {
   line-height: 1;
   color: var(--text);
   white-space: nowrap;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .topbar__actions {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
 }
 
 .profile-btn,
@@ -163,6 +168,24 @@ button {
   color: var(--text);
   font-weight: 800;
   white-space: nowrap;
+  min-width: 0;
+}
+
+.profile-btn::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  margin-left: 2px;
+  border-right: 2px solid #7b8794;
+  border-bottom: 2px solid #7b8794;
+  transform: rotate(45deg) translateY(-1px);
+  transform-origin: center;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.profile-btn[aria-expanded="true"]::after {
+  transform: rotate(-135deg) translateY(-1px);
 }
 
 .profile-btn:hover,
@@ -170,6 +193,10 @@ button {
 .filters-close-btn:hover {
   transform: translateY(-1px);
   border-color: var(--line-2);
+}
+
+.profile-btn:hover::after {
+  border-color: #526171;
 }
 
 .profile-btn__icon {
@@ -191,6 +218,10 @@ button {
 
 .profile-btn__text {
   line-height: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .mobile-filter-btn {
@@ -1192,6 +1223,57 @@ button {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 20.5l-1.1-1C5.14 14.36 2 11.39 2 7.75 2 5 4 3 6.75 3c1.56 0 3.06.73 4.03 1.88C11.94 3.73 13.44 3 15 3 17.75 3 19.75 5 19.75 7.75c0 3.64-3.14 6.61-8.9 11.75L12 20.5z' fill='%23ff6a2a' stroke='%23ff6a2a' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 
+.favorite-btn:disabled {
+  cursor: wait;
+  opacity: 0.86;
+  transform: none;
+}
+
+.toast-stack {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 220;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.toast {
+  min-width: min(320px, calc(100vw - 32px));
+  max-width: 420px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  color: #fff;
+  background: linear-gradient(135deg, #1f2a38, #2d3b4c);
+  box-shadow: 0 16px 34px rgba(23, 32, 45, 0.2);
+  font-size: 0.94rem;
+  font-weight: 700;
+  line-height: 1.45;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.toast.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast--success {
+  background: linear-gradient(135deg, #0f7b72, #15998f);
+}
+
+.toast--info {
+  background: linear-gradient(135deg, #1f2a38, #33465d);
+}
+
+.toast--error {
+  background: linear-gradient(135deg, #a6291f, #d54834);
+}
+
 .card__body {
   padding: 18px;
   display: flex;
@@ -1515,6 +1597,20 @@ button {
   align-items: center;
   gap: 9px;
   white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.topbar-upload-btn__label-short {
+  display: none;
+}
+
+.topbar-upload-btn__label-full,
+.topbar-upload-btn__label-short {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .topbar-upload-btn::before {
@@ -1533,6 +1629,7 @@ button {
 
 .profile-menu {
   position: relative;
+  min-width: 0;
 }
 
 .profile-menu__dropdown {
@@ -1860,6 +1957,7 @@ button {
 @media (max-width: 700px) {
   :root {
     --page-pad: 12px;
+    --topbar-height: 66px;
   }
 
   body {
@@ -1873,6 +1971,8 @@ button {
 
   .brand {
     gap: 10px;
+    flex: 1 1 auto;
+    flex-shrink: 1;
   }
 
   .brand__logo {
@@ -1890,14 +1990,30 @@ button {
 
   .topbar__actions {
     gap: 8px;
-    flex-shrink: 0;
+    flex: 0 1 auto;
+    flex-shrink: 1;
+  }
+
+  .topbar-upload-btn {
+    min-height: 40px;
+    padding: 0 12px;
+    border-radius: 12px;
+    gap: 7px;
+    font-size: 0.84rem;
+  }
+
+  .topbar-upload-btn::before {
+    width: 18px;
+    height: 18px;
+    font-size: 0.86rem;
   }
 
   .profile-btn {
     padding: 5px 10px 5px 5px;
     min-height: 40px;
     border-radius: 12px;
-    gap: 8px;
+    gap: 7px;
+    max-width: 98px;
   }
 
   .profile-btn__icon {
@@ -1913,6 +2029,7 @@ button {
 
   .profile-btn__text {
     font-size: 0.88rem;
+    max-width: 42px;
   }
 
   .mobile-filter-btn {
@@ -2440,6 +2557,56 @@ button {
   }
 }
 
+@media (max-width: 560px) {
+  .topbar__inner {
+    gap: 6px;
+  }
+
+  .brand {
+    gap: 8px;
+  }
+
+  .brand__divider {
+    display: none;
+  }
+
+  .brand__text {
+    font-size: 1rem;
+  }
+
+  .topbar__actions {
+    gap: 6px;
+  }
+
+  .topbar-upload-btn {
+    min-height: 38px;
+    padding: 0 8px;
+    gap: 5px;
+    font-size: 0.76rem;
+  }
+
+  .topbar-upload-btn__label-full {
+    display: inline;
+  }
+
+  .topbar-upload-btn__label-short {
+    display: none;
+  }
+
+  .profile-btn {
+    min-height: 38px;
+    padding: 4px 8px 4px 4px;
+    gap: 5px;
+    max-width: 84px;
+  }
+
+  .profile-btn__text {
+    display: block;
+    font-size: 0.78rem;
+    max-width: 34px;
+  }
+}
+
 @media (max-width: 420px) {
   .hero {
     min-height: 210px;
@@ -2555,11 +2722,51 @@ button {
   }
 
   .brand__text {
-    font-size: 1rem;
+    font-size: 0.92rem;
   }
 
   .brand__divider {
     height: 24px;
+  }
+
+  .topbar-upload-btn {
+    min-height: 36px;
+    padding: 0 7px;
+    font-size: 0.72rem;
+  }
+
+  .topbar-upload-btn::before {
+    width: 14px;
+    height: 14px;
+    font-size: 0.72rem;
+  }
+
+  .profile-btn {
+    min-height: 36px;
+    padding: 4px 7px 4px 4px;
+    gap: 4px;
+    max-width: 78px;
+  }
+
+  .profile-btn__icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .profile-btn__icon svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .profile-btn__text {
+    font-size: 0.74rem;
+    max-width: 30px;
+  }
+
+  .profile-btn::after {
+    width: 7px;
+    height: 7px;
+    margin-left: 1px;
   }
 
   .listings-grid {

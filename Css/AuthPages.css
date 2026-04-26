@@ -765,10 +765,19 @@ button {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex: 0 1 auto;
+  min-width: 0;
+  flex-wrap: nowrap;
 }
 
 .topbar .auth-action-btn {
   min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* RESPONSIVE */
@@ -1287,11 +1296,13 @@ button {
 
   .topbar .topbar__actions {
     gap: 8px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
   }
 
   .topbar .auth-action-btn {
     min-height: 38px;
+    padding: 0 12px;
+    font-size: 0.82rem;
   }
 }
 
@@ -1505,6 +1516,36 @@ button {
 
   .topbar .auth-action-btn {
     min-height: 34px;
+    padding: 0 10px;
+    font-size: 0.74rem;
+  }
+
+  .topbar .brand__divider {
+    display: none;
+  }
+
+  .topbar .brand__text {
+    font-size: 0.92rem;
+  }
+
+  .topbar .topbar__actions {
+    gap: 6px;
+  }
+}
+
+@media (max-width: 380px) {
+  .topbar .brand__text {
+    font-size: 0.84rem;
+  }
+
+  .topbar .topbar__actions {
+    gap: 4px;
+  }
+
+  .topbar .auth-action-btn {
+    min-height: 32px;
+    padding: 0 8px;
+    font-size: 0.68rem;
   }
 }
 

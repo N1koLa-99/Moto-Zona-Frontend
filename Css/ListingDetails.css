@@ -85,6 +85,7 @@ img {
   align-items: center;
   justify-content: space-between;
   gap: 14px;
+  min-width: 0;
 }
 
 .brand {
@@ -92,7 +93,8 @@ img {
   align-items: center;
   gap: 12px;
   min-width: 0;
-  flex-shrink: 0;
+  flex: 1 1 auto;
+  flex-shrink: 1;
 }
 
 .brand__logo {
@@ -121,12 +123,17 @@ img {
   line-height: 1;
   color: var(--text);
   white-space: nowrap;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .topbar__actions {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex: 0 1 auto;
+  min-width: 0;
 }
 
 .ghost-nav-btn,
@@ -173,6 +180,7 @@ img {
 
 .profile-menu {
   position: relative;
+  min-width: 0;
 }
 
 .profile-btn {
@@ -184,6 +192,24 @@ img {
   border: 1px solid var(--line);
   color: var(--text);
   white-space: nowrap;
+  min-width: 0;
+}
+
+.profile-btn::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  margin-left: 2px;
+  border-right: 2px solid #7b8794;
+  border-bottom: 2px solid #7b8794;
+  transform: rotate(45deg) translateY(-1px);
+  transform-origin: center;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.profile-btn[aria-expanded="true"]::after {
+  transform: rotate(-135deg) translateY(-1px);
 }
 
 .profile-btn__icon {
@@ -201,6 +227,13 @@ img {
 .profile-btn__icon svg {
   width: 16px;
   height: 16px;
+}
+
+.profile-btn__text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .profile-menu__dropdown {
@@ -1100,7 +1133,7 @@ img {
 
   .topbar__actions {
     gap: 6px;
-    flex-shrink: 0;
+    flex: 0 1 auto;
   }
 
   .guest-actions {
@@ -1120,6 +1153,7 @@ img {
     min-height: 38px;
     border-radius: 10px;
     gap: 6px;
+    max-width: 108px;
   }
 
   .profile-btn__icon {
@@ -1131,6 +1165,11 @@ img {
   .profile-btn__icon svg {
     width: 14px;
     height: 14px;
+  }
+
+  .profile-btn__text {
+    max-width: 54px;
+    font-size: 0.84rem;
   }
 
   .profile-menu__dropdown {
@@ -1364,23 +1403,56 @@ img {
 }
 
 @media (max-width: 420px) {
+  .topbar__inner {
+    gap: 6px;
+  }
+
   .brand__logo {
     width: 42px;
     height: 42px;
   }
 
   .brand__text {
-    font-size: 0.96rem;
+    font-size: 0.9rem;
   }
 
   .brand__divider {
-    height: 22px;
+    display: none;
   }
 
   .ghost-nav-btn,
   .auth-action-btn {
     padding: 0 10px;
-    font-size: 0.8rem;
+    min-height: 36px;
+    font-size: 0.76rem;
+  }
+
+  .profile-btn {
+    min-height: 36px;
+    padding: 4px 8px 4px 4px;
+    gap: 5px;
+    max-width: 92px;
+  }
+
+  .profile-btn__icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 8px;
+  }
+
+  .profile-btn__icon svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .profile-btn__text {
+    max-width: 42px;
+    font-size: 0.76rem;
+  }
+
+  .profile-btn::after {
+    width: 7px;
+    height: 7px;
   }
 
   .hero-detail__copy h1 {

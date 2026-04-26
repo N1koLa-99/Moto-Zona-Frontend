@@ -9,10 +9,18 @@
 
 .legal-document .topbar__inner {
   min-height: var(--topbar-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
 }
 
 .legal-document .brand {
   gap: 10px;
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-shrink: 1;
 }
 
 .legal-document .brand__logo {
@@ -26,6 +34,40 @@
 
 .legal-document .brand__text {
   font-size: 1rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.legal-document .topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.legal-document .topbar-link {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #243140;
+  font-weight: 900;
+  white-space: nowrap;
+  border: 1px solid #dce6f1;
+  background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+  box-shadow: 0 8px 18px rgba(23, 32, 45, 0.06);
+  flex-shrink: 0;
+}
+
+.legal-document .topbar-link--accent {
+  color: #fff;
+  border-color: transparent;
+  background: linear-gradient(135deg, #ff6a2a, #ff8a52);
 }
 
 .legal-page {
@@ -288,9 +330,32 @@
     --topbar-height: 66px;
   }
 
+  .legal-document .topbar__inner {
+    gap: 8px;
+  }
+
   .legal-document .brand__logo {
     width: 40px;
     height: 40px;
+  }
+
+  .legal-document .brand__divider {
+    display: none;
+  }
+
+  .legal-document .brand__text {
+    font-size: 0.92rem;
+  }
+
+  .legal-document .topbar__actions {
+    gap: 6px;
+  }
+
+  .legal-document .topbar-link {
+    min-height: 36px;
+    padding: 0 10px;
+    font-size: 0.74rem;
+    border-radius: 11px;
   }
 
   .legal-page {
@@ -310,5 +375,21 @@
   .legal-info-grid,
   .legal-contact-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .legal-document .brand__text {
+    font-size: 0.84rem;
+  }
+
+  .legal-document .topbar__actions {
+    gap: 4px;
+  }
+
+  .legal-document .topbar-link {
+    min-height: 34px;
+    padding: 0 8px;
+    font-size: 0.68rem;
   }
 }
