@@ -1967,11 +1967,11 @@
     const promotionType = cleanText(promotionTypeRaw || "NORMAL").toUpperCase();
 
     if (promotionType === "TOP") {
-      return `TOP • над нормалните за ${PRICING.TOP_DAYS} дни • +${formatMoney(PRICING.TOP_PRICE_EUR, "EUR")}`;
+      return "TOP • очаквайте скоро";
     }
 
     if (promotionType === "VIP") {
-      return `VIP • най-видима за ${PRICING.VIP_DAYS} дни • +${formatMoney(PRICING.VIP_PRICE_EUR, "EUR")}`;
+      return "VIP • очаквайте скоро";
     }
 
     return "Нормална • стандартна видимост";
@@ -2014,20 +2014,9 @@
 
   function renderCreatePricingInfo() {
     const accountType = normalizeAccountType(state.billing.accountType || "PRIVATE");
-    const freeRemaining = Number(state.billing.freeUploadsRemainingNow || 0);
 
     if (elements.pricingSummaryText) {
-      elements.pricingSummaryText.textContent =
-        freeRemaining > 0
-          ? `Имаш ${freeRemaining} безплатни качвания в момента. Ако качиш NORMAL обява, няма да ти се начисли такса за публикуване.`
-          : `В момента си над free лимита. При ново качване ще се начисли такса според типа профил, плюс избраното ниво TOP или VIP.`;
-    }
-
-    if (elements.pricingSummaryText) {
-      elements.pricingSummaryText.textContent =
-        freeRemaining > 0
-          ? `Имаш още ${freeRemaining} free качвания. При NORMAL в момента няма такса за публикуване.`
-          : `Free лимитът е изчерпан. Ще се начисли такса за качване, а TOP или VIP се добавят отделно.`;
+      elements.pricingSummaryText.textContent = "Сайтът е в безплатен режим — качвайте обяви без лимити и такси.";
     }
 
     if (elements.billingAccountType) {
@@ -2035,47 +2024,39 @@
     }
 
     if (elements.billingFreeRemaining) {
-      elements.billingFreeRemaining.textContent = String(freeRemaining);
+      elements.billingFreeRemaining.textContent = "Без лимит";
     }
 
     if (elements.billingOverLimitPrice) {
-      elements.billingOverLimitPrice.textContent = formatMoney(state.billing.overLimitPublishPriceEUR, "EUR");
+      elements.billingOverLimitPrice.textContent = "Безплатно";
     }
 
     if (elements.billingRefreshPrice) {
-      elements.billingRefreshPrice.textContent = formatMoney(state.billing.refreshPriceEUR, "EUR");
+      elements.billingRefreshPrice.textContent = "Безплатно";
     }
 
     if (elements.normalPlanPriceText) {
-      elements.normalPlanPriceText.textContent =
-        freeRemaining > 0
-          ? "0.00 EUR*"
-          : formatMoney(state.billing.overLimitPublishPriceEUR, "EUR");
+      elements.normalPlanPriceText.textContent = "0.00 EUR";
     }
 
     if (elements.normalPlanText) {
-      elements.normalPlanText.textContent =
-        freeRemaining > 0
-          ? `Нормална обява. Това качване може да мине без такса, защото още имаш ${freeRemaining} free качвания.`
-          : `Нормална обява. Понеже free лимитът е изчерпан, само качването ще струва ${formatMoney(state.billing.overLimitPublishPriceEUR, "EUR")}.`;
+      elements.normalPlanText.textContent = "Нормална обява. В момента качването е напълно безплатно.";
     }
 
     if (elements.topPlanPriceText) {
-      elements.topPlanPriceText.textContent = `${formatMoney(PRICING.TOP_PRICE_EUR, "EUR")} / ${PRICING.TOP_DAYS} дни`;
+      elements.topPlanPriceText.textContent = "Очаквайте скоро";
     }
 
     if (elements.topPlanText) {
-      elements.topPlanText.textContent =
-        `TOP отличава обявата и я показва по-напред за ${PRICING.TOP_DAYS} дни. Тази такса се добавя върху таксата за качване, ако си над лимита.`;
+      elements.topPlanText.textContent = "TOP функцията е временно недостъпна.";
     }
 
     if (elements.vipPlanPriceText) {
-      elements.vipPlanPriceText.textContent = `${formatMoney(PRICING.VIP_PRICE_EUR, "EUR")} / ${PRICING.VIP_DAYS} дни`;
+      elements.vipPlanPriceText.textContent = "Очаквайте скоро";
     }
 
     if (elements.vipPlanText) {
-      elements.vipPlanText.textContent =
-        `VIP дава най-силна видимост и приоритетно позициониране за ${PRICING.VIP_DAYS} дни. Тази такса се добавя върху таксата за качване, ако си над лимита.`;
+      elements.vipPlanText.textContent = "VIP функцията е временно недостъпна.";
     }
 
     updatePromotionTypeCopy();
@@ -2106,16 +2087,8 @@
           ? `VIP дава най-силна видимост за ${PRICING.VIP_DAYS} дни. Към него се добавя и такса за качване ${formatMoney(breakdown.publishChargeEUR, "EUR")}.`
           : `VIP дава най-силна видимост за ${PRICING.VIP_DAYS} дни. В момента плащаш само самото ниво.`;
     } else {
-      priceText =
-        breakdown.publishChargeEUR > 0
-          ? formatMoney(breakdown.publishChargeEUR, "EUR")
-          : "0.00 EUR";
-      hintText =
-        breakdown.publishChargeEUR > 0
-          ? `Нормална обява без промоция. Ще се начисли само такса за качване ${formatMoney(breakdown.publishChargeEUR, "EUR")}.`
-          : freeRemaining > 0
-            ? `Нормалната обява влиза в free лимита и за това качване няма да се начисли такса.`
-            : `Нормална обява без допълнителна промоция.`;
+      priceText = "0.00 EUR";
+      hintText = "Нормална обява. В момента качването е напълно безплатно.";
     }
 
     elements.selectedPlanCard.classList.remove(
@@ -2140,8 +2113,7 @@
 
   function getCreateChargeBreakdown() {
     const promotionType = cleanText(elements.promotionTypeSelect?.value || "NORMAL").toUpperCase();
-    const freeRemaining = Number(state.billing.freeUploadsRemainingNow || 0);
-    const publishChargeEUR = freeRemaining > 0 ? 0 : Number(state.billing.overLimitPublishPriceEUR || 0);
+    const publishChargeEUR = 0;
 
     let promotionChargeEUR = 0;
     let promotionDescription = "Нормална обява без допълнителна промоция.";
@@ -2158,15 +2130,8 @@
 
     const totalEUR = Number((publishChargeEUR + promotionChargeEUR).toFixed(2));
 
-    const publishExplanation =
-      publishChargeEUR === 0
-        ? "Качването влиза в безплатния лимит."
-        : `Качването е над free лимита и се начисляват ${formatMoney(publishChargeEUR, "EUR")}.`;
-
-    const totalExplanation =
-      promotionType === "NORMAL"
-        ? `${publishExplanation} Няма допълнителна промоционална такса.`
-        : `${publishExplanation} Избрано е ниво ${promotionType}, което добавя ${formatMoney(promotionChargeEUR, "EUR")}.`;
+    const publishExplanation = "Сайтът е в безплатен режим — качването е безплатно.";
+    const totalExplanation = "Сайтът е в безплатен режим — няма такси за качване.";
 
     return {
       promotionType,
@@ -2211,15 +2176,13 @@
   }
 
   function buildCreateChargeConfirmMessage() {
-    const breakdown = getCreateChargeBreakdown();
-
     return [
       "Потвърждение за публикуване:",
-      `- Такса за качване: ${formatMoney(breakdown.publishChargeEUR, "EUR")}`,
-      `- Такса за ниво (${breakdown.promotionType}): ${formatMoney(breakdown.promotionChargeEUR, "EUR")}`,
-      `- Общо дължимо: ${formatMoney(breakdown.totalEUR, "EUR")}`,
+      "- Такса за качване: 0.00 EUR (безплатен режим)",
+      "- Такса за ниво: 0.00 EUR",
+      "- Общо дължимо: 0.00 EUR",
       "",
-      breakdown.totalExplanation,
+      "Сайтът е в безплатен режим — никакви такси.",
       "",
       "Продължаваш ли?"
     ].join("\n");

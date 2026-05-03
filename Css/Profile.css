@@ -2126,8 +2126,17 @@ textarea {
   transition: 0.18s ease;
 }
 
-.subscription-action-card__btn:hover {
+.subscription-action-card__btn:hover:not(:disabled) {
   transform: translateY(-1px);
+}
+
+.subscription-action-card__btn:disabled {
+  background: #dde4ee;
+  color: #8fa0b8;
+  border-color: #cdd6e3;
+  cursor: not-allowed;
+  transform: none;
+  opacity: 0.75;
 }
 
 .subscription-action-card__btn--vip {

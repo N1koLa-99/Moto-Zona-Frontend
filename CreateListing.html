@@ -41,6 +41,10 @@
     </div>
   </header>
 
+  <div class="dev-banner">
+    <span class="dev-banner__dot"></span>Сайтът е в режим на разработка — <strong>всичко е безплатно</strong>. Качвайте обяви без лимити и такси. Функции като VIP и ТОП ще бъдат достъпни скоро.
+  </div>
+
   <main class="page">
     <div class="container">
       <div class="page-head">
@@ -102,11 +106,11 @@
                   <label for="promotionTypeSelect">Ниво на обявата</label>
                   <select id="promotionTypeSelect" aria-describedby="promotionTypeHint">
                     <option value="NORMAL">Нормална • стандартна видимост</option>
-                    <option value="TOP">TOP • над нормалните за 7 дни • +4.00 EUR</option>
-                    <option value="VIP">VIP • най-видима за 7 дни • +7.00 EUR</option>
+                    <option value="TOP" disabled>TOP • очаквайте скоро</option>
+                    <option value="VIP" disabled>VIP • очаквайте скоро</option>
                   </select>
                   <small id="promotionTypeHint">
-                    Без допълнителна промоция. Обявата е със стандартна видимост.
+                    Сайтът е в безплатен режим — VIP и ТОП са временно недостъпни.
                   </small>
                 </div>
 
@@ -499,7 +503,7 @@
               <ul class="tips-list tips-list--compact">
                 <li>Добави ясна снимка и провери коя е главна.</li>
                 <li>Попълни цена, телефон и точна локация.</li>
-                <li>Избери ниво NORMAL, TOP или VIP според това колко видимост искаш.</li>
+                <li>Избери NORMAL — в момента всичко е безплатно, качвай на воля.</li>
               </ul>
             </div>
           </aside>

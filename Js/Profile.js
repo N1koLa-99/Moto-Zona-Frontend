@@ -2532,14 +2532,14 @@
     }
 
     if (elements.editAccountTypeValue) elements.editAccountTypeValue.textContent = normalizeAccountType(state.accountType || "PRIVATE");
-    if (elements.editRefreshPriceValue) elements.editRefreshPriceValue.textContent = "0.50 EUR";
-    if (elements.editPublishOverLimitPriceValue) elements.editPublishOverLimitPriceValue.textContent = "1.00 EUR";
-    if (elements.editVipPriceText) elements.editVipPriceText.textContent = "7.00 EUR";
-    if (elements.editTopPriceText) elements.editTopPriceText.textContent = "4.00 EUR";
-    if (elements.editRefreshPriceText) elements.editRefreshPriceText.textContent = "0.50 EUR";
+    if (elements.editRefreshPriceValue) elements.editRefreshPriceValue.textContent = "Безплатно";
+    if (elements.editPublishOverLimitPriceValue) elements.editPublishOverLimitPriceValue.textContent = "Безплатно";
+    if (elements.editVipPriceText) elements.editVipPriceText.textContent = "Очаквайте скоро";
+    if (elements.editTopPriceText) elements.editTopPriceText.textContent = "Очаквайте скоро";
+    if (elements.editRefreshPriceText) elements.editRefreshPriceText.textContent = "Очаквайте скоро";
     if (elements.editSubscriptionRulesText) {
       elements.editSubscriptionRulesText.textContent =
-        "Частен акаунт: VIP 7.00 EUR / 7 дни, TOP 4.00 EUR / 7 дни, Refresh 0.50 EUR, качване над лимита 1.00 EUR.";
+        "Сайтът е в безплатен режим — платените функции са временно недостъпни.";
     }
 
     resetPromotionButtons();
@@ -2641,27 +2641,27 @@
     }
 
     if (elements.editRefreshPriceValue) {
-      elements.editRefreshPriceValue.textContent = formatMoney(pricing.refreshEUR, "EUR");
+      elements.editRefreshPriceValue.textContent = "Безплатно";
     }
 
     if (elements.editPublishOverLimitPriceValue) {
-      elements.editPublishOverLimitPriceValue.textContent = formatMoney(pricing.publishOverLimitEUR, "EUR");
+      elements.editPublishOverLimitPriceValue.textContent = "Безплатно";
     }
 
     if (elements.editVipPriceText) {
-      elements.editVipPriceText.textContent = formatMoney(PRICING.VIP_PRICE_EUR, "EUR");
+      elements.editVipPriceText.textContent = "Очаквайте скоро";
     }
 
     if (elements.editTopPriceText) {
-      elements.editTopPriceText.textContent = formatMoney(PRICING.TOP_PRICE_EUR, "EUR");
+      elements.editTopPriceText.textContent = "Очаквайте скоро";
     }
 
     if (elements.editRefreshPriceText) {
-      elements.editRefreshPriceText.textContent = formatMoney(pricing.refreshEUR, "EUR");
+      elements.editRefreshPriceText.textContent = "Очаквайте скоро";
     }
 
     if (elements.editSubscriptionRulesText) {
-      elements.editSubscriptionRulesText.textContent = buildPricingSummaryText(accountType, true);
+      elements.editSubscriptionRulesText.textContent = "Сайтът е в безплатен режим — платените функции са временно недостъпни.";
     }
   }
 
@@ -2713,31 +2713,14 @@
     updatePromotionButtonsState(type);
   }
 
-  function updatePromotionButtonsState(type) {
-    const normalized = normalizePromotionType(type);
-
+  function updatePromotionButtonsState() {
     resetPromotionButtons();
-
-    if (normalized === "VIP") {
-      setButtonDisabled(elements.modalVipBtn, true, "VIP е активен");
-      setButtonDisabled(elements.modalTopBtn, true, "VIP е активен");
-      return;
-    }
-
-    if (normalized === "TOP") {
-      setButtonDisabled(elements.modalTopBtn, true, "TOP е активен");
-      setButtonDisabled(elements.modalVipBtn, false, "Направи я VIP");
-      return;
-    }
-
-    setButtonDisabled(elements.modalVipBtn, false, "Направи я VIP");
-    setButtonDisabled(elements.modalTopBtn, false, "Направи я TOP");
   }
 
   function resetPromotionButtons() {
-    setButtonDisabled(elements.modalVipBtn, false, "Направи я VIP");
-    setButtonDisabled(elements.modalTopBtn, false, "Направи я TOP");
-    setButtonDisabled(elements.modalRefreshBtn, false, "Направи refresh");
+    setButtonDisabled(elements.modalVipBtn, true, "Очаквайте скоро");
+    setButtonDisabled(elements.modalTopBtn, true, "Очаквайте скоро");
+    setButtonDisabled(elements.modalRefreshBtn, true, "Очаквайте скоро");
   }
 
   function setButtonDisabled(button, isDisabled, text) {

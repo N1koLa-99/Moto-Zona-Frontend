@@ -1,3 +1,108 @@
+/* ===== DEV BANNER ===== */
+@keyframes dev-shimmer {
+  0%   { transform: translateX(-220%); }
+  100% { transform: translateX(220%); }
+}
+
+@keyframes dev-dot-ping {
+  0%        { transform: scale(1);    opacity: 1; }
+  60%, 100% { transform: scale(2.4); opacity: 0; }
+}
+
+@keyframes dev-dot-core {
+  0%, 100% { transform: scale(1);    opacity: 1; }
+  50%       { transform: scale(0.82); opacity: 0.7; }
+}
+
+@keyframes dev-banner-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.dev-banner {
+  background: linear-gradient(135deg, #0b1a35 0%, #122044 50%, #0b1a35 100%);
+  border-top: 1px solid rgba(255, 106, 42, 0.25);
+  border-bottom: 3px solid #ff6a2a;
+  color: #cde0fa;
+  text-align: center;
+  padding: 13px 20px;
+  font-size: 0.98rem;
+  font-weight: 700;
+  line-height: 1.55;
+  letter-spacing: 0.01em;
+  position: relative;
+  overflow: hidden;
+  animation: dev-banner-in 0.45s ease both;
+}
+
+/* shimmer sweep */
+.dev-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 38%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 140, 60, 0.22) 50%,
+    transparent 100%
+  );
+  animation: dev-shimmer 2.6s linear infinite;
+  pointer-events: none;
+}
+
+.dev-banner strong {
+  color: #ff7a35;
+  font-weight: 900;
+  text-shadow: 0 0 18px rgba(255, 106, 42, 0.55);
+}
+
+/* pulsing dot */
+.dev-banner__dot {
+  position: relative;
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 10px;
+  vertical-align: middle;
+  top: -1px;
+  flex-shrink: 0;
+}
+
+.dev-banner__dot::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #ff6a2a;
+  animation: dev-dot-ping 1.7s ease-out infinite;
+}
+
+.dev-banner__dot::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border-radius: 50%;
+  background: #ff8c4a;
+  animation: dev-dot-core 1.7s ease-in-out infinite;
+}
+
+@media (max-width: 600px) {
+  .dev-banner {
+    font-size: 0.88rem;
+    padding: 11px 14px;
+  }
+}
+
+@media (max-width: 400px) {
+  .dev-banner {
+    font-size: 0.82rem;
+    padding: 10px 12px;
+  }
+}
+/* ====================== */
+
 :root {
   --footer-ink: #17202d;
   --footer-muted: #657487;
