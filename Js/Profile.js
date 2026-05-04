@@ -95,7 +95,12 @@
       listingDetails: null,
       photos: [],
       initialBlobNames: [],
-      categoryCode: null
+      categoryCode: null,
+      photoDrag: {
+        activeIndex: -1,
+        overIndex: -1,
+        pointerId: null
+      }
     }
   };
 
@@ -255,6 +260,9 @@
 
     elements.editPhotosInput?.addEventListener("change", onNewPhotosSelected);
     elements.editPhotoManager?.addEventListener("click", onPhotoManagerClick);
+    document.addEventListener("pointermove", onEditPhotoDragMove);
+    document.addEventListener("pointerup", onEditPhotoDragEnd);
+    document.addEventListener("pointercancel", cancelEditPhotoDrag);
 
     document.addEventListener("keydown", (event) => {
       if (event.key !== "Escape") return;
@@ -2491,6 +2499,7 @@
       state.modal.listingDetails = details;
       state.modal.categoryCode = resolveMainCategoryCode(details?.mainCategoryLookupId);
       state.modal.photos = normalizePhotos(details?.photos || []);
+      normalizePhotoState();
       state.modal.initialBlobNames = state.modal.photos.map((x) => x.blobName).filter(Boolean);
 
       fillStaticLookupSelects();
@@ -2528,6 +2537,7 @@
     state.modal.photos = [];
     state.modal.initialBlobNames = [];
     state.modal.categoryCode = null;
+    cancelEditPhotoDrag();
 
     elements.editListingForm?.reset();
     elements.editPhotoManager.innerHTML = `<div class="photo-manager__empty">Няма снимки</div>`;
@@ -2908,6 +2918,244 @@
         }
       });
     }
+  }
+
+  function renderPhotoManager() {
+    if (!state.modal.photos.length) {
+      elements.editPhotoManager.innerHTML = `<div class="photo-manager__empty">Няма снимки</div>`;
+      cancelEditPhotoDrag();
+      renderModalPreview();
+      return;
+    }
+
+    elements.editPhotoManager.innerHTML = state.modal.photos
+      .sort((a, b) => Number(a.sortOrder || 0) - Number(b.sortOrder || 0))
+      .map((photo, index) => {
+        const safeImg = photo.fileUrl
+          ? `<img src="${escapeHtml(photo.fileUrl)}" alt="${escapeHtml(photo.fileName || "Снимка")}" loading="lazy" />`
+          : `<div class="photo-card__missing">Няма preview</div>`;
+
+        return `
+          <article class="photo-card ${photo.isMain ? "is-main" : ""}" data-photo-index="${index}" data-photo-key="${escapeHtml(photo.clientKey)}">
+            <div class="photo-card__image">
+              ${safeImg}
+              <div class="photo-card__overlay">
+                <span class="photo-card__order-badge ${photo.isMain ? "is-main" : ""}">
+                  ${photo.isMain ? "Главна" : `#${index + 1}`}
+                </span>
+
+                <div class="photo-card__overlay-actions">
+                  <div class="photo-card__drag-handle" aria-hidden="true">⇅</div>
+                  <button
+                    class="photo-card__remove-fab"
+                    type="button"
+                    data-photo-action="remove"
+                    data-photo-key="${escapeHtml(photo.clientKey)}"
+                    aria-label="Махни снимката"
+                    title="Махни снимката"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="photo-card__body">
+              <div class="photo-card__body-row">
+                <p class="photo-card__name">${escapeHtml(photo.fileName || "Снимка")}</p>
+                <span class="photo-card__position-text">${photo.isMain ? "Корица" : `Позиция ${index + 1}`}</span>
+              </div>
+              <p class="photo-card__hint">Хвани картата и я плъзни, за да смениш реда. Първата е главна.</p>
+            </div>
+          </article>
+        `;
+      })
+      .join("");
+
+    [...elements.editPhotoManager.querySelectorAll(".photo-card[data-photo-index]")].forEach((card) => {
+      card.addEventListener("pointerdown", (event) => {
+        if (event.target.closest("button[data-photo-action='remove']")) {
+          return;
+        }
+
+        const index = Number(card.dataset.photoIndex);
+        startEditPhotoDrag(index, event);
+      });
+    });
+
+    renderModalPreview();
+    syncEditPhotoDragVisualState();
+  }
+
+  async function onPhotoManagerClick(event) {
+    const btn = event.target.closest("[data-photo-action]");
+    if (!btn) return;
+
+    const action = btn.dataset.photoAction;
+    const key = btn.dataset.photoKey;
+    const photo = state.modal.photos.find((x) => x.clientKey === key);
+    if (!photo) return;
+
+    if (action !== "remove") {
+      return;
+    }
+
+    if (photo.isNewUpload && photo.blobName) {
+      try {
+        await deleteOwnedBlob(photo.blobName);
+      } catch {
+        // умишлено мълчим
+      }
+    }
+
+    state.modal.photos = state.modal.photos.filter((x) => x.clientKey !== key);
+    normalizePhotoState();
+    renderPhotoManager();
+  }
+
+  function normalizePhotoState() {
+    state.modal.photos = state.modal.photos.map((photo, index) => ({
+      ...photo,
+      sortOrder: index,
+      isMain: index === 0
+    }));
+  }
+
+  function startEditPhotoDrag(index, event) {
+    if (!Number.isInteger(index) || !state.modal.photos[index]) {
+      return;
+    }
+
+    if (event.pointerType === "mouse" && event.button !== 0) {
+      return;
+    }
+
+    state.modal.photoDrag.activeIndex = index;
+    state.modal.photoDrag.overIndex = index;
+    state.modal.photoDrag.pointerId = event.pointerId;
+
+    event.preventDefault();
+    syncEditPhotoDragVisualState();
+  }
+
+  function onEditPhotoDragMove(event) {
+    if (state.modal.photoDrag.activeIndex < 0) {
+      return;
+    }
+
+    if (state.modal.photoDrag.pointerId !== null && event.pointerId !== state.modal.photoDrag.pointerId) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const targetCard = document
+      .elementFromPoint(event.clientX, event.clientY)
+      ?.closest(".photo-card[data-photo-index]");
+
+    if (!targetCard) {
+      updateEditPhotoDragTarget(-1);
+      return;
+    }
+
+    updateEditPhotoDragTarget(Number(targetCard.dataset.photoIndex));
+  }
+
+  function onEditPhotoDragEnd(event) {
+    if (state.modal.photoDrag.activeIndex < 0) {
+      return;
+    }
+
+    if (state.modal.photoDrag.pointerId !== null && event.pointerId !== state.modal.photoDrag.pointerId) {
+      return;
+    }
+
+    const fromIndex = state.modal.photoDrag.activeIndex;
+    const toIndex = state.modal.photoDrag.overIndex;
+
+    cancelEditPhotoDrag();
+
+    if (!Number.isInteger(fromIndex) || !Number.isInteger(toIndex) || fromIndex === toIndex || toIndex < 0) {
+      return;
+    }
+
+    moveModalPhoto(fromIndex, toIndex);
+  }
+
+  function cancelEditPhotoDrag() {
+    if (
+      state.modal.photoDrag.activeIndex === -1 &&
+      state.modal.photoDrag.overIndex === -1 &&
+      state.modal.photoDrag.pointerId === null
+    ) {
+      return;
+    }
+
+    state.modal.photoDrag.activeIndex = -1;
+    state.modal.photoDrag.overIndex = -1;
+    state.modal.photoDrag.pointerId = null;
+    syncEditPhotoDragVisualState();
+  }
+
+  function updateEditPhotoDragTarget(targetIndex) {
+    const normalizedIndex = Number.isInteger(targetIndex) ? targetIndex : -1;
+
+    if (state.modal.photoDrag.overIndex === normalizedIndex) {
+      return;
+    }
+
+    state.modal.photoDrag.overIndex = normalizedIndex;
+    syncEditPhotoDragVisualState();
+  }
+
+  function syncEditPhotoDragVisualState() {
+    if (!elements.editPhotoManager) {
+      return;
+    }
+
+    const isDragging = state.modal.photoDrag.activeIndex >= 0;
+    const activeIndex = state.modal.photoDrag.activeIndex;
+    const overIndex = state.modal.photoDrag.overIndex;
+    const movingForward = isDragging && overIndex > activeIndex;
+    const movingBackward = isDragging && overIndex >= 0 && overIndex < activeIndex;
+
+    elements.editPhotoManager.classList.toggle("is-photo-dragging", isDragging);
+
+    [...elements.editPhotoManager.querySelectorAll(".photo-card[data-photo-index]")].forEach((card) => {
+      const cardIndex = Number(card.dataset.photoIndex);
+      const isDragSource = isDragging && cardIndex === activeIndex;
+      const isDropTarget = isDragging && cardIndex === overIndex && overIndex !== activeIndex;
+      const isShiftedBackward = movingForward && cardIndex > activeIndex && cardIndex <= overIndex;
+      const isShiftedForward = movingBackward && cardIndex >= overIndex && cardIndex < activeIndex;
+
+      card.classList.toggle("is-drag-source", isDragSource);
+      card.classList.toggle("is-drop-target", isDropTarget);
+      card.classList.toggle("is-shifted-forward", isShiftedForward);
+      card.classList.toggle("is-shifted-backward", isShiftedBackward);
+      card.style.setProperty("--photo-shift-delay", `${Math.min(Math.abs(cardIndex - activeIndex), 5) * 26}ms`);
+    });
+  }
+
+  function moveModalPhoto(fromIndex, toIndex) {
+    if (
+      !Number.isInteger(fromIndex) ||
+      !Number.isInteger(toIndex) ||
+      fromIndex < 0 ||
+      toIndex < 0 ||
+      fromIndex >= state.modal.photos.length ||
+      toIndex >= state.modal.photos.length ||
+      fromIndex === toIndex
+    ) {
+      return;
+    }
+
+    const reorderedPhotos = [...state.modal.photos];
+    const [movedPhoto] = reorderedPhotos.splice(fromIndex, 1);
+    reorderedPhotos.splice(toIndex, 0, movedPhoto);
+
+    state.modal.photos = reorderedPhotos;
+    normalizePhotoState();
+    renderPhotoManager();
   }
 
   async function onEditFormSubmit(event) {
