@@ -2012,7 +2012,15 @@
   }
 
   function showLoadingState() {
-    elements.listingsGrid.innerHTML = `<div class="loading-state">Зареждаме обявите...</div>`;
+    var sk = `<div class="skeleton-card" aria-hidden="true">
+      <div class="skeleton-card__img"></div>
+      <div class="skeleton-card__body">
+        <div class="skeleton-line skeleton-line--title"></div>
+        <div class="skeleton-line skeleton-line--price"></div>
+        <div class="skeleton-line skeleton-line--meta"></div>
+      </div>
+    </div>`;
+    elements.listingsGrid.innerHTML = sk + sk + sk;
   }
 
   function showErrorState(message) {

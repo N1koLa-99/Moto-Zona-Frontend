@@ -1,7 +1,10 @@
 (function () {
   'use strict';
 
-  // ─── Topbar: добавя сянка при скролване ──────────────────────
+  var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var touchDevice   = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+
+  // ─── Topbar: сянка при скролване ──────────────────────────────
   var topbar = document.querySelector('.topbar');
   if (topbar) {
     function onScroll() {
@@ -11,8 +14,20 @@
     onScroll();
   }
 
-  // ─── Scroll reveal (не се активира при намалено движение) ────
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  // ─── Hero parallax (само desktop, само без reduced-motion) ────
+  var heroVideo   = document.getElementById('heroVideo');
+  var heroSection = heroVideo ? heroVideo.closest('.hero') : null;
+  if (heroVideo && heroSection && !reducedMotion && !touchDevice) {
+    heroVideo.style.willChange = 'transform';
+    window.addEventListener('scroll', function () {
+      var rect = heroSection.getBoundingClientRect();
+      if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+      heroVideo.style.transform = 'translateY(' + (window.scrollY * 0.14) + 'px)';
+    }, { passive: true });
+  }
+
+  // ─── Scroll reveal ────────────────────────────────────────────
+  if (reducedMotion) return;
 
   var SELECTORS = [
     '.card',
@@ -40,7 +55,7 @@
     var parentCount = new WeakMap();
     document.querySelectorAll(SELECTORS).forEach(function (el) {
       var parent = el.parentElement;
-      var idx = parentCount.has(parent) ? parentCount.get(parent) : 0;
+      var idx    = parentCount.has(parent) ? parentCount.get(parent) : 0;
       parentCount.set(parent, idx + 1);
       el.style.setProperty('--reveal-delay', (Math.min(idx * 0.07, 0.28)) + 's');
       el.classList.add('reveal-ready');

@@ -428,6 +428,23 @@ html {
   main { animation: g-page-in 0.4s var(--ease-out) both; }
 }
 
+/* ─── Hero: line-mask reveal ─────────────────────────────── */
+@keyframes hero-line-up {
+  from { transform: translateY(112%); }
+  to   { transform: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero__line {
+    animation: hero-line-up 0.9s var(--ease-expo) both;
+  }
+  .hero__line-wrap:nth-child(1) .hero__line { animation-delay: 0.08s; }
+  .hero__line-wrap:nth-child(2) .hero__line { animation-delay: 0.28s; }
+  .hero__line-wrap:nth-child(3) .hero__line { animation-delay: 0.48s; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero__line { opacity: 1; }
+}
+
 /* ─── Topbar: плавна сянка при скролване ───────────────── */
 .topbar {
   transition: box-shadow 0.3s var(--ease);
