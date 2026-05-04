@@ -45,9 +45,14 @@
     </div>
   </header>
 
-  <div class="dev-banner">
-    <span class="dev-banner__dot"></span>Сайтът е в режим на разработка — <strong>всичко е безплатно</strong>. Качвайте обяви без лимити и такси. Функции като VIP и ТОП ще бъдат достъпни скоро.
+  <div class="dev-banner" id="devBanner">
+    <div class="dev-banner__inner">
+      <span class="dev-banner__dot"></span>
+      <span class="dev-banner__text">Сайтът е в режим на разработка — <strong>всичко е безплатно</strong>. Качвайте обяви без лимити и такси. Функции като VIP и ТОП ще бъдат достъпни скоро.</span>
+      <button class="dev-banner__close" onclick="this.closest('.dev-banner').style.display='none';sessionStorage.setItem('devBannerClosed','1')" aria-label="Затвори">✕</button>
+    </div>
   </div>
+  <script>if(sessionStorage.getItem('devBannerClosed'))document.getElementById('devBanner').style.display='none'</script>
 
   <main class="auth-page auth-page--login">
     <div class="container auth-layout auth-layout--login">
@@ -144,5 +149,6 @@
 
   <script src="Js/auth.js"></script>
   <script src="Js/Login.js"></script>
+  <script src="Js/animations.js" defer></script>
 </body>
 </html>

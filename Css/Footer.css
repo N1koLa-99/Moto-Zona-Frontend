@@ -5,34 +5,40 @@
 }
 
 @keyframes dev-dot-ping {
-  0%        { transform: scale(1);    opacity: 1; }
-  60%, 100% { transform: scale(2.4); opacity: 0; }
-}
-
-@keyframes dev-dot-core {
-  0%, 100% { transform: scale(1);    opacity: 1; }
-  50%       { transform: scale(0.82); opacity: 0.7; }
+  0%        { transform: scale(1);    opacity: 0.8; }
+  60%, 100% { transform: scale(2.8); opacity: 0; }
 }
 
 @keyframes dev-banner-in {
-  from { opacity: 0; transform: translateY(-6px); }
+  from { opacity: 0; transform: translateY(-100%); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
 .dev-banner {
-  background: linear-gradient(135deg, #0b1a35 0%, #122044 50%, #0b1a35 100%);
-  border-top: 1px solid rgba(255, 106, 42, 0.25);
-  border-bottom: 3px solid #ff6a2a;
-  color: #cde0fa;
-  text-align: center;
-  padding: 13px 20px;
-  font-size: 0.98rem;
-  font-weight: 700;
-  line-height: 1.55;
+  background: linear-gradient(90deg, #e0561a 0%, #ff7a35 50%, #e0561a 100%);
+  color: #fff;
+  padding: 11px 20px;
+  font-size: 0.93rem;
+  font-weight: 600;
+  line-height: 1.5;
   letter-spacing: 0.01em;
-  position: relative;
+  position: sticky;
+  top: var(--topbar-height, 82px);
+  z-index: 119;
   overflow: hidden;
-  animation: dev-banner-in 0.45s ease both;
+  animation: dev-banner-in 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+  box-shadow: 0 2px 14px rgba(255, 106, 42, 0.38);
+}
+
+.dev-banner__inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  max-width: 960px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
 }
 
 /* shimmer sweep */
@@ -41,33 +47,35 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 38%;
+  width: 35%;
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 140, 60, 0.22) 50%,
+    rgba(255, 255, 255, 0.15) 50%,
     transparent 100%
   );
-  animation: dev-shimmer 2.6s linear infinite;
+  animation: dev-shimmer 3s linear infinite;
   pointer-events: none;
 }
 
+.dev-banner__text {
+  flex: 1;
+  text-align: center;
+}
+
 .dev-banner strong {
-  color: #ff7a35;
+  color: #fff;
   font-weight: 900;
-  text-shadow: 0 0 18px rgba(255, 106, 42, 0.55);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* pulsing dot */
 .dev-banner__dot {
   position: relative;
-  display: inline-block;
+  display: inline-flex;
+  flex-shrink: 0;
   width: 10px;
   height: 10px;
-  margin-right: 10px;
-  vertical-align: middle;
-  top: -1px;
-  flex-shrink: 0;
 }
 
 .dev-banner__dot::before {
@@ -75,8 +83,8 @@
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: #ff6a2a;
-  animation: dev-dot-ping 1.7s ease-out infinite;
+  background: rgba(255, 255, 255, 0.85);
+  animation: dev-dot-ping 1.8s ease-out infinite;
 }
 
 .dev-banner__dot::after {
@@ -84,21 +92,47 @@
   position: absolute;
   inset: 1px;
   border-radius: 50%;
-  background: #ff8c4a;
-  animation: dev-dot-core 1.7s ease-in-out infinite;
+  background: #fff;
+}
+
+/* close button */
+.dev-banner__close {
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #fff;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.72rem;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  line-height: 1;
+  transition: background 0.2s, border-color 0.2s;
+  margin-left: 6px;
+}
+
+.dev-banner__close:hover {
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 255, 255, 0.55);
 }
 
 @media (max-width: 600px) {
   .dev-banner {
-    font-size: 0.88rem;
-    padding: 11px 14px;
+    font-size: 0.84rem;
+    padding: 10px 14px;
+  }
+  .dev-banner__inner {
+    gap: 8px;
   }
 }
 
 @media (max-width: 400px) {
   .dev-banner {
-    font-size: 0.82rem;
-    padding: 10px 12px;
+    font-size: 0.78rem;
+    padding: 9px 12px;
   }
 }
 /* ====================== */
@@ -371,3 +405,213 @@ canvas {
     font-size: 0.92rem;
   }
 }
+
+/* ============================================================
+   ГЛОБАЛЕН POLISH — анимации, типография, интерактивност
+   (Footer.css се зарежда последен → безопасен override)
+============================================================ */
+
+/* ─── Easing tokens ─────────────────────────────────────── */
+:root {
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ─── Font rendering (по-остри букви на retina) ─────────── */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Тънки, модерни scrollbars ──────────────────────────── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #d3dde9 transparent;
+}
+*::-webkit-scrollbar { width: 6px; height: 6px; }
+*::-webkit-scrollbar-thumb {
+  background: #d3dde9;
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-track { background: transparent; }
+
+/* ─── Focus ring (достъпност + дизайн) ─────────────────── */
+:focus-visible {
+  outline: 2.5px solid var(--primary, #ff6a2a);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ─── Page entrance ──────────────────────────────────────── */
+@keyframes g-page-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  main { animation: g-page-in 0.4s var(--ease-out) both; }
+}
+
+/* ─── Topbar: плавна сянка при скролване ───────────────── */
+.topbar {
+  transition: box-shadow 0.3s var(--ease);
+}
+.topbar--scrolled {
+  box-shadow: 0 2px 28px rgba(23, 32, 45, 0.1);
+}
+
+/* ─── Scroll reveal ──────────────────────────────────────── */
+@media (prefers-reduced-motion: no-preference) {
+  .reveal-ready {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity 0.5s var(--ease-out),
+      transform 0.5s var(--ease-out);
+    transition-delay: var(--reveal-delay, 0s);
+  }
+  .reveal-ready.is-revealed {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ─── Dropdown entrance ──────────────────────────────────── */
+@keyframes g-dropdown-in {
+  from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+.profile-menu__dropdown:not(.hidden) {
+  animation: g-dropdown-in 0.22s var(--ease-out) both;
+}
+
+/* ─── Cards: spring hover + image zoom ──────────────────── */
+@media (prefers-reduced-motion: no-preference) {
+  .card {
+    transition:
+      transform 0.32s var(--ease-spring),
+      box-shadow 0.28s var(--ease),
+      border-color 0.2s var(--ease);
+  }
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 22px 46px rgba(23, 32, 45, 0.12);
+  }
+  .card__image img {
+    transition: transform 0.52s var(--ease);
+  }
+  .card:hover .card__image img {
+    transform: scale(1.05);
+  }
+}
+
+/* ─── Category feature cards ────────────────────────────── */
+@media (prefers-reduced-motion: no-preference) {
+  .category-feature-card {
+    transition:
+      transform 0.28s var(--ease-spring),
+      box-shadow 0.28s var(--ease),
+      border-color 0.2s var(--ease);
+  }
+  .category-feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 36px rgba(23, 32, 45, 0.1);
+  }
+}
+
+/* ─── Category pills ─────────────────────────────────────── */
+@media (prefers-reduced-motion: no-preference) {
+  .category-pill {
+    transition:
+      transform 0.24s var(--ease-spring),
+      border-color 0.2s var(--ease),
+      background 0.2s var(--ease),
+      box-shadow 0.2s var(--ease);
+  }
+  .category-pill:hover { transform: translateY(-2px); }
+}
+
+/* ─── Primary buttons: spring lift ──────────────────────── */
+@media (prefers-reduced-motion: no-preference) {
+  .topbar-upload-btn,
+  .hero-search button {
+    transition:
+      transform 0.26s var(--ease-spring),
+      box-shadow 0.26s var(--ease),
+      background 0.2s var(--ease);
+  }
+  .topbar-upload-btn:hover,
+  .hero-search button:hover {
+    transform: translateY(-2px) scale(1.025);
+    box-shadow: 0 8px 22px rgba(255, 106, 42, 0.28);
+  }
+  .topbar-upload-btn:active,
+  .hero-search button:active {
+    transform: scale(0.97);
+    box-shadow: none;
+    transition-duration: 0.1s;
+  }
+}
+
+/* ─── Profile & nav buttons ─────────────────────────────── */
+@media (prefers-reduced-motion: no-preference) {
+  .profile-btn,
+  .auth-action-btn,
+  .mobile-filter-btn,
+  .filters-close-btn {
+    transition:
+      transform 0.24s var(--ease-spring),
+      border-color 0.2s var(--ease),
+      box-shadow 0.2s var(--ease);
+  }
+  .profile-btn:hover,
+  .auth-action-btn:hover,
+  .mobile-filter-btn:hover,
+  .filters-close-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(23, 32, 45, 0.08);
+  }
+  .profile-btn:active,
+  .auth-action-btn:active {
+    transform: scale(0.97);
+    transition-duration: 0.1s;
+  }
+}
+
+/* ─── Form inputs: плавен focus ──────────────────────────── */
+@media (prefers-reduced-motion: no-preference) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea {
+    transition:
+      border-color 0.2s var(--ease),
+      box-shadow 0.2s var(--ease);
+  }
+}
+
+/* ─── Toast: по-плавна анимация ─────────────────────────── */
+.toast {
+  transition:
+    opacity 0.28s var(--ease-out),
+    transform 0.28s var(--ease-out);
+}
+
+/* ─── Favorite button: spring ────────────────────────────── */
+@media (prefers-reduced-motion: no-preference) {
+  .favorite-btn {
+    transition:
+      transform 0.22s var(--ease-spring),
+      border-color 0.18s var(--ease),
+      background-color 0.18s var(--ease),
+      box-shadow 0.18s var(--ease);
+  }
+  .favorite-btn:hover {
+    transform: translateY(-2px) scale(1.08);
+  }
+  .favorite-btn:active {
+    transform: scale(0.92);
+    transition-duration: 0.1s;
+  }
+}
+/* ============================================================ */
