@@ -342,24 +342,26 @@
       });
 
       if (!response.ok) {
-        const errorMessage = await readErrorMessage(response, "Неуспешна регистрация.");
+        const errorMessage = await window.Auth.readApiMessage(response, "Неуспешна регистрация.");
         showMessage(errorMessage, "error");
         return;
       }
 
       const data = await response.json();
+      const registeredEmail = window.Auth?.normalizeEmail?.(data?.email || formData.email) || formData.email;
+      const successMessage =
+        data?.message ||
+        "Профилът е създаден. Изпратихме код за потвърждение на имейла.";
 
-      if (!data?.accessToken || !data?.user) {
-        showMessage("Профилът беше създаден, но отговорът от сървъра е невалиден.", "error");
-        return;
-      }
+      window.Auth.clearAuthData();
+      showMessage(`${successMessage} Пренасочваме те към потвърждението...`, "success");
 
-      window.Auth.setAccessToken(data.accessToken);
-      window.Auth.setCurrentUser(data.user);
-
-      showMessage("Регистрацията е успешна. Пренасочваме...", "success");
-
-      window.location.href = "index.html";
+      window.setTimeout(() => {
+        window.location.href = window.Auth.buildPageUrl("VerifyEmail.html", {
+          email: registeredEmail,
+          status: "verification-required"
+        });
+      }, 1200);
     } catch (error) {
       console.error(error);
       showMessage("Възникна проблем при регистрацията. Опитай пак.", "error");
@@ -641,36 +643,6 @@
 
     const digitsOnly = phone.replace(/\D/g, "");
     return digitsOnly.length >= 9 && digitsOnly.length <= 15;
-  }
-
-  async function readErrorMessage(response, fallbackMessage) {
-    try {
-      const data = await response.json();
-
-      if (typeof data === "string" && data.trim()) {
-        return data;
-      }
-
-      if (data?.message) {
-        return data.message;
-      }
-
-      if (data?.title) {
-        return data.title;
-      }
-
-      if (data?.errors && typeof data.errors === "object") {
-        const firstError = Object.values(data.errors).flat()?.[0];
-
-        if (firstError) {
-          return firstError;
-        }
-      }
-
-      return fallbackMessage;
-    } catch {
-      return fallbackMessage;
-    }
   }
 
   function escapeHtml(value) {

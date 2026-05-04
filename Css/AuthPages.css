@@ -502,8 +502,114 @@ button {
   min-height: 0;
 }
 
-.auth-page--login .auth-form {
+.auth-page--login .auth-form,
+.auth-page--verify .auth-form,
+.auth-page--recovery .auth-form {
   grid-template-columns: 1fr;
+}
+
+.auth-helper-box {
+  margin-top: 18px;
+  padding: 18px;
+  border-radius: 20px;
+  border: 1px solid #dbe3ee;
+  background:
+    radial-gradient(circle at top right, rgba(255, 106, 42, 0.08), transparent 40%),
+    linear-gradient(180deg, #fffaf7 0%, #fff 100%);
+}
+
+.auth-helper-box__head h3 {
+  margin: 0 0 8px;
+  font-size: 1.04rem;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.auth-helper-box__head p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+  font-size: 0.95rem;
+}
+
+.auth-helper-box__actions,
+.auth-inline-actions,
+.auth-secondary-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.auth-helper-box__actions,
+.auth-inline-actions {
+  margin-top: 16px;
+}
+
+.auth-secondary-actions {
+  margin-top: 4px;
+}
+
+.auth-helper-btn {
+  flex: 1 1 220px;
+}
+
+.auth-status-card {
+  margin-bottom: 18px;
+  padding: 18px;
+  border-radius: 20px;
+  border: 1px solid #dce6f2;
+  background:
+    radial-gradient(circle at top right, rgba(20, 61, 143, 0.08), transparent 36%),
+    linear-gradient(180deg, #f8fbff 0%, #f2f7ff 100%);
+}
+
+.auth-status-card--compact {
+  margin-top: 2px;
+}
+
+.auth-status-card__label {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(20, 61, 143, 0.08);
+  color: var(--blue);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.auth-status-card strong {
+  display: block;
+  margin-top: 12px;
+  font-size: 1.06rem;
+  line-height: 1.4;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.auth-status-card p {
+  margin: 10px 0 0;
+  color: #425168;
+  line-height: 1.65;
+  font-size: 0.95rem;
+}
+
+.auth-code-input {
+  text-align: center;
+  letter-spacing: 0.42em;
+  font-size: 1.18rem;
+  font-weight: 800;
+}
+
+.auth-inline-note {
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: 0.93rem;
+  line-height: 1.65;
 }
 
 /* REGISTER CHOOSER */
@@ -1577,5 +1683,52 @@ button {
 
   .account-choice-card {
     min-height: 80px;
+  }
+}
+
+@media (max-width: 860px) {
+  .auth-helper-box,
+  .auth-status-card {
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .auth-helper-box__actions,
+  .auth-inline-actions,
+  .auth-secondary-actions {
+    flex-direction: column;
+  }
+
+  .auth-helper-box__head h3 {
+    font-size: 0.96rem;
+  }
+
+  .auth-helper-box__head p,
+  .auth-status-card p,
+  .auth-inline-note {
+    font-size: 0.88rem;
+    line-height: 1.55;
+  }
+
+  .auth-status-card strong {
+    font-size: 0.98rem;
+  }
+
+  .auth-code-input {
+    font-size: 1.02rem;
+    letter-spacing: 0.34em;
+  }
+}
+
+@media (max-width: 520px) {
+  .auth-helper-box,
+  .auth-status-card {
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .auth-code-input {
+    font-size: 0.96rem;
+    letter-spacing: 0.28em;
   }
 }

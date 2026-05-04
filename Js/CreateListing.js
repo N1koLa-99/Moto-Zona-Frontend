@@ -21,6 +21,8 @@
     COMPANY_REFRESH_EUR: 0.25
   };
 
+  const SEARCHABLE_SELECT_ROOT_SELECTOR = "#createListingForm select";
+
   const SMART_CATEGORY_ALIAS_GROUPS = [
     ["каска", "каски", "helmet", "helmets"],
     ["яке", "якета", "jacket", "jackets"],
@@ -119,6 +121,11 @@
   const state = {
     currentUser: null,
     uploadedPhotos: [],
+    photoDrag: {
+      activeIndex: -1,
+      overIndex: -1,
+      pointerId: null
+    },
     isSubmitting: false,
     smartCategory: {
       index: [],
@@ -150,6 +157,9 @@
       accessoryBrands: []
     }
   };
+
+  const searchableSelectRegistry = new Map();
+  let searchableSelectGlobalEventsBound = false;
 
   const elements = {
     backToHomeBtn: document.getElementById("backToHomeBtn"),
@@ -256,6 +266,7 @@
   document.addEventListener("DOMContentLoaded", init);
 
   async function init() {
+    enhanceSearchableSelects();
     bindEvents();
 
     const currentUser = await ensureAuthenticatedPage();
@@ -282,15 +293,15 @@
 
   function bindEvents() {
     elements.backToHomeBtn?.addEventListener("click", () => {
-      window.location.href = "index.html";
-    });
-
-    elements.logoutBtn?.addEventListener("click", () => {
-      if (window.Auth?.logoutUser) {
-        window.Auth.logoutUser();
+      if (window.Auth?.redirectToProfile) {
+        window.Auth.redirectToProfile();
         return;
       }
 
+      window.location.href = "Profile.html";
+    });
+
+    elements.logoutBtn?.addEventListener("click", () => {
       window.location.href = "index.html";
     });
 
@@ -434,10 +445,15 @@
       await resetForm();
     });
 
+    document.addEventListener("pointermove", onPhotoDragMove);
+    document.addEventListener("pointerup", onPhotoDragEnd);
+    document.addEventListener("pointercancel", cancelPhotoDrag);
+
     elements.createListingForm?.addEventListener("submit", onSubmit);
 
     elements.createListingForm?.addEventListener("input", event => {
       if (event.target === elements.photosInput) return;
+      if (event.target?.classList?.contains("searchable-select__search")) return;
       updateListingPreview();
       updateCreateChargePreview();
     });
@@ -572,7 +588,7 @@
       return;
     }
 
-    elements.countrySelect.value = String(userCountryId);
+    setSelectValue(elements.countrySelect, String(userCountryId));
     await handleCountryChange();
 
     const userRegionId =
@@ -580,7 +596,7 @@
       toNumberOrNull(user?.region?.id);
 
     if (userRegionId && !elements.regionWrap.classList.contains("hidden")) {
-      elements.regionSelect.value = String(userRegionId);
+      setSelectValue(elements.regionSelect, String(userRegionId));
       await handleRegionChange();
     }
 
@@ -589,7 +605,7 @@
       toNumberOrNull(user?.city?.id);
 
     if (userCityId && !elements.cityWrap.classList.contains("hidden")) {
-      elements.citySelect.value = String(userCityId);
+      setSelectValue(elements.citySelect, String(userCityId));
     }
 
     updateListingPreview();
@@ -740,6 +756,455 @@
     ].join("");
 
     select.innerHTML = html;
+    syncSearchableSelect(select);
+  }
+
+  function enhanceSearchableSelects() {
+    document.querySelectorAll(SEARCHABLE_SELECT_ROOT_SELECTOR).forEach(select => {
+      if (searchableSelectRegistry.has(select)) {
+        syncSearchableSelect(select);
+        return;
+      }
+
+      createSearchableSelect(select);
+    });
+
+    if (searchableSelectGlobalEventsBound) {
+      return;
+    }
+
+    document.addEventListener("pointerdown", event => {
+      for (const instance of searchableSelectRegistry.values()) {
+        if (!instance.wrapper.contains(event.target)) {
+          closeSearchableSelect(instance);
+        }
+      }
+    });
+
+    window.addEventListener("resize", () => {
+      closeAllSearchableSelects();
+    });
+
+    searchableSelectGlobalEventsBound = true;
+  }
+
+  function createSearchableSelect(select) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "searchable-select";
+
+    const trigger = document.createElement("button");
+    trigger.type = "button";
+    trigger.className = "searchable-select__trigger";
+    trigger.setAttribute("aria-haspopup", "listbox");
+    trigger.setAttribute("aria-expanded", "false");
+
+    const triggerText = document.createElement("span");
+    triggerText.className = "searchable-select__trigger-text";
+
+    const triggerIcon = document.createElement("span");
+    triggerIcon.className = "searchable-select__trigger-icon";
+    triggerIcon.setAttribute("aria-hidden", "true");
+    triggerIcon.textContent = "⌄";
+
+    trigger.append(triggerText, triggerIcon);
+
+    const dropdown = document.createElement("div");
+    dropdown.className = "searchable-select__dropdown hidden";
+
+    const searchWrap = document.createElement("div");
+    searchWrap.className = "searchable-select__search-wrap";
+
+    const searchInput = document.createElement("input");
+    searchInput.type = "text";
+    searchInput.className = "searchable-select__search";
+    searchInput.placeholder = "Търси...";
+    searchInput.autocomplete = "off";
+    searchInput.spellcheck = false;
+
+    searchWrap.append(searchInput);
+
+    const optionsList = document.createElement("div");
+    optionsList.className = "searchable-select__options";
+    optionsList.setAttribute("role", "listbox");
+
+    dropdown.append(searchWrap, optionsList);
+
+    const parent = select.parentNode;
+    parent?.insertBefore(wrapper, select);
+    wrapper.append(select, trigger, dropdown);
+
+    select.classList.add("searchable-select__native");
+    select.setAttribute("tabindex", "-1");
+    select.setAttribute("aria-hidden", "true");
+    select.dataset.searchableEnhanced = "true";
+
+    const instance = {
+      select,
+      wrapper,
+      trigger,
+      triggerText,
+      dropdown,
+      searchInput,
+      optionsList,
+      activeIndex: -1,
+      placeholderText: "",
+      visibleOptions: []
+    };
+
+    searchableSelectRegistry.set(select, instance);
+
+    if (select.id) {
+      document.querySelectorAll(`label[for="${select.id}"]`).forEach(label => {
+        label.addEventListener("click", event => {
+          event.preventDefault();
+
+          if (instance.select.disabled) {
+            return;
+          }
+
+          openSearchableSelect(instance);
+        });
+      });
+    }
+
+    trigger.addEventListener("click", () => {
+      if (instance.select.disabled) {
+        return;
+      }
+
+      if (wrapper.classList.contains("is-open")) {
+        closeSearchableSelect(instance);
+        return;
+      }
+
+      openSearchableSelect(instance);
+    });
+
+    trigger.addEventListener("keydown", event => {
+      if (instance.select.disabled) {
+        return;
+      }
+
+      if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        openSearchableSelect(instance);
+        return;
+      }
+
+      if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
+        event.preventDefault();
+        openSearchableSelect(instance, {
+          initialQuery: event.key
+        });
+      }
+    });
+
+    searchInput.addEventListener("input", () => {
+      renderSearchableSelectOptions(instance);
+    });
+
+    searchInput.addEventListener("keydown", event => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeSearchableSelect(instance, {
+          restoreFocus: true
+        });
+        return;
+      }
+
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        moveSearchableSelectActiveIndex(instance, 1);
+        return;
+      }
+
+      if (event.key === "ArrowUp") {
+        event.preventDefault();
+        moveSearchableSelectActiveIndex(instance, -1);
+        return;
+      }
+
+      if (event.key === "Enter") {
+        const activeOption = instance.visibleOptions[instance.activeIndex] || instance.visibleOptions[0];
+        if (!activeOption || activeOption.disabled) {
+          return;
+        }
+
+        event.preventDefault();
+        applySearchableOptionSelection(instance, activeOption.value);
+      }
+    });
+
+    optionsList.addEventListener("pointerdown", event => {
+      const optionButton = event.target.closest("[data-searchable-value]");
+      if (!optionButton || optionButton.disabled) {
+        return;
+      }
+
+      event.preventDefault();
+      applySearchableOptionSelection(instance, optionButton.dataset.searchableValue || "");
+    });
+
+    select.addEventListener("change", () => {
+      syncSearchableSelect(select);
+    });
+
+    const observer = new MutationObserver(() => {
+      syncSearchableSelect(select);
+    });
+
+    observer.observe(select, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["disabled"]
+    });
+
+    instance.observer = observer;
+
+    syncSearchableSelect(select);
+  }
+
+  function openSearchableSelect(instance, options = {}) {
+    if (!instance) return;
+
+    closeAllSearchableSelects(instance.select);
+
+    instance.wrapper.classList.add("is-open");
+    instance.wrapper.closest(".form-field")?.classList.add("is-search-open");
+    instance.dropdown.classList.remove("hidden");
+    instance.trigger.setAttribute("aria-expanded", "true");
+    instance.searchInput.value = cleanText(options.initialQuery);
+    renderSearchableSelectOptions(instance);
+
+    window.requestAnimationFrame(() => {
+      instance.searchInput.focus();
+
+      if (instance.searchInput.value) {
+        const cursorPosition = instance.searchInput.value.length;
+        instance.searchInput.setSelectionRange(cursorPosition, cursorPosition);
+      } else {
+        instance.searchInput.select();
+      }
+    });
+  }
+
+  function closeSearchableSelect(instance, options = {}) {
+    if (!instance) return;
+
+    instance.wrapper.classList.remove("is-open");
+    instance.wrapper.closest(".form-field")?.classList.remove("is-search-open");
+    instance.dropdown.classList.add("hidden");
+    instance.trigger.setAttribute("aria-expanded", "false");
+    instance.searchInput.value = "";
+    instance.activeIndex = -1;
+    instance.visibleOptions = [];
+
+    if (options.restoreFocus) {
+      instance.trigger.focus();
+    }
+  }
+
+  function closeAllSearchableSelects(exceptSelect = null) {
+    for (const instance of searchableSelectRegistry.values()) {
+      if (exceptSelect && instance.select === exceptSelect) {
+        continue;
+      }
+
+      closeSearchableSelect(instance);
+    }
+  }
+
+  function renderSearchableSelectOptions(instance) {
+    if (!instance) return;
+
+    const query = normalizeSearchText(instance.searchInput.value);
+    const options = Array.from(instance.select.options || []);
+    const currentValue = String(instance.select.value || "");
+
+    const visibleOptions = options
+      .map(option => buildSearchableSelectOptionModel(instance, option, currentValue))
+      .filter(option => {
+        if (!query) {
+          return true;
+        }
+
+        return option.searchText.includes(query);
+      });
+
+    instance.visibleOptions = visibleOptions.filter(option => !option.disabled);
+
+    if (!visibleOptions.length) {
+      instance.activeIndex = -1;
+      instance.optionsList.innerHTML = `
+        <div class="searchable-select__empty">Няма съвпадения. Опитай с друга дума.</div>
+      `;
+      return;
+    }
+
+    instance.activeIndex = Math.min(
+      Math.max(instance.activeIndex, 0),
+      Math.max(instance.visibleOptions.length - 1, 0)
+    );
+
+    instance.optionsList.innerHTML = visibleOptions
+      .map(option => {
+        const isActive =
+          !option.disabled &&
+          instance.visibleOptions[instance.activeIndex]?.key === option.key;
+
+        const classes = [
+          "searchable-select__option",
+          option.selected ? "is-selected" : "",
+          option.disabled ? "is-disabled" : "",
+          isActive ? "is-active" : "",
+          option.isPlaceholder ? "is-placeholder" : ""
+        ]
+          .filter(Boolean)
+          .join(" ");
+
+        return `
+          <button
+            type="button"
+            class="${classes}"
+            data-searchable-key="${escapeHtml(option.key)}"
+            data-searchable-value="${escapeHtml(option.value)}"
+            ${option.disabled ? "disabled" : ""}
+          >
+            <span class="searchable-select__option-copy">
+              <span class="searchable-select__option-title">${escapeHtml(option.label)}</span>
+              ${option.meta ? `<span class="searchable-select__option-meta">${escapeHtml(option.meta)}</span>` : ""}
+            </span>
+            ${option.selected ? '<span class="searchable-select__option-check" aria-hidden="true">✓</span>' : ""}
+          </button>
+        `;
+      })
+      .join("");
+
+    const activeButton = instance.optionsList.querySelector(".searchable-select__option.is-active");
+    activeButton?.scrollIntoView({
+      block: "nearest"
+    });
+  }
+
+  function buildSearchableSelectOptionModel(instance, option, currentValue) {
+    const rawValue = String(option?.value ?? "");
+    const optionLabel = cleanText(option?.text) || instance.placeholderText || "Избери";
+    const isPlaceholder = rawValue === "";
+    const label = isPlaceholder ? "Без избор" : optionLabel;
+    const meta = isPlaceholder
+      ? instance.placeholderText
+      : option.disabled
+        ? "Временно недостъпно"
+        : option.selected
+          ? "Текущ избор"
+          : "";
+
+    return {
+      key: `${instance.select.id || "select"}-${rawValue || "empty"}`,
+      value: rawValue,
+      label,
+      meta,
+      selected: rawValue === currentValue,
+      disabled: Boolean(option.disabled),
+      isPlaceholder,
+      searchText: normalizeSearchText([label, optionLabel, meta].filter(Boolean).join(" "))
+    };
+  }
+
+  function moveSearchableSelectActiveIndex(instance, direction) {
+    if (!instance?.visibleOptions.length) {
+      return;
+    }
+
+    const nextIndex = instance.activeIndex + direction;
+
+    if (nextIndex < 0) {
+      instance.activeIndex = instance.visibleOptions.length - 1;
+    } else if (nextIndex >= instance.visibleOptions.length) {
+      instance.activeIndex = 0;
+    } else {
+      instance.activeIndex = nextIndex;
+    }
+
+    const activeKey = instance.visibleOptions[instance.activeIndex]?.key;
+    const activeButton = instance.optionsList.querySelector(
+      `[data-searchable-key="${escapeHtml(activeKey || "")}"]`
+    );
+
+    instance.optionsList
+      .querySelectorAll(".searchable-select__option")
+      .forEach(button => button.classList.remove("is-active"));
+
+    activeButton?.classList.add("is-active");
+    activeButton?.scrollIntoView({
+      block: "nearest"
+    });
+  }
+
+  function applySearchableOptionSelection(instance, value) {
+    if (!instance) {
+      return;
+    }
+
+    setSelectValue(instance.select, value, {
+      dispatchChange: true
+    });
+
+    closeSearchableSelect(instance, {
+      restoreFocus: true
+    });
+  }
+
+  function syncSearchableSelect(select) {
+    const instance = searchableSelectRegistry.get(select);
+    if (!instance) {
+      return;
+    }
+
+    const selectedOption =
+      select.options?.[select.selectedIndex] ||
+      select.options?.[0] ||
+      null;
+
+    const hasValue = cleanText(select.value) !== "";
+    const selectedText = cleanText(selectedOption?.text) || "Избери";
+
+    instance.placeholderText = cleanText(select.options?.[0]?.text) || "Избери";
+    instance.triggerText.textContent = selectedText;
+    instance.triggerText.classList.toggle("is-placeholder", !hasValue);
+    instance.trigger.disabled = Boolean(select.disabled);
+    instance.wrapper.classList.toggle("is-disabled", Boolean(select.disabled));
+    instance.searchInput.placeholder = hasValue
+      ? `Търси друго за "${selectedText}"`
+      : `Търси в "${instance.placeholderText}"`;
+
+    if (instance.wrapper.classList.contains("is-open")) {
+      renderSearchableSelectOptions(instance);
+      return;
+    }
+
+    closeSearchableSelect(instance);
+  }
+
+  function syncAllSearchableSelects() {
+    for (const select of searchableSelectRegistry.keys()) {
+      syncSearchableSelect(select);
+    }
+  }
+
+  function setSelectValue(select, value, options = {}) {
+    if (!select) return;
+
+    const normalizedValue = value === null || value === undefined ? "" : String(value);
+    const previousValue = String(select.value || "");
+
+    select.value = normalizedValue;
+    syncSearchableSelect(select);
+
+    if (options.dispatchChange && previousValue !== String(select.value || "")) {
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+    }
   }
 
   function resolveLookupLabel(item, preferredLabelKey = null) {
@@ -1376,34 +1841,34 @@
     if (!entry || !elements.mainCategorySelect) return;
 
     clearSmartCategoryFallbackNote();
-    elements.mainCategorySelect.value = String(entry.mainCategoryId);
+    setSelectValue(elements.mainCategorySelect, String(entry.mainCategoryId));
     toggleCategorySections();
     clearIrrelevantFields();
 
     if (entry.mainCategoryCode === "VEHICLE") {
-      elements.vehicleClassSelect.value = entry.subCategoryId ? String(entry.subCategoryId) : "";
+      setSelectValue(elements.vehicleClassSelect, entry.subCategoryId ? String(entry.subCategoryId) : "");
       fillVehicleTypesByClass();
 
       if (entry.subCategory2Id) {
-        elements.vehicleTypeSelect.value = String(entry.subCategory2Id);
+        setSelectValue(elements.vehicleTypeSelect, String(entry.subCategory2Id));
       }
     }
 
     if (entry.mainCategoryCode === "GEAR") {
-      elements.gearTypeSelect.value = entry.subCategoryId ? String(entry.subCategoryId) : "";
+      setSelectValue(elements.gearTypeSelect, entry.subCategoryId ? String(entry.subCategoryId) : "");
       toggleHelmetTypeField();
 
       if (entry.subCategory2Id) {
-        elements.gearHelmetTypeSelect.value = String(entry.subCategory2Id);
+        setSelectValue(elements.gearHelmetTypeSelect, String(entry.subCategory2Id));
       }
     }
 
     if (entry.mainCategoryCode === "PART") {
-      elements.partTypeSelect.value = entry.subCategoryId ? String(entry.subCategoryId) : "";
+      setSelectValue(elements.partTypeSelect, entry.subCategoryId ? String(entry.subCategoryId) : "");
     }
 
     if (entry.mainCategoryCode === "ACCESSORY") {
-      elements.accessoryTypeSelect.value = entry.subCategoryId ? String(entry.subCategoryId) : "";
+      setSelectValue(elements.accessoryTypeSelect, entry.subCategoryId ? String(entry.subCategoryId) : "");
     }
 
     if (elements.smartCategoryInput) {
@@ -1501,7 +1966,7 @@
     if (code !== "GEAR") {
       elements.gearHelmetTypeWrap?.classList.add("hidden");
       if (elements.gearHelmetTypeSelect) {
-        elements.gearHelmetTypeSelect.value = "";
+        setSelectValue(elements.gearHelmetTypeSelect, "");
       }
     }
   }
@@ -1510,13 +1975,13 @@
     const code = getSelectedCategoryCode();
 
     if (code !== "VEHICLE") {
-      elements.vehicleClassSelect.value = "";
-      elements.vehicleTypeSelect.value = "";
-      elements.vehicleBrandSelect.value = "";
+      setSelectValue(elements.vehicleClassSelect, "");
+      setSelectValue(elements.vehicleTypeSelect, "");
+      setSelectValue(elements.vehicleBrandSelect, "");
       fillSelect(elements.vehicleTypeSelect, [], { placeholder: "Избери вид" });
       fillSelect(elements.vehicleModelSelect, [], { placeholder: "Избери модел", preferredLabelKey: "name" });
-      elements.vehicleLicenseCategorySelect.value = "";
-      elements.vehicleConditionSelect.value = "";
+      setSelectValue(elements.vehicleLicenseCategorySelect, "");
+      setSelectValue(elements.vehicleConditionSelect, "");
       elements.vehicleYearInput.value = "";
       elements.vehicleHorsePowerInput.value = "";
       elements.vehicleEngineCcInput.value = "";
@@ -1525,26 +1990,26 @@
     }
 
     if (code !== "GEAR") {
-      elements.gearTypeSelect.value = "";
-      elements.gearHelmetTypeSelect.value = "";
-      elements.gearBrandSelect.value = "";
-      elements.gearConditionSelect.value = "";
+      setSelectValue(elements.gearTypeSelect, "");
+      setSelectValue(elements.gearHelmetTypeSelect, "");
+      setSelectValue(elements.gearBrandSelect, "");
+      setSelectValue(elements.gearConditionSelect, "");
       elements.gearYearInput.value = "";
       elements.gearColorInput.value = "";
       elements.gearItemModelTextInput.value = "";
     }
 
     if (code !== "PART") {
-      elements.partTypeSelect.value = "";
-      elements.partBrandSelect.value = "";
-      elements.partConditionSelect.value = "";
+      setSelectValue(elements.partTypeSelect, "");
+      setSelectValue(elements.partBrandSelect, "");
+      setSelectValue(elements.partConditionSelect, "");
       elements.partItemModelTextInput.value = "";
     }
 
     if (code !== "ACCESSORY") {
-      elements.accessoryTypeSelect.value = "";
-      elements.accessoryBrandSelect.value = "";
-      elements.accessoryConditionSelect.value = "";
+      setSelectValue(elements.accessoryTypeSelect, "");
+      setSelectValue(elements.accessoryBrandSelect, "");
+      setSelectValue(elements.accessoryConditionSelect, "");
       elements.accessoryItemModelTextInput.value = "";
     }
   }
@@ -1606,7 +2071,7 @@
     elements.gearHelmetTypeWrap?.classList.toggle("hidden", !isHelmet);
 
     if (!isHelmet) {
-      elements.gearHelmetTypeSelect.value = "";
+      setSelectValue(elements.gearHelmetTypeSelect, "");
       return;
     }
 
@@ -1687,8 +2152,8 @@
     elements.cityWrap?.classList.toggle("hidden", !showBgFields);
 
     if (!showBgFields) {
-      elements.regionSelect.value = "";
-      elements.citySelect.value = "";
+      setSelectValue(elements.regionSelect, "");
+      setSelectValue(elements.citySelect, "");
     }
   }
 
@@ -1785,6 +2250,7 @@
 
     if (!state.uploadedPhotos.length) {
       elements.photoPreviewGrid.innerHTML = `<div class="empty-photos">Все още няма качени снимки.</div>`;
+      cancelPhotoDrag();
       updateListingPreview();
       return;
     }
@@ -1795,40 +2261,54 @@
         : `<div class="photo-card__missing">Няма preview</div>`;
 
       return `
-        <article class="photo-card">
+        <article class="photo-card ${photo.isMain ? "is-main" : ""}" data-photo-index="${index}">
           <div class="photo-card__image">
             ${safeImg}
+            <div class="photo-card__overlay">
+              <span class="photo-card__order-badge ${photo.isMain ? "is-main" : ""}">
+                ${photo.isMain ? "Главна" : `#${index + 1}`}
+              </span>
+
+              <div class="photo-card__overlay-actions">
+                <div
+                  class="photo-card__drag-handle"
+                  aria-hidden="true"
+                >
+                  ⇅
+                </div>
+
+                <button
+                  type="button"
+                  class="photo-card__remove-fab"
+                  data-action="remove"
+                  data-index="${index}"
+                  aria-label="Махни снимката"
+                  title="Махни снимката"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
           </div>
           <div class="photo-card__body">
-            <p class="photo-card__name">${escapeHtml(photo.fileName || "Снимка")}</p>
-            <div class="photo-card__actions">
-              <button
-                type="button"
-                class="photo-card__main-btn ${photo.isMain ? "is-main" : ""}"
-                data-action="main"
-                data-index="${index}"
-              >
-                ${photo.isMain ? "Главна" : "Направи главна"}
-              </button>
-
-              <button
-                type="button"
-                class="photo-card__remove-btn"
-                data-action="remove"
-                data-index="${index}"
-              >
-                Махни
-              </button>
+            <div class="photo-card__body-row">
+              <p class="photo-card__name">${escapeHtml(photo.fileName || "Снимка")}</p>
+              <span class="photo-card__position-text">${photo.isMain ? "Корица" : `Позиция ${index + 1}`}</span>
             </div>
+            <p class="photo-card__hint">Хвани картата и я плъзни, за да смениш реда. Първата е главна.</p>
           </div>
         </article>
       `;
     }).join("");
 
-    [...elements.photoPreviewGrid.querySelectorAll("button[data-action='main']")].forEach(btn => {
-      btn.addEventListener("click", () => {
-        const index = Number(btn.dataset.index);
-        setMainPhoto(index);
+    [...elements.photoPreviewGrid.querySelectorAll(".photo-card[data-photo-index]")].forEach(card => {
+      card.addEventListener("pointerdown", event => {
+        if (event.target.closest("button[data-action='remove']")) {
+          return;
+        }
+
+        const index = Number(card.dataset.photoIndex);
+        startPhotoDrag(index, event);
       });
     });
 
@@ -1839,17 +2319,12 @@
       });
     });
 
+    syncPhotoDragVisualState();
     updateListingPreview();
   }
 
   function setMainPhoto(index) {
-    state.uploadedPhotos = state.uploadedPhotos.map((photo, i) => ({
-      ...photo,
-      isMain: i === index
-    }));
-
-    renderPhotoPreview();
-    updateListingPreview();
+    moveUploadedPhoto(index, 0);
   }
 
   async function removePhoto(index) {
@@ -1877,10 +2352,6 @@
 
       state.uploadedPhotos.splice(index, 1);
 
-      if (state.uploadedPhotos.length && !state.uploadedPhotos.some(x => x.isMain)) {
-        state.uploadedPhotos[0].isMain = true;
-      }
-
       syncPhotoSortOrders();
       renderPhotoPreview();
       setStatus("Снимката е махната.", "success");
@@ -1894,8 +2365,159 @@
   function syncPhotoSortOrders() {
     state.uploadedPhotos = state.uploadedPhotos.map((photo, index) => ({
       ...photo,
-      sortOrder: index
+      sortOrder: index,
+      isMain: index === 0
     }));
+  }
+
+  function startPhotoDrag(index, event) {
+    if (!Number.isInteger(index) || !state.uploadedPhotos[index]) {
+      return;
+    }
+
+    if (event.pointerType === "mouse" && event.button !== 0) {
+      return;
+    }
+
+    state.photoDrag.activeIndex = index;
+    state.photoDrag.overIndex = index;
+    state.photoDrag.pointerId = event.pointerId;
+
+    event.preventDefault();
+    syncPhotoDragVisualState();
+  }
+
+  function onPhotoDragMove(event) {
+    if (state.photoDrag.activeIndex < 0) {
+      return;
+    }
+
+    if (state.photoDrag.pointerId !== null && event.pointerId !== state.photoDrag.pointerId) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const targetCard = document
+      .elementFromPoint(event.clientX, event.clientY)
+      ?.closest(".photo-card[data-photo-index]");
+
+    if (!targetCard) {
+      updatePhotoDragTarget(-1);
+      return;
+    }
+
+    updatePhotoDragTarget(Number(targetCard.dataset.photoIndex));
+  }
+
+  function onPhotoDragEnd(event) {
+    if (state.photoDrag.activeIndex < 0) {
+      return;
+    }
+
+    if (state.photoDrag.pointerId !== null && event.pointerId !== state.photoDrag.pointerId) {
+      return;
+    }
+
+    const fromIndex = state.photoDrag.activeIndex;
+    const toIndex = state.photoDrag.overIndex;
+
+    cancelPhotoDrag();
+
+    if (!Number.isInteger(fromIndex) || !Number.isInteger(toIndex) || fromIndex === toIndex || toIndex < 0) {
+      return;
+    }
+
+    moveUploadedPhoto(fromIndex, toIndex);
+  }
+
+  function cancelPhotoDrag() {
+    if (
+      state.photoDrag.activeIndex === -1 &&
+      state.photoDrag.overIndex === -1 &&
+      state.photoDrag.pointerId === null
+    ) {
+      return;
+    }
+
+    state.photoDrag.activeIndex = -1;
+    state.photoDrag.overIndex = -1;
+    state.photoDrag.pointerId = null;
+    syncPhotoDragVisualState();
+  }
+
+  function updatePhotoDragTarget(targetIndex) {
+    const normalizedIndex = Number.isInteger(targetIndex) ? targetIndex : -1;
+
+    if (state.photoDrag.overIndex === normalizedIndex) {
+      return;
+    }
+
+    state.photoDrag.overIndex = normalizedIndex;
+    syncPhotoDragVisualState();
+  }
+
+  function syncPhotoDragVisualState() {
+    if (!elements.photoPreviewGrid) {
+      return;
+    }
+
+    const isDragging = state.photoDrag.activeIndex >= 0;
+    const activeIndex = state.photoDrag.activeIndex;
+    const overIndex = state.photoDrag.overIndex;
+    const movingForward = isDragging && overIndex > activeIndex;
+    const movingBackward = isDragging && overIndex >= 0 && overIndex < activeIndex;
+
+    elements.photoPreviewGrid.classList.toggle("is-photo-dragging", isDragging);
+
+    [...elements.photoPreviewGrid.querySelectorAll(".photo-card[data-photo-index]")].forEach(card => {
+      const cardIndex = Number(card.dataset.photoIndex);
+      const isDragSource = isDragging && cardIndex === activeIndex;
+      const isDropTarget =
+        isDragging &&
+        cardIndex === overIndex &&
+        overIndex !== activeIndex;
+      const isShiftedBackward =
+        movingForward &&
+        cardIndex > activeIndex &&
+        cardIndex <= overIndex;
+      const isShiftedForward =
+        movingBackward &&
+        cardIndex >= overIndex &&
+        cardIndex < activeIndex;
+
+      card.classList.toggle("is-drag-source", isDragSource);
+      card.classList.toggle(
+        "is-drop-target",
+        isDropTarget
+      );
+      card.classList.toggle("is-shifted-forward", isShiftedForward);
+      card.classList.toggle("is-shifted-backward", isShiftedBackward);
+      card.style.setProperty("--photo-shift-delay", `${Math.min(Math.abs(cardIndex - activeIndex), 5) * 26}ms`);
+    });
+  }
+
+  function moveUploadedPhoto(fromIndex, toIndex) {
+    if (
+      !Number.isInteger(fromIndex) ||
+      !Number.isInteger(toIndex) ||
+      fromIndex < 0 ||
+      toIndex < 0 ||
+      fromIndex >= state.uploadedPhotos.length ||
+      toIndex >= state.uploadedPhotos.length ||
+      fromIndex === toIndex
+    ) {
+      return;
+    }
+
+    const reorderedPhotos = [...state.uploadedPhotos];
+    const [movedPhoto] = reorderedPhotos.splice(fromIndex, 1);
+    reorderedPhotos.splice(toIndex, 0, movedPhoto);
+
+    state.uploadedPhotos = reorderedPhotos;
+    syncPhotoSortOrders();
+    renderPhotoPreview();
+    updateListingPreview();
   }
 
   async function loadBillingContext() {
@@ -2443,6 +3065,7 @@
     elements.createListingForm?.reset();
     state.uploadedPhotos = [];
     state.isSubmitting = false;
+    syncAllSearchableSelects();
 
     if (elements.smartCategoryInput) {
       elements.smartCategoryInput.value = "";

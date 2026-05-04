@@ -5,6 +5,8 @@
   const ACCESSORY_OTHER_FILTER_VALUE = "__other__";
   const FOR_PARTS_CONDITION_LABEL = "\u0437\u0430 \u0447\u0430\u0441\u0442\u0438";
   const OTHER_ACCESSORY_LABEL = "\u0414\u0440\u0443\u0433\u0438";
+  const AUTO_SEARCHABLE_SELECT_SELECTOR =
+    "#filtersSection select:not(.searchable-select__native), .content__actions select:not(.searchable-select__native)";
 
   const state = {
     currentUser: null,
@@ -996,6 +998,7 @@
 
     if (!shouldShow && elements.gearHelmetTypeFilter) {
       elements.gearHelmetTypeFilter.value = "";
+      refreshSearchableSelect(elements.gearHelmetTypeFilter.id);
     }
   }
 
@@ -1122,6 +1125,9 @@
       fillSelect(cityFilter, [], "nameBg", "id");
       regionFilter.disabled = true;
       cityFilter.disabled = true;
+      refreshSearchableSelect(countryFilter.id);
+      refreshSearchableSelect(regionFilter.id);
+      refreshSearchableSelect(cityFilter.id);
       return;
     }
 
@@ -1130,6 +1136,8 @@
       cityFilter.value = "";
       fillSelect(cityFilter, [], "nameBg", "id");
       cityFilter.disabled = true;
+      refreshSearchableSelect(regionFilter.id);
+      refreshSearchableSelect(cityFilter.id);
       return;
     }
 
@@ -1137,6 +1145,7 @@
       cityFilter.value = "";
       fillSelect(cityFilter, [], "nameBg", "id");
       cityFilter.disabled = true;
+      refreshSearchableSelect(cityFilter.id);
     }
   }
 
@@ -1985,9 +1994,6 @@
     });
 
     fillSelect(elements.vehicleModelFilter, [], "name", "id");
-    refreshSearchableSelect("vehicleBrandFilter");
-    refreshSearchableSelect("vehicleModelFilter");
-
     sanitizeLocationFilters("vehicle");
     sanitizeLocationFilters("gear");
     sanitizeLocationFilters("part");
@@ -1998,6 +2004,7 @@
     handleLocationModeVisibility("gear");
     handleLocationModeVisibility("part");
     handleLocationModeVisibility("accessory");
+    refreshAllSearchableSelects();
 
     state.page = 1;
 
@@ -2611,16 +2618,14 @@
   }
 
   function initSearchableSelects() {
+    enhanceNativeSearchableSelects();
+
     document.querySelectorAll(".searchable-select").forEach((root) => {
-      const targetSelectId = root.dataset.targetSelect;
-      const searchInputId = root.dataset.searchInput;
-      const optionsListId = root.dataset.optionsList;
+      const select = resolveSearchableSelect(root);
+      const input = resolveSearchableInput(root);
+      const dropdown = resolveSearchableDropdown(root);
 
-      const select = document.getElementById(targetSelectId);
-      const input = document.getElementById(searchInputId);
-      const dropdown = document.getElementById(optionsListId);
-
-      if (!select || !input || !dropdown) return;
+      if (!select || !input || !dropdown || state.searchableSelects.has(select.id)) return;
 
       const instance = {
         root,
@@ -2633,16 +2638,19 @@
       state.searchableSelects.set(select.id, instance);
 
       input.addEventListener("focus", () => {
+        if (select.disabled) return;
         openSearchableSelect(instance);
         renderSearchableOptions(instance, input.value);
       });
 
       input.addEventListener("click", () => {
+        if (select.disabled) return;
         openSearchableSelect(instance);
         renderSearchableOptions(instance, input.value);
       });
 
       input.addEventListener("input", () => {
+        if (select.disabled) return;
         openSearchableSelect(instance);
         instance.highlightedIndex = -1;
         renderSearchableOptions(instance, input.value);
@@ -2688,7 +2696,17 @@
         syncSearchableInput(instance);
       });
 
+      const observer = new MutationObserver(() => {
+        syncSearchableControlState(instance);
+      });
+
+      observer.observe(select, {
+        attributes: true,
+        attributeFilter: ["disabled"]
+      });
+
       syncSearchableInput(instance);
+      syncSearchableControlState(instance);
     });
   }
 
@@ -2698,10 +2716,17 @@
 
     instance.highlightedIndex = -1;
     syncSearchableInput(instance);
+    syncSearchableControlState(instance);
 
     if (!instance.dropdown.classList.contains("hidden")) {
       renderSearchableOptions(instance, instance.input.value);
     }
+  }
+
+  function refreshAllSearchableSelects() {
+    state.searchableSelects.forEach((instance, selectId) => {
+      refreshSearchableSelect(selectId);
+    });
   }
 
   function syncSearchableInput(instance) {
@@ -2715,7 +2740,22 @@
     instance.input.value = selectedOption.textContent.trim();
   }
 
+  function syncSearchableControlState(instance) {
+    const isDisabled = !!instance.select.disabled;
+
+    instance.input.disabled = isDisabled;
+    instance.root.classList.toggle("is-disabled", isDisabled);
+
+    if (isDisabled) {
+      closeSearchableSelect(instance);
+    }
+  }
+
   function openSearchableSelect(instance) {
+    if (instance.select.disabled) {
+      return;
+    }
+
     closeAllSearchableSelects(instance.select.id);
     instance.dropdown.classList.remove("hidden");
   }
@@ -2806,6 +2846,88 @@
     if (currentValue !== value) {
       instance.select.dispatchEvent(new Event("change", { bubbles: true }));
     }
+  }
+
+  function enhanceNativeSearchableSelects() {
+    document.querySelectorAll(AUTO_SEARCHABLE_SELECT_SELECTOR).forEach((select) => {
+      if (!(select instanceof HTMLSelectElement) || !select.id) return;
+      if (select.closest(".searchable-select")) return;
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "searchable-select searchable-select--generated";
+
+      if (select.closest(".content__actions")) {
+        wrapper.classList.add("searchable-select--toolbar");
+      }
+
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "searchable-select__input";
+      input.autocomplete = "off";
+      input.spellcheck = false;
+
+      const placeholder = buildSearchablePlaceholder(select);
+      if (placeholder) {
+        input.placeholder = placeholder;
+        input.setAttribute("aria-label", placeholder);
+      }
+
+      const dropdown = document.createElement("div");
+      dropdown.className = "searchable-select__dropdown hidden";
+
+      const parent = select.parentElement;
+      if (!parent) return;
+
+      parent.insertBefore(wrapper, select);
+      wrapper.appendChild(input);
+      wrapper.appendChild(dropdown);
+      wrapper.appendChild(select);
+
+      select.classList.add("searchable-select__native", "hidden");
+    });
+  }
+
+  function buildSearchablePlaceholder(select) {
+    if (select.id === "sortSelect") {
+      return "Търси подредба...";
+    }
+
+    const label = document.querySelector(`label[for="${select.id}"]`)?.textContent?.trim();
+    if (!label) {
+      return "Търси...";
+    }
+
+    return `Търси ${label.toLocaleLowerCase("bg")}...`;
+  }
+
+  function resolveSearchableSelect(root) {
+    const targetSelectId = root.dataset.targetSelect;
+
+    if (targetSelectId) {
+      return document.getElementById(targetSelectId);
+    }
+
+    return root.querySelector("select");
+  }
+
+  function resolveSearchableInput(root) {
+    const searchInputId = root.dataset.searchInput;
+
+    if (searchInputId) {
+      return document.getElementById(searchInputId);
+    }
+
+    return root.querySelector(".searchable-select__input");
+  }
+
+  function resolveSearchableDropdown(root) {
+    const optionsListId = root.dataset.optionsList;
+
+    if (optionsListId) {
+      return document.getElementById(optionsListId);
+    }
+
+    return root.querySelector(".searchable-select__dropdown");
   }
 
   function getListingSearchText(item) {

@@ -4,6 +4,67 @@ const ADMIN_ROLE = "ADMIN";
 const JWT_ROLE_CLAIM = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
 
 const API_BASE_URL = "https://motomarketapi.azurewebsites.net";
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function normalizeEmail(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function isValidEmail(value) {
+  return EMAIL_REGEX.test(normalizeEmail(value));
+}
+
+function buildPageUrl(pageName, params = {}) {
+  const nextUrl = new URL(pageName, window.location.href);
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value === null || value === undefined) {
+      return;
+    }
+
+    const normalizedValue = String(value).trim();
+    if (!normalizedValue) {
+      return;
+    }
+
+    nextUrl.searchParams.set(key, normalizedValue);
+  });
+
+  return nextUrl.toString();
+}
+
+function getQueryParam(name, search = window.location.search) {
+  return new URLSearchParams(search).get(name);
+}
+
+async function readApiMessage(response, fallbackMessage) {
+  try {
+    const data = await response.json();
+
+    if (typeof data === "string" && data.trim()) {
+      return data;
+    }
+
+    if (typeof data?.message === "string" && data.message.trim()) {
+      return data.message;
+    }
+
+    if (typeof data?.title === "string" && data.title.trim()) {
+      return data.title;
+    }
+
+    if (data?.errors && typeof data.errors === "object") {
+      const firstError = Object.values(data.errors).flat()?.[0];
+      if (typeof firstError === "string" && firstError.trim()) {
+        return firstError;
+      }
+    }
+
+    return fallbackMessage;
+  } catch {
+    return fallbackMessage;
+  }
+}
 
 function setAccessToken(token) {
   if (!token) {
@@ -196,17 +257,13 @@ function getCurrentRelativeUrl() {
 }
 
 function redirectToLogin(returnUrl) {
-  const nextUrl = new URL("Login.html", window.location.href);
-
-  if (returnUrl) {
-    nextUrl.searchParams.set("returnUrl", returnUrl);
-  }
-
-  window.location.href = nextUrl.toString();
+  window.location.href = buildPageUrl("Login.html", {
+    returnUrl
+  });
 }
 
 function redirectToRegister() {
-  window.location.href = "Register.html";
+  window.location.href = buildPageUrl("Register.html");
 }
 
 function requireAuth(returnUrl) {
@@ -305,6 +362,11 @@ async function logoutUser() {
 
 window.Auth = {
   API_BASE_URL,
+  normalizeEmail,
+  isValidEmail,
+  buildPageUrl,
+  getQueryParam,
+  readApiMessage,
   setAccessToken,
   getAccessToken,
   clearAuthData,

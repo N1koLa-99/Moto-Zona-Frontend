@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="google" content="notranslate" />
-  <title>Мото Зона | Вход</title>
-  <meta name="description" content="Вход в профила." />
+  <title>Мото Зона | Потвърди имейла си</title>
+  <meta name="description" content="Потвърждение на имейл адрес за профил в Мото Зона." />
 
   <meta name="robots" content="noindex,nofollow,noarchive" />
   <meta name="theme-color" content="#ff6a2a" />
@@ -19,9 +19,7 @@
     rel="stylesheet"
   />
 
-  <!-- Първо общия стил -->
   <link rel="stylesheet" href="Css/index.css" />
-  <!-- После auth стила -->
   <link rel="stylesheet" href="Css/AuthPages.css" />
   <link rel="stylesheet" href="Css/Footer.css" />
 </head>
@@ -40,7 +38,7 @@
 
       <div class="topbar__actions">
         <a href="index.html" class="auth-action-btn auth-action-btn--ghost">Начало</a>
-        <a href="Register.html" class="auth-action-btn">Регистрация</a>
+        <a href="Login.html" class="auth-action-btn">Вход</a>
       </div>
     </div>
   </header>
@@ -54,84 +52,87 @@
   </div>
   <script>if(sessionStorage.getItem('devBannerClosed'))document.getElementById('devBanner').style.display='none'</script>
 
-  <main class="auth-page auth-page--login">
+  <main class="auth-page auth-page--verify">
     <div class="container auth-layout auth-layout--login">
       <section class="auth-panel">
         <article class="auth-card auth-card--main">
           <div class="auth-card__head">
-            <div class="auth-card__eyebrow">Мото Зона</div>
-            <h1>Вход в профила</h1>
+            <div class="auth-card__eyebrow">Потвърждение</div>
+            <h1>Потвърди имейла си</h1>
             <p>
-              Влез в акаунта си, за да управляваш обявите, профила и запазените си активности.
+              Изпратихме 6-цифрен код на имейла ти. Въведи го тук, за да активираш профила и да можеш да влезеш.
             </p>
           </div>
 
-          <div id="loginMessage" class="auth-message hidden"></div>
+          <div id="verifyMessage" class="auth-message hidden"></div>
 
-          <form id="loginForm" class="auth-form" novalidate>
+          <div class="auth-status-card">
+            <div class="auth-status-card__label">Имейл за потвърждение</div>
+            <strong id="verifyEmailPreview">Добави имейл адреса, с който се регистрира</strong>
+            <p>Ако не виждаш писмото, провери и папка Spam / Promotions.</p>
+          </div>
+
+          <form id="verifyForm" class="auth-form" novalidate>
             <div class="auth-field">
-              <label for="email">Имейл</label>
-              <input id="email" name="email" type="email" placeholder="name@example.com" required />
+              <label for="verifyEmail">Имейл</label>
+              <input
+                id="verifyEmail"
+                name="verifyEmail"
+                type="email"
+                placeholder="name@example.com"
+                autocomplete="email"
+                required
+              />
+              <small id="verifyEmailError" class="auth-field-error" aria-live="polite"></small>
             </div>
 
             <div class="auth-field">
-              <label for="password">Парола</label>
-              <div class="auth-password-wrap">
-                <input id="password" name="password" type="password" placeholder="Въведи парола" required />
-                <button type="button" class="auth-show-btn toggle-password" data-target="password">Покажи</button>
-              </div>
+              <label for="verifyCode">Код за потвърждение</label>
+              <input
+                id="verifyCode"
+                name="verifyCode"
+                type="text"
+                class="auth-code-input"
+                placeholder="123456"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                maxlength="6"
+                required
+              />
+              <small id="verifyCodeError" class="auth-field-error" aria-live="polite"></small>
             </div>
 
-            <div class="auth-row auth-row--between">
-              <label class="inline-check" for="rememberMe">
-                <input id="rememberMe" name="rememberMe" type="checkbox" />
-                <span>Запомни ме</span>
-              </label>
-
-              <a href="ForgotPassword.html" id="forgotPasswordLink" class="auth-link">Забравена парола</a>
+            <div class="auth-inline-actions">
+              <button id="verifySubmitBtn" type="submit" class="primary-btn auth-helper-btn">Потвърди имейла</button>
+              <button id="resendVerifyCodeBtn" type="button" class="secondary-btn auth-helper-btn">Изпрати нов код</button>
             </div>
-
-            <button id="loginSubmitBtn" type="submit" class="primary-btn auth-submit">
-              Вход
-            </button>
           </form>
 
-          <section id="loginAssistBox" class="auth-helper-box hidden" aria-live="polite">
-            <div class="auth-helper-box__head">
-              <h3 id="loginAssistTitle">Нужна е още една стъпка?</h3>
-              <p id="loginAssistText">
-                Ако имейлът ти още не е потвърден, можеш веднага да въведеш кода или да поискаш нов.
-              </p>
-            </div>
-
-            <div class="auth-helper-box__actions">
-              <a id="loginVerifyLink" href="VerifyEmail.html" class="primary-btn auth-helper-btn">Въведи код</a>
-              <button type="button" id="loginResendBtn" class="secondary-btn auth-helper-btn">Изпрати нов код</button>
-            </div>
-          </section>
+          <p class="auth-inline-note">
+            Кодът е еднократен. Ако си поискал нов, използвай последния получен код.
+          </p>
 
           <div class="auth-switch">
-            Нямаш профил?
-            <a href="Register.html">Регистрирай се</a>
+            Имаш потвърден профил?
+            <a id="verifyLoginLink" href="Login.html">Влез</a>
           </div>
         </article>
       </section>
 
       <aside class="auth-side">
         <article class="auth-side-card">
-          <h3>Какво получаваш</h3>
+          <h3>Как работи</h3>
           <ul class="auth-points">
-            <li>Любими обяви и бърз достъп до тях</li>
-            <li>Управление на профила</li>
-            <li>Качване и редакция на обяви</li>
-            <li>Следене на баланс и активност</li>
+            <li>Кодът е 6-цифрен и пристига на въведения имейл</li>
+            <li>След успешно потвърждение можеш веднага да влезеш</li>
+            <li>Ако кодът е изтекъл, поискай нов с един бутон</li>
           </ul>
         </article>
 
         <article class="auth-side-card auth-side-card--highlight">
-          <h3>Достъп без излишно лутане</h3>
+          <h3>Нямаш писмо?</h3>
           <p>
-            Ако профилът ти чака потвърждение или не помниш паролата си, оттук ще стигнеш директно до правилния кодов поток.
+            Най-често кодът пристига до секунди. Ако не го виждаш, провери Spam и после използвай „Изпрати нов код“.
           </p>
         </article>
       </aside>
@@ -169,7 +170,7 @@
   </footer>
 
   <script src="Js/auth.js"></script>
-  <script src="Js/Login.js"></script>
+  <script src="Js/VerifyEmail.js"></script>
   <script src="Js/animations.js" defer></script>
 </body>
 </html>

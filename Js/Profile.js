@@ -29,6 +29,8 @@
     editprofile: "editProfile"
   };
 
+  const EDIT_SEARCHABLE_SELECT_SELECTOR = "#editListingForm select:not(.searchable-select__native)";
+
   const state = {
     currentSection: null,
     loaded: {
@@ -86,6 +88,7 @@
       }
     },
     paymentListingPreviewCache: {},
+    searchableSelects: new Map(),
     modal: {
       isOpen: false,
       listingId: null,
@@ -201,6 +204,7 @@
       elements.logoutBtn.setAttribute("aria-label", "Изход от профила");
     }
 
+    initEditSearchableSelects();
     hydrateStaticUserInfo();
     bindStaticEvents();
 
@@ -360,6 +364,10 @@
   }
 
   function onDocumentClick(event) {
+    if (![...state.searchableSelects.values()].some((instance) => instance.root.contains(event.target))) {
+      closeAllSearchableSelects();
+    }
+
     const openSectionBtn = event.target.closest("[data-open-section]");
     if (openSectionBtn) {
       openSection(openSectionBtn.dataset.openSection);
@@ -2492,6 +2500,7 @@
       renderModalPreview();
       applyCategoryVisibility();
       handleGearHelmetVisibility();
+      refreshAllSearchableSelects();
 
       elements.editListingModalOverlay.classList.remove("hidden");
       document.body.classList.add("modal-open");
@@ -2506,6 +2515,7 @@
       await cleanupUnsavedUploadedPhotos();
     }
 
+    closeAllSearchableSelects();
     resetModalState();
     elements.editListingModalOverlay.classList.add("hidden");
     document.body.classList.remove("modal-open");
@@ -2547,6 +2557,7 @@
     clearSelect(elements.editModelId);
     clearSelect(elements.editRegionId);
     clearSelect(elements.editCityId);
+    refreshAllSearchableSelects();
   }
 
   function fillStaticLookupSelects() {
@@ -2691,6 +2702,7 @@
 
     if (!shouldShow) {
       elements.editHelmetTypeId.value = "";
+      refreshSearchableSelect(elements.editHelmetTypeId?.id);
     }
   }
 
@@ -3394,6 +3406,330 @@
   function setInputValue(input, value) {
     if (!input) return;
     input.value = value == null ? "" : String(value);
+  }
+
+  function initEditSearchableSelects() {
+    enhanceEditSearchableSelects();
+
+    document.querySelectorAll(".searchable-select--edit").forEach((root) => {
+      const select = root.querySelector("select");
+      const input = root.querySelector(".searchable-select__input");
+      const dropdown = root.querySelector(".searchable-select__dropdown");
+
+      if (!select || !input || !dropdown || state.searchableSelects.has(select.id)) {
+        return;
+      }
+
+      const instance = {
+        root,
+        select,
+        input,
+        dropdown,
+        highlightedIndex: -1
+      };
+
+      state.searchableSelects.set(select.id, instance);
+
+      input.addEventListener("focus", () => {
+        if (select.disabled) return;
+        if (input.value) {
+          input.select();
+        }
+        openSearchableSelect(instance);
+        renderSearchableOptions(instance, "");
+      });
+
+      input.addEventListener("click", () => {
+        if (select.disabled) return;
+        openSearchableSelect(instance);
+        renderSearchableOptions(instance, "");
+      });
+
+      input.addEventListener("input", () => {
+        if (select.disabled) return;
+        openSearchableSelect(instance);
+        instance.highlightedIndex = -1;
+        renderSearchableOptions(instance, input.value);
+      });
+
+      input.addEventListener("keydown", (event) => {
+        const options = getFilteredSearchableOptions(instance, input.value);
+
+        if (["ArrowDown", "ArrowUp", "Enter", "Escape"].includes(event.key)) {
+          event.stopPropagation();
+        }
+
+        if (event.key === "ArrowDown") {
+          event.preventDefault();
+          if (!options.length) return;
+          instance.highlightedIndex =
+            instance.highlightedIndex < options.length - 1 ? instance.highlightedIndex + 1 : 0;
+          renderSearchableOptions(instance, input.value);
+          return;
+        }
+
+        if (event.key === "ArrowUp") {
+          event.preventDefault();
+          if (!options.length) return;
+          instance.highlightedIndex =
+            instance.highlightedIndex > 0 ? instance.highlightedIndex - 1 : options.length - 1;
+          renderSearchableOptions(instance, input.value);
+          return;
+        }
+
+        if (event.key === "Enter") {
+          event.preventDefault();
+          if (!options.length) return;
+
+          const option = options[instance.highlightedIndex >= 0 ? instance.highlightedIndex : 0];
+          selectSearchableOption(instance, option.value);
+          return;
+        }
+
+        if (event.key === "Escape") {
+          event.preventDefault();
+          closeSearchableSelect(instance);
+        }
+      });
+
+      select.addEventListener("change", () => {
+        syncSearchableInput(instance);
+      });
+
+      syncSearchableInput(instance);
+      syncSearchableControlState(instance);
+    });
+  }
+
+  function enhanceEditSearchableSelects() {
+    document.querySelectorAll(EDIT_SEARCHABLE_SELECT_SELECTOR).forEach((select) => {
+      if (!(select instanceof HTMLSelectElement) || !select.id) return;
+      if (select.closest(".searchable-select")) return;
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "searchable-select searchable-select--edit";
+
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "searchable-select__input";
+      input.autocomplete = "off";
+      input.spellcheck = false;
+      input.placeholder = buildEditSearchablePlaceholder(select);
+      input.setAttribute("aria-label", input.placeholder || "Търси");
+
+      const dropdown = document.createElement("div");
+      dropdown.className = "searchable-select__dropdown hidden";
+
+      const parent = select.parentElement;
+      if (!parent) return;
+
+      parent.insertBefore(wrapper, select);
+      wrapper.appendChild(input);
+      wrapper.appendChild(dropdown);
+      wrapper.appendChild(select);
+
+      select.classList.add("searchable-select__native", "hidden");
+
+      const label = document.querySelector(`label[for="${select.id}"]`);
+      label?.addEventListener("click", (event) => {
+        event.preventDefault();
+        input.focus();
+      });
+    });
+  }
+
+  function buildEditSearchablePlaceholder(select) {
+    const label = document.querySelector(`label[for="${select.id}"]`)?.textContent?.trim();
+    return label ? `Търси ${label.toLocaleLowerCase("bg")}...` : "Търси...";
+  }
+
+  function refreshSearchableSelect(selectId) {
+    const instance = state.searchableSelects.get(selectId);
+    if (!instance) return;
+
+    instance.highlightedIndex = -1;
+    syncSearchableInput(instance);
+    syncSearchableControlState(instance);
+
+    if (!instance.dropdown.classList.contains("hidden")) {
+      renderSearchableOptions(instance, instance.input.value);
+    }
+  }
+
+  function refreshAllSearchableSelects() {
+    state.searchableSelects.forEach((instance, selectId) => {
+      refreshSearchableSelect(selectId);
+    });
+  }
+
+  function syncSearchableInput(instance) {
+    const selectedOption = instance.select.options[instance.select.selectedIndex];
+
+    if (!selectedOption || selectedOption.value === "") {
+      instance.input.value = "";
+      return;
+    }
+
+    instance.input.value = selectedOption.textContent.trim();
+  }
+
+  function syncSearchableControlState(instance) {
+    const isDisabled = Boolean(instance.select.disabled);
+
+    instance.input.disabled = isDisabled;
+    instance.root.classList.toggle("is-disabled", isDisabled);
+
+    if (isDisabled) {
+      closeSearchableSelect(instance);
+    }
+  }
+
+  function openSearchableSelect(instance) {
+    if (instance.select.disabled) return;
+
+    closeAllSearchableSelects(instance.select.id);
+    instance.root.classList.add("is-open");
+    instance.root.closest(".form-group")?.classList.add("is-search-open");
+    instance.dropdown.classList.remove("hidden");
+  }
+
+  function closeSearchableSelect(instance) {
+    instance.root.classList.remove("is-open");
+    instance.root.closest(".form-group")?.classList.remove("is-search-open");
+    instance.dropdown.classList.add("hidden");
+    instance.highlightedIndex = -1;
+    syncSearchableInput(instance);
+  }
+
+  function closeAllSearchableSelects(exceptSelectId = null) {
+    state.searchableSelects.forEach((instance, selectId) => {
+      if (exceptSelectId && exceptSelectId === selectId) return;
+      closeSearchableSelect(instance);
+    });
+  }
+
+  function getSearchableOptions(instance) {
+    return [...instance.select.options].map((option) => ({
+      value: option.value,
+      label: option.textContent.trim()
+    }));
+  }
+
+  function getFilteredSearchableOptions(instance, searchTerm) {
+    const normalizedTerm = normalizeSearchText(searchTerm);
+    const options = getSearchableOptions(instance);
+
+    if (!normalizedTerm) {
+      return options;
+    }
+
+    return options.filter((option) => {
+      if (option.value === "") {
+        return true;
+      }
+
+      return matchesNormalizedSearch(option.label, searchTerm);
+    });
+  }
+
+  function renderSearchableOptions(instance, searchTerm = "") {
+    const options = getFilteredSearchableOptions(instance, searchTerm);
+
+    if (!options.length) {
+      instance.dropdown.innerHTML = `<div class="searchable-select__empty">Няма резултати</div>`;
+      return;
+    }
+
+    if (instance.highlightedIndex >= options.length) {
+      instance.highlightedIndex = options.length - 1;
+    }
+
+    instance.dropdown.innerHTML = options
+      .map((option, index) => {
+        const isSelected = instance.select.value === option.value;
+        const isActive = instance.highlightedIndex === index;
+        const isPlaceholder = option.value === "";
+
+        return `
+          <button
+            class="searchable-select__option ${isSelected ? "is-selected" : ""} ${isActive ? "is-active" : ""} ${isPlaceholder ? "is-placeholder" : ""}"
+            type="button"
+            data-value="${escapeHtml(option.value)}"
+          >
+            ${escapeHtml(option.label)}
+          </button>
+        `;
+      })
+      .join("");
+
+    [...instance.dropdown.querySelectorAll(".searchable-select__option")].forEach((button) => {
+      button.addEventListener("click", () => {
+        selectSearchableOption(instance, button.dataset.value);
+      });
+    });
+
+    const activeOption = instance.dropdown.querySelector(".searchable-select__option.is-active");
+    activeOption?.scrollIntoView({ block: "nearest" });
+  }
+
+  function selectSearchableOption(instance, value) {
+    const currentValue = instance.select.value;
+    instance.select.value = value;
+
+    syncSearchableInput(instance);
+    closeSearchableSelect(instance);
+
+    if (currentValue !== value) {
+      instance.select.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+  }
+
+  function clearSelect(select) {
+    if (!select) return;
+    if (!(select instanceof HTMLSelectElement)) return;
+    select.innerHTML = `<option value="">Избери</option>`;
+    refreshSearchableSelect(select.id);
+  }
+
+  function fillSelect(select, items, labelKey = "nameBg", valueKey = "id") {
+    if (!select) return;
+    if (!(select instanceof HTMLSelectElement)) return;
+
+    const currentValue = select.value;
+    const safeItems = Array.isArray(items) ? items : [];
+
+    select.innerHTML =
+      `<option value="">Избери</option>` +
+      safeItems
+        .map((item) => {
+          const label = item?.[labelKey] ?? item?.nameBg ?? item?.name ?? item?.code ?? "";
+          const value = item?.[valueKey] ?? item?.id ?? item?.code ?? "";
+          return `<option value="${escapeHtml(String(value))}">${escapeHtml(String(label))}</option>`;
+        })
+        .join("");
+
+    const options = Array.from(select.options || []);
+    if (options.some((option) => option.value === String(currentValue))) {
+      select.value = String(currentValue);
+    }
+
+    refreshSearchableSelect(select.id);
+  }
+
+  function setSelectValue(select, value) {
+    if (!select) return;
+    if (!(select instanceof HTMLSelectElement)) return;
+
+    const normalized = value == null ? "" : String(value);
+    const options = Array.from(select.options || []);
+
+    if (options.some((option) => option.value === normalized)) {
+      select.value = normalized;
+    } else {
+      select.value = "";
+    }
+
+    refreshSearchableSelect(select.id);
   }
 
   function getVehicleTypesByClassId(classId) {
@@ -4127,6 +4463,98 @@
       return window.crypto.randomUUID();
     }
     return `k-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  }
+
+  function matchesNormalizedSearch(haystack, searchTerm) {
+    const hay = normalizeSearchText(haystack);
+    const needle = normalizeSearchText(searchTerm);
+
+    if (!needle) return true;
+    if (!hay) return false;
+
+    const hayCompact = hay.replace(/\s+/g, "");
+    const needleCompact = needle.replace(/\s+/g, "");
+    const needleTokens = needle.split(" ").filter(Boolean);
+
+    if (hay.includes(needle)) {
+      return true;
+    }
+
+    if (hayCompact.includes(needleCompact)) {
+      return true;
+    }
+
+    return needleTokens.every((token) => {
+      const compactToken = token.replace(/\s+/g, "");
+      return hay.includes(token) || hayCompact.includes(compactToken);
+    });
+  }
+
+  function normalizeSearchText(value) {
+    let text = String(value || "")
+      .toLowerCase()
+      .trim();
+
+    if (!text) {
+      return "";
+    }
+
+    const bgToLatinMap = {
+      а: "a",
+      б: "b",
+      в: "v",
+      г: "g",
+      д: "d",
+      е: "e",
+      ж: "zh",
+      з: "z",
+      и: "i",
+      й: "y",
+      к: "k",
+      л: "l",
+      м: "m",
+      н: "n",
+      о: "o",
+      п: "p",
+      р: "r",
+      с: "s",
+      т: "t",
+      у: "u",
+      ф: "f",
+      х: "h",
+      ц: "ts",
+      ч: "ch",
+      ш: "sh",
+      щ: "sht",
+      ъ: "a",
+      ь: "",
+      ю: "yu",
+      я: "ya"
+    };
+
+    text = [...text].map((char) => bgToLatinMap[char] ?? char).join("");
+
+    text = text
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/æ/g, "ae")
+      .replace(/œ/g, "oe")
+      .replace(/ß/g, "ss")
+      .replace(/[\u2019’`']/g, "")
+      .replace(/&/g, " and ")
+      .replace(/ph/g, "f")
+      .replace(/ck/g, "k")
+      .replace(/qu/g, "kv")
+      .replace(/w/g, "v")
+      .replace(/q/g, "k")
+      .replace(/x/g, "ks")
+      .replace(/c/g, "k")
+      .replace(/z/g, "s")
+      .replace(/[^a-z0-9]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    return text;
   }
 
   function escapeHtml(value) {
