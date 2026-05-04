@@ -2200,13 +2200,13 @@ button {
   }
 
   .hero__line--context {
-    font-size: clamp(0.88rem, 2.8vw, 1.15rem);
-    letter-spacing: 0.22em;
-    line-height: 2;
+    font-size: clamp(1.1rem, 4.6vw, 1.42rem);
+    letter-spacing: 0.08em;
+    line-height: 1.55;
   }
 
   .hero__line--main {
-    font-size: clamp(2.2rem, 9vw, 4rem);
+    font-size: clamp(1.75rem, 6.8vw, 2.65rem);
     -webkit-mask-image: none;
     mask-image: none;
   }
@@ -2763,13 +2763,13 @@ button {
   }
 
   .hero__line--main {
-    font-size: clamp(2.6rem, 13vw, 3.4rem);
+    font-size: clamp(1.65rem, 8vw, 2.25rem);
   }
 
   .hero__line--context {
-    font-size: 0.78rem;
-    letter-spacing: 0.18em;
-    line-height: 1.9;
+    font-size: 1.06rem;
+    letter-spacing: 0.04em;
+    line-height: 1.48;
   }
 
   .seo-copy__inner {
