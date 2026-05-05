@@ -455,7 +455,8 @@
 
     if (action === "view-listing") {
       if (!id) return;
-      window.location.href = `ListingDetails.html?id=${encodeURIComponent(id)}`;
+      window.location.href = window.Auth?.buildListingUrl?.(id)
+        || `ListingDetails.html?id=${encodeURIComponent(id)}`;
       return;
     }
 
@@ -2211,7 +2212,7 @@
       : `<div class="payment-listing-mini__placeholder">Няма снимка</div>`;
 
     return `
-      <a class="payment-listing-mini" href="ListingDetails.html?id=${encodeURIComponent(key)}">
+      <a class="payment-listing-mini" href="${escapeHtml(window.Auth?.buildListingUrl?.(key) || `ListingDetails.html?id=${encodeURIComponent(key)}`)}">
         ${media}
         <div class="payment-listing-mini__copy">
           <div class="payment-listing-mini__title">${escapeHtml(title)}</div>

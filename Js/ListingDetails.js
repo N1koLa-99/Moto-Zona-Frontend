@@ -156,7 +156,12 @@
     elements.mainPhoto?.addEventListener("click", openLightbox);
 
     elements.copyLinkBtn?.addEventListener("click", async () => {
-      await copyText(window.location.href, "Линкът е копиран.");
+      const listingId = state.listing?.id || getListingIdFromUrl();
+      const shareUrl = listingId
+        ? (window.Auth?.buildListingUrl?.(listingId, { absolute: true }) || window.location.href)
+        : window.location.href;
+
+      await copyText(shareUrl, "Линкът е копиран.");
     });
 
     elements.copyPhoneBtn?.addEventListener("click", async () => {
@@ -489,16 +494,24 @@
     ].filter(Boolean).join(" | ");
     const pageDescription = summary || "Разгледай детайли за обява в Мото Зона.";
     const imageUrl = resolveSeoImageUrl(state.photos[0]?.fileUrl || "ImagesVideos/MzLogoBlack.png");
+    const listingId = listing?.id || getListingIdFromUrl();
+    const canonicalUrl = listingId
+      ? (window.Auth?.buildListingUrl?.(listingId, { absolute: true }) || window.location.href)
+      : window.location.href;
 
     document.title = pageTitle;
     setMetaContent('meta[name="description"]', pageDescription);
+    setMetaContent('meta[property="og:type"]', "product");
     setMetaContent('meta[property="og:title"]', pageTitle);
     setMetaContent('meta[property="og:description"]', pageDescription);
     setMetaContent('meta[property="og:image"]', imageUrl);
     setMetaContent('meta[property="og:image:alt"]', cleanNullableText(listing.title) || "Обява в Мото Зона");
+    setMetaContent('meta[property="og:url"]', canonicalUrl, { attribute: "property", value: "og:url" });
     setMetaContent('meta[name="twitter:title"]', pageTitle);
     setMetaContent('meta[name="twitter:description"]', pageDescription);
     setMetaContent('meta[name="twitter:image"]', imageUrl);
+    setMetaContent('meta[name="twitter:image:alt"]', cleanNullableText(listing.title) || "Обява в Мото Зона");
+    setLinkHref('link[rel="canonical"]', canonicalUrl, { rel: "canonical" });
   }
 
   function renderPromotionBadge(targetElement, promotionType) {
@@ -524,9 +537,23 @@
   }
 
   function getListingIdFromUrl() {
+    if (window.Auth?.getListingIdFromLocation) {
+      return window.Auth.getListingIdFromLocation(window.location);
+    }
+
     const params = new URLSearchParams(window.location.search);
-    const id = Number(params.get("id") || 0);
-    return Number.isFinite(id) && id > 0 ? id : null;
+    const queryId = Number(params.get("id") || 0);
+    if (Number.isFinite(queryId) && queryId > 0) {
+      return queryId;
+    }
+
+    const match = window.location.pathname.match(/\/obiavi\/(\d+)(?:\/)?$/i);
+    if (!match) {
+      return null;
+    }
+
+    const pathId = Number(match[1] || 0);
+    return Number.isFinite(pathId) && pathId > 0 ? pathId : null;
   }
 
   function getCurrentPhoto() {
@@ -1119,10 +1146,35 @@
     }
   }
 
-  function setMetaContent(selector, content) {
-    const element = document.querySelector(selector);
-    if (element && content) {
+  function setMetaContent(selector, content, definition = null) {
+    if (!content) return;
+
+    let element = document.querySelector(selector);
+    if (!element && definition) {
+      element = document.createElement("meta");
+      element.setAttribute(definition.attribute, definition.value);
+      document.head.appendChild(element);
+    }
+
+    if (element) {
       element.setAttribute("content", content);
+    }
+  }
+
+  function setLinkHref(selector, href, definition = null) {
+    if (!href) return;
+
+    let element = document.querySelector(selector);
+    if (!element && definition) {
+      element = document.createElement("link");
+      Object.entries(definition).forEach(([key, value]) => {
+        element.setAttribute(key, value);
+      });
+      document.head.appendChild(element);
+    }
+
+    if (element) {
+      element.setAttribute("href", href);
     }
   }
 

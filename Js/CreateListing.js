@@ -2860,7 +2860,8 @@
       setStatus(result?.message || "Обявата е публикувана успешно.", "success");
 
       if (result?.listingId) {
-        window.location.href = `ListingDetails.html?id=${encodeURIComponent(result.listingId)}`;
+        window.location.href = window.Auth?.buildListingUrl?.(result.listingId)
+          || `ListingDetails.html?id=${encodeURIComponent(result.listingId)}`;
         return;
       }
 

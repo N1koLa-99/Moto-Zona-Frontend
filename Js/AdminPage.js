@@ -801,7 +801,7 @@
 
         ${
           listingId
-            ? `<a class="listing-link" href="ListingDetails.html?id=${encodeURIComponent(listingId)}">Отвори обявата</a>`
+            ? `<a class="listing-link" href="${escapeHtml(window.Auth?.buildListingUrl?.(listingId) || `ListingDetails.html?id=${encodeURIComponent(listingId)}`)}">Отвори обявата</a>`
             : ""
         }
       </article>

@@ -5,6 +5,65 @@ const JWT_ROLE_CLAIM = "http://schemas.microsoft.com/ws/2008/06/identity/claims/
 
 const API_BASE_URL = "https://motomarketapi.azurewebsites.net";
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const CATEGORY_CODE_TO_SLUG = {
+  VEHICLE: "motori",
+  GEAR: "ekipirovka",
+  PART: "chasti",
+  ACCESSORY: "aksesoari"
+};
+const CATEGORY_SLUG_TO_CODE = Object.fromEntries(
+  Object.entries(CATEGORY_CODE_TO_SLUG).map(([code, slug]) => [slug, code])
+);
+
+function normalizeRootPath(value, fallback = "/") {
+  const normalized = String(value || "").trim();
+
+  if (!normalized) {
+    return fallback;
+  }
+
+  if (/^https?:\/\//i.test(normalized)) {
+    return normalized;
+  }
+
+  return normalized.startsWith("/") ? normalized : `/${normalized.replace(/^\/+/, "")}`;
+}
+
+function buildOriginRelativeUrl(pathname, params = {}) {
+  const nextUrl = new URL(normalizeRootPath(pathname), window.location.origin);
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value === null || value === undefined) {
+      return;
+    }
+
+    const normalizedValue = String(value).trim();
+    if (!normalizedValue) {
+      return;
+    }
+
+    nextUrl.searchParams.set(key, normalizedValue);
+  });
+
+  return `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`;
+}
+
+function shouldUseLegacyListingRoutes() {
+  if (window.__MOTO_ZONA_DEV_SERVER__ === true) {
+    return false;
+  }
+
+  const hostname = String(window.location.hostname || "").toLowerCase();
+  const port = String(window.location.port || "");
+  const protocol = String(window.location.protocol || "").toLowerCase();
+
+  if (protocol === "file:") {
+    return true;
+  }
+
+  const isLocalHost = hostname === "127.0.0.1" || hostname === "localhost";
+  return isLocalHost && port === "5501";
+}
 
 function normalizeEmail(value) {
   return String(value || "").trim().toLowerCase();
@@ -15,7 +74,10 @@ function isValidEmail(value) {
 }
 
 function buildPageUrl(pageName, params = {}) {
-  const nextUrl = new URL(pageName, window.location.href);
+  const normalizedPage = String(pageName || "").trim() || "index.html";
+  const nextUrl = /^https?:\/\//i.test(normalizedPage)
+    ? new URL(normalizedPage)
+    : new URL(normalizeRootPath(normalizedPage, "/index.html"), window.location.origin);
 
   Object.entries(params).forEach(([key, value]) => {
     if (value === null || value === undefined) {
@@ -35,6 +97,84 @@ function buildPageUrl(pageName, params = {}) {
 
 function getQueryParam(name, search = window.location.search) {
   return new URLSearchParams(search).get(name);
+}
+
+function getCategorySlugFromCode(code) {
+  const normalizedCode = String(code || "").trim().toUpperCase();
+  return CATEGORY_CODE_TO_SLUG[normalizedCode] || null;
+}
+
+function getCategoryCodeFromSlug(slug) {
+  const normalizedSlug = String(slug || "").trim().toLowerCase();
+  return CATEGORY_SLUG_TO_CODE[normalizedSlug] || null;
+}
+
+function buildCategoryUrl(categoryOrCode, options = {}) {
+  const slug = getCategorySlugFromCode(categoryOrCode) || String(categoryOrCode || "").trim().toLowerCase();
+  const shouldUseLegacy = options.forceLegacy === true
+    || (options.forceSeo !== true && shouldUseLegacyListingRoutes());
+  const path = slug
+    ? (
+      shouldUseLegacy
+        ? buildOriginRelativeUrl("/", { category: slug })
+        : buildOriginRelativeUrl(`/obiavi/${encodeURIComponent(slug)}`)
+    )
+    : "/";
+
+  if (options.absolute) {
+    return new URL(path, window.location.origin).toString();
+  }
+
+  return path;
+}
+
+function buildListingUrl(listingId, options = {}) {
+  const normalizedId = String(listingId ?? "").trim();
+  const shouldUseLegacy = options.forceLegacy === true
+    || (options.forceSeo !== true && shouldUseLegacyListingRoutes());
+  const path = normalizedId
+    ? (
+      shouldUseLegacy
+        ? buildOriginRelativeUrl("/ListingDetails.html", { id: normalizedId })
+        : buildOriginRelativeUrl(`/obiavi/${encodeURIComponent(normalizedId)}`)
+    )
+    : buildOriginRelativeUrl("/ListingDetails.html");
+
+  if (options.absolute) {
+    return new URL(path, window.location.origin).toString();
+  }
+
+  return path;
+}
+
+function buildLegacyListingUrl(listingId, options = {}) {
+  const normalizedId = String(listingId ?? "").trim();
+  const path = buildOriginRelativeUrl("/ListingDetails.html", normalizedId ? { id: normalizedId } : {});
+
+  if (options.absolute) {
+    return new URL(path, window.location.origin).toString();
+  }
+
+  return path;
+}
+
+function getListingIdFromLocation(target = window.location) {
+  const url = typeof target === "string"
+    ? new URL(target, window.location.origin)
+    : new URL(`${target.pathname || "/"}${target.search || ""}`, window.location.origin);
+
+  const queryId = Number(url.searchParams.get("id") || 0);
+  if (Number.isFinite(queryId) && queryId > 0) {
+    return queryId;
+  }
+
+  const match = url.pathname.match(/\/obiavi\/(\d+)(?:\/)?$/i);
+  if (!match) {
+    return null;
+  }
+
+  const pathId = Number(match[1] || 0);
+  return Number.isFinite(pathId) && pathId > 0 ? pathId : null;
 }
 
 async function readApiMessage(response, fallbackMessage) {
@@ -365,6 +505,13 @@ window.Auth = {
   normalizeEmail,
   isValidEmail,
   buildPageUrl,
+  buildOriginRelativeUrl,
+  buildCategoryUrl,
+  buildListingUrl,
+  buildLegacyListingUrl,
+  getCategorySlugFromCode,
+  getCategoryCodeFromSlug,
+  getListingIdFromLocation,
   getQueryParam,
   readApiMessage,
   setAccessToken,

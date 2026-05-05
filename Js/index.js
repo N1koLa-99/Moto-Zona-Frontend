@@ -217,6 +217,34 @@
     accessoryTopOnlyFilter: document.getElementById("accessoryTopOnlyFilter")
   };
 
+  const HOME_SEO_META = {
+    default: {
+      title: "Мото Зона | Всичко за един моторист на едно място",
+      description: "Обяви за мотори, мото екипировка, части и аксесоари от цяла България. Филтрирай по марка, модел, цена и локация в Мото Зона.",
+      canonicalPath: "/"
+    },
+    VEHICLE: {
+      title: "Мотори втора ръка — обяви за мотоциклети в България | Мото Зона",
+      description: "Купи или продай мотоциклет в България. Над хиляди обяви за нови и употребявани мотори на ниски цени. Филтрирай по марка, модел, цена и локация.",
+      canonicalPath: "/obiavi/motori"
+    },
+    GEAR: {
+      title: "Мото екипировка втора употреба — каски, якета, ръкавици | Мото Зона",
+      description: "Купи или продай мото екипировка в България. Каски, якета, ботуши, ръкавици, панталони на добри цени.",
+      canonicalPath: "/obiavi/ekipirovka"
+    },
+    PART: {
+      title: "Мото части втора употреба — ауспуси, кормила, двигатели | Мото Зона",
+      description: "Обяви за мото части в България. Ауспуси, фарове, двигатели, спирачки, гуми и много повече.",
+      canonicalPath: "/obiavi/chasti"
+    },
+    ACCESSORY: {
+      title: "Мото аксесоари — куфари, чанти, интеркоми | Мото Зона",
+      description: "Обяви за мото аксесоари в България. Топкейси, странични чанти, интеркоми, стойки за телефон.",
+      canonicalPath: "/obiavi/aksesoari"
+    }
+  };
+
   document.addEventListener("DOMContentLoaded", init);
 
   async function init() {
@@ -269,8 +297,30 @@
   }
 
   async function loadInitialListings() {
+    const startupCategoryCode = resolveStartupCategoryCode();
+
+    if (startupCategoryCode) {
+      await chooseStartupCategory(startupCategoryCode, { scrollToListings: false });
+      return;
+    }
+
     showAllCategoriesView();
     await loadListings();
+  }
+
+  function resolveStartupCategoryCode() {
+    const queryCategorySlug = window.Auth?.getQueryParam?.("category") || "";
+    const queryCategoryCode = window.Auth?.getCategoryCodeFromSlug?.(queryCategorySlug) || null;
+    if (queryCategoryCode) {
+      return queryCategoryCode;
+    }
+
+    const match = window.location.pathname.match(/\/obiavi\/([^/]+)\/?$/i);
+    if (!match) {
+      return null;
+    }
+
+    return window.Auth?.getCategoryCodeFromSlug?.(decodeURIComponent(match[1] || "")) || null;
   }
 
   function bindStaticEvents() {
@@ -961,6 +1011,8 @@
     handleLocationModeVisibility("gear");
     handleLocationModeVisibility("part");
     handleLocationModeVisibility("accessory");
+    syncCategoryRouteState();
+    updateHomeSeoMetadata();
     updateCategoryPromptState();
     updateFiltersLayoutState();
   }
@@ -979,6 +1031,8 @@
     elements.accessoryFilters.classList.add("hidden");
 
     syncMainCategoryButtons();
+    syncCategoryRouteState();
+    updateHomeSeoMetadata();
     updateCategoryPromptState();
     updateFiltersLayoutState();
   }
@@ -1660,9 +1714,10 @@
     const currency = item.displayCurrencyCode || item.currencyCode || "EUR";
     const favoriteActive = state.favoriteIds.has(String(item.id));
     const priceChangeIndicator = renderPriceChangeIndicatorHtml(item);
+    const listingUrl = window.Auth?.buildListingUrl?.(item.id) || `ListingDetails.html?id=${encodeURIComponent(item.id)}`;
 
     return `
-      <a class="listing-link" href="ListingDetails.html?id=${encodeURIComponent(item.id)}">
+      <a class="listing-link" href="${escapeHtml(listingUrl)}">
         <article class="${cardClass}">
           <div class="card__image">
             ${ribbon}
@@ -1695,6 +1750,48 @@
         </article>
       </a>
     `;
+  }
+
+  function syncCategoryRouteState() {
+    if (!window.history?.replaceState) return;
+    if (!/^https?:$/i.test(window.location.protocol)) return;
+
+    const nextPath = state.selectedMainCategoryCode
+      ? (window.Auth?.buildCategoryUrl?.(state.selectedMainCategoryCode) || "/")
+      : "/";
+    const nextUrl = new URL(nextPath, window.location.origin);
+    const currentUrl = `${window.location.pathname}${window.location.search}`;
+    const targetUrl = `${nextUrl.pathname}${nextUrl.search}`;
+
+    if (currentUrl !== targetUrl) {
+      window.history.replaceState(null, "", targetUrl);
+    }
+  }
+
+  function updateHomeSeoMetadata() {
+    const meta = HOME_SEO_META[state.selectedMainCategoryCode] || HOME_SEO_META.default;
+    const canonicalUrl = new URL(meta.canonicalPath, window.location.origin).toString();
+
+    document.title = meta.title;
+    setMetaContent('meta[name="description"]', meta.description);
+    setMetaContent('meta[property="og:title"]', meta.title);
+    setMetaContent('meta[property="og:description"]', meta.description);
+    setMetaContent('meta[property="og:url"]', canonicalUrl);
+    setMetaContent('meta[name="twitter:title"]', meta.title);
+    setMetaContent('meta[name="twitter:description"]', meta.description);
+    setCanonicalHref(canonicalUrl);
+  }
+
+  function setMetaContent(selector, content) {
+    const element = document.querySelector(selector);
+    if (!element || !content) return;
+    element.setAttribute("content", content);
+  }
+
+  function setCanonicalHref(href) {
+    const element = document.querySelector('link[rel="canonical"]');
+    if (!element || !href) return;
+    element.setAttribute("href", href);
   }
 
   function buildCardMeta(item, itemCategoryCode) {
