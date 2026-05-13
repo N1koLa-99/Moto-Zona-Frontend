@@ -1606,7 +1606,7 @@
           >
             <span class="category-feature-card__header">
               <span class="category-feature-card__icon">
-                <img src="${escapeHtml(meta.image || "ImagesVideos/MzLogoSquare.png")}" alt="${escapeHtml(config.label || mainEntry.label)}" loading="lazy" />
+                <img src="${escapeHtml(meta.image || "ImagesVideos/LogoMotoZonaNew.png")}" alt="${escapeHtml(config.label || mainEntry.label)}" loading="lazy" />
               </span>
               <span class="category-feature-card__title">${escapeHtml(config.label || mainEntry.label)}</span>
             </span>

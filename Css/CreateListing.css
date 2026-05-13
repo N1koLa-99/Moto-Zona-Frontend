@@ -139,8 +139,8 @@ textarea {
 }
 
 .brand__logo {
-  width: 72px;
-  height: 72px;
+  width: 88px;
+  height: 88px;
   object-fit: contain;
   flex-shrink: 0;
 }
@@ -1980,8 +1980,8 @@ textarea {
   }
 
   .brand__logo {
-    width: 52px;
-    height: 52px;
+    width: 64px;
+    height: 64px;
   }
 
   .brand__divider {
@@ -2184,8 +2184,8 @@ textarea {
   }
 
   .brand__logo {
-    width: 50px;
-    height: 50px;
+    width: 62px;
+    height: 62px;
   }
 
   .brand__text {
@@ -2410,8 +2410,8 @@ textarea {
   }
 
   .brand__logo {
-    width: 42px;
-    height: 42px;
+    width: 52px;
+    height: 52px;
   }
 
   .brand__divider {

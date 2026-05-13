@@ -230,8 +230,8 @@ canvas {
 }
 
 .site-footer__logo {
-  width: 44px;
-  height: 44px;
+  width: 56px;
+  height: 56px;
   object-fit: contain;
   display: block;
 }
@@ -329,8 +329,8 @@ canvas {
   }
 
   .site-footer__logo {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
   }
 
   .site-footer__brand-tag {
