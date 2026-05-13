@@ -342,6 +342,8 @@
       });
 
       if (!response.ok) {
+        const raw = await response.text();
+        console.error("Register 400 body:", raw);
         const errorMessage = await window.Auth.readApiMessage(response, "Неуспешна регистрация.");
         showMessage(errorMessage, "error");
         return;
@@ -428,11 +430,15 @@
       case "firstName":
         if (!data.firstName) return "Името е задължително.";
         if (data.firstName.length < 2) return "Името трябва да е поне 2 символа.";
+        if (data.firstName.length > 100) return "Името не може да е повече от 100 символа.";
+        if (!/^[\p{L}\s'-]+$/u.test(data.firstName)) return "Името съдържа невалидни символи.";
         return "";
 
       case "lastName":
         if (!data.lastName) return "Фамилията е задължителна.";
         if (data.lastName.length < 2) return "Фамилията трябва да е поне 2 символа.";
+        if (data.lastName.length > 100) return "Фамилията не може да е повече от 100 символа.";
+        if (!/^[\p{L}\s'-]+$/u.test(data.lastName)) return "Фамилията съдържа невалидни символи.";
         return "";
 
       case "phone":
@@ -443,12 +449,17 @@
       case "email":
         if (!data.email) return "Имейлът е задължителен.";
         if (!isValidEmail(data.email)) return "Въведи валиден имейл адрес.";
+        if (data.email.length > 200) return "Имейлът не може да е повече от 200 символа.";
         return "";
 
-      case "password":
+      case "password": {
         if (!data.password) return "Паролата е задължителна.";
-        if (data.password.length < 6) return "Паролата трябва да е поне 6 символа.";
+        if (data.password.length < 8) return "Паролата трябва да е поне 8 символа.";
+        if (data.password.length > 100) return "Паролата не може да е повече от 100 символа.";
+        if (!/[A-Za-z\u0400-\u04FF]/.test(data.password)) return "Паролата трябва да съдържа поне една буква.";
+        if (!/\d/.test(data.password)) return "Паролата трябва да съдържа поне една цифра.";
         return "";
+      }
 
       case "confirmPassword":
         if (!data.confirmPassword) return "Потвърждението на паролата е задължително.";

@@ -2646,7 +2646,7 @@
     }
 
     if (elements.billingFreeRemaining) {
-      elements.billingFreeRemaining.textContent = "Без лимит";
+      elements.billingFreeRemaining.textContent = "∞";
     }
 
     if (elements.billingOverLimitPrice) {

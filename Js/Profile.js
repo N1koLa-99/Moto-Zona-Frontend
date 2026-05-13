@@ -777,14 +777,13 @@
     const isInMonthlyCompanyQuotaMode = Boolean(pick(data, "isInMonthlyCompanyQuotaMode"));
 
     const progressUsed = isPrivate ? privateUsed : (isInMonthlyCompanyQuotaMode ? companyMonthlyUsed : companyStarterUsed);
-    const progressLimit = isPrivate ? privateLimit : (isInMonthlyCompanyQuotaMode ? 10 : companyStarterLimit);
-    const progressPercent = Math.max(0, Math.min(100, Math.round((progressUsed / Math.max(progressLimit, 1)) * 100)));
+    const progressPercent = 0;
 
     const quotaModeText = isPrivate
-      ? `Частен акаунт: имаш до ${privateLimit} безплатни качвания общо. След това всяко качване е ${formatMoney(pricing.publishOverLimitEUR, "EUR")}.`
+      ? `Частен акаунт: имаш до ∞ безплатни качвания общо. След това всяко качване е ${formatMoney(pricing.publishOverLimitEUR, "EUR")}.`
       : isInMonthlyCompanyQuotaMode
-        ? `Фирмен акаунт: starter лимитът е изчерпан. В момента си в месечен режим: 10 безплатни качвания на месец. След това всяко качване е ${formatMoney(pricing.publishOverLimitEUR, "EUR")}.`
-        : `Фирмен акаунт: имаш до ${companyStarterLimit} стартови безплатни качвания. След това минаваш на 10 безплатни качвания месечно.`;
+        ? `Фирмен акаунт: starter лимитът е изчерпан. В момента си в месечен режим: ∞ безплатни качвания на месец. След това всяко качване е ${formatMoney(pricing.publishOverLimitEUR, "EUR")}.`
+        : `Фирмен акаунт: имаш до ∞ стартови безплатни качвания. След това минаваш на ∞ безплатни качвания месечно.`;
 
     elements.sectionContent.innerHTML = `
       <div class="section-head">
@@ -833,7 +832,7 @@
 
           <article class="stat-card">
             <div class="stat-card__label">Безплатни качвания в момента</div>
-            <div class="stat-card__value">${freeUploadsRemainingNow}</div>
+            <div class="stat-card__value">∞</div>
           </article>
 
           <article class="stat-card">
@@ -892,7 +891,7 @@
             </div>
 
             <p class="quota-card__hint">
-              Използвани: <strong>${progressUsed}</strong> / <strong>${progressLimit}</strong>
+              Използвани: <strong>${progressUsed}</strong> / <strong>Без лимит</strong>
             </p>
 
             <div style="margin-top:16px;" class="info-list">
@@ -900,24 +899,24 @@
                 isPrivate
                   ? `
                     <div class="info-row">
-                      <div class="info-row__label">Безплатни качвания общо</div>
-                      <div class="info-row__value">${privateUsed} / ${privateLimit}</div>
+                      <div class="info-row__label">Безплатни качвания без лимит</div>
+                      <div class="info-row__value">Без лимит</div>
                     </div>
                   `
                   : `
                     <div class="info-row">
                       <div class="info-row__label">Starter безплатни качвания</div>
-                      <div class="info-row__value">${companyStarterUsed} / ${companyStarterLimit}</div>
+                      <div class="info-row__value">Без лимит</div>
                     </div>
 
                     <div class="info-row">
                       <div class="info-row__label">Месечни безплатни качвания</div>
-                      <div class="info-row__value">${companyMonthlyUsed} / 10</div>
+                      <div class="info-row__value">Без лимит</div>
                     </div>
 
                     <div class="info-row">
                       <div class="info-row__label">Остават този месец</div>
-                      <div class="info-row__value">${companyMonthlyRemaining}</div>
+                      <div class="info-row__value">∞</div>
                     </div>
                   `
               }
