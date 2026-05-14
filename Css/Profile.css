@@ -167,8 +167,8 @@ textarea {
 
 .brand__logo {
   display: block;
-  width: 74px;
-  height: 74px;
+  width: 90px;
+  height: 90px;
   object-fit: contain;
   flex-shrink: 0;
 }
@@ -2661,8 +2661,8 @@ textarea {
   }
 
   .brand__logo {
-    width: 42px;
-    height: 42px;
+    width: 52px;
+    height: 52px;
   }
 
   .brand__divider {
@@ -3308,8 +3308,8 @@ textarea {
   }
 
   .modal__close {
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     border-radius: 10px;
     font-size: 0.9rem;
   }
@@ -3553,8 +3553,8 @@ textarea {
   }
 
   .brand__logo {
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
   }
 
   .brand__divider {
@@ -3586,8 +3586,8 @@ textarea {
   }
 
   .profile-avatar {
-    width: 42px;
-    height: 42px;
+    width: 52px;
+    height: 52px;
     border-radius: 12px;
     font-size: 0.9rem;
   }

@@ -493,7 +493,7 @@
       priceText !== "вЂ”" ? priceText : null
     ].filter(Boolean).join(" | ");
     const pageDescription = summary || "Разгледай детайли за обява в Мото Зона.";
-    const imageUrl = resolveSeoImageUrl(state.photos[0]?.fileUrl || "ImagesVideos/MzLogoBlack.png");
+    const imageUrl = resolveSeoImageUrl(state.photos[0]?.fileUrl || "ImagesVideos/LogoMotoZonaNew.png");
     const listingId = listing?.id || getListingIdFromUrl();
     const canonicalUrl = listingId
       ? (window.Auth?.buildListingUrl?.(listingId, { absolute: true }) || window.location.href)

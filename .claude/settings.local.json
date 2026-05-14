@@ -3,7 +3,11 @@
     "allow": [
       "Bash(Get-ChildItem -Path \"d:\\\\_MZ\\\\Moto-Zona-Frontend\" -Depth 2)",
       "Bash(Select-Object FullName, PSIsContainer)",
-      "Bash(Format-Table -AutoSize)"
+      "Bash(Format-Table -AutoSize)",
+      "Bash(python3 -c \"from PIL import Image; img = Image.open\\('/Users/klimentow/Documents/MotoSiteFront/Moto-Zona-Frontend/ImagesVideos/LogoMotoZonaNew.png'\\); print\\(img.size\\)\")",
+      "Bash(sips -g pixelWidth -g pixelHeight /Users/klimentow/Documents/MotoSiteFront/Moto-Zona-Frontend/ImagesVideos/LogoMotoZonaNew.png)",
+      "Bash(python3)",
+      "Bash(grep -E \"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\.[a-zA-Z]{2,}\")"
     ]
   }
 }

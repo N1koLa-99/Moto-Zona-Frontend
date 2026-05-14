@@ -821,7 +821,7 @@
       tag: meta.tag || "Категория",
       description: meta.description || "Ще покажем подходящите филтри.",
       footer: meta.footer || "Зареди филтрите",
-      image: meta.image || "ImagesVideos/MzLogoSquare.png",
+      image: meta.image || "ImagesVideos/LogoMotoZonaNew.png",
       accent: meta.accent || "#ff6a2a",
       soft: meta.soft || "rgba(255, 106, 42, 0.12)",
       border: meta.border || "rgba(255, 106, 42, 0.34)",

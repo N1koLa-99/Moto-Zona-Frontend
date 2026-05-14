@@ -98,8 +98,8 @@ img {
 }
 
 .brand__logo {
-  width: 58px;
-  height: 58px;
+  width: 72px;
+  height: 72px;
   object-fit: contain;
   flex-shrink: 0;
 }
@@ -1119,8 +1119,8 @@ img {
   }
 
   .brand__logo {
-    width: 46px;
-    height: 46px;
+    width: 56px;
+    height: 56px;
   }
 
   .brand__divider {
@@ -1408,8 +1408,8 @@ img {
   }
 
   .brand__logo {
-    width: 42px;
-    height: 42px;
+    width: 52px;
+    height: 52px;
   }
 
   .brand__text {

@@ -1,0 +1,26 @@
+{
+  "name": "Мото Зона",
+  "short_name": "Мото Зона",
+  "description": "Обяви за мотори, екипировка, части и аксесоари",
+  "start_url": "/",
+  "display": "browser",
+  "theme_color": "#ff6a2a",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "ImagesVideos/LogoMotoZonaNew.png",
+      "sizes": "any",
+      "type": "image/png"
+    },
+    {
+      "src": "ImagesVideos/LogoMotoZonaNew.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "ImagesVideos/LogoMotoZonaNew.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
