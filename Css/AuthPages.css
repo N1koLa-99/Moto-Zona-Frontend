@@ -442,6 +442,42 @@ button {
   display: block;
 }
 
+.auth-field-optional {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.reg-auto-hint {
+  margin-top: 6px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.reg-auto-hint strong {
+  color: var(--text);
+  font-weight: 800;
+}
+
+.reg-city-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.reg-city-option__name {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.reg-city-option__region {
+  font-size: 0.82rem;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
 .primary-btn,
 .secondary-btn {
   display: inline-flex;

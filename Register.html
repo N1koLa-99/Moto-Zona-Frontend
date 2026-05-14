@@ -223,31 +223,59 @@
               <section class="step-panel" data-step-panel="3">
                 <div class="step-panel__head">
                   <h3>Стъпка 3: Локация</h3>
-                  <p>Избери държава, област и град за профила.</p>
+                  <p>Избери държава, напиши своя град. Областта е по избор.</p>
                 </div>
 
                 <div class="auth-form">
-                  <div class="auth-field">
-                    <label for="countryId">Държава</label>
-                    <select id="countryId" name="countryId" required>
-                      <option value="">Избери държава</option>
-                    </select>
+                  <div class="auth-field auth-field--full">
+                    <label for="countrySearch">Държава</label>
+                    <div class="searchable-select" id="countryCombobox">
+                      <input
+                        type="text"
+                        id="countrySearch"
+                        class="searchable-select__input"
+                        autocomplete="off"
+                        spellcheck="false"
+                        placeholder="Избери или напиши държава..."
+                      />
+                      <input type="hidden" id="countryId" name="countryId" />
+                      <div class="searchable-select__dropdown hidden" id="countryDropdown"></div>
+                    </div>
                     <small id="countryIdError" class="auth-field-error" aria-live="polite"></small>
                   </div>
 
-                  <div class="auth-field">
-                    <label for="regionId">Област</label>
-                    <select id="regionId" name="regionId" required disabled>
-                      <option value="">Избери област</option>
-                    </select>
-                    <small id="regionIdError" class="auth-field-error" aria-live="polite"></small>
+                  <div class="auth-field auth-field--full">
+                    <label for="regionSearch">Област <span class="auth-field-optional">(по избор)</span></label>
+                    <div class="searchable-select" id="regionCombobox">
+                      <input
+                        type="text"
+                        id="regionSearch"
+                        class="searchable-select__input"
+                        autocomplete="off"
+                        spellcheck="false"
+                        placeholder="Избери или напиши област..."
+                        disabled
+                      />
+                      <input type="hidden" id="regionId" name="regionId" />
+                      <div class="searchable-select__dropdown hidden" id="regionDropdown"></div>
+                    </div>
                   </div>
 
                   <div class="auth-field auth-field--full">
-                    <label for="cityId">Град</label>
-                    <select id="cityId" name="cityId" required disabled>
-                      <option value="">Избери град</option>
-                    </select>
+                    <label for="citySearch">Град</label>
+                    <div class="searchable-select" id="cityCombobox">
+                      <input
+                        type="text"
+                        id="citySearch"
+                        class="searchable-select__input"
+                        autocomplete="off"
+                        spellcheck="false"
+                        placeholder="Напиши своя град..."
+                        disabled
+                      />
+                      <input type="hidden" id="cityId" name="cityId" />
+                      <div class="searchable-select__dropdown hidden" id="cityDropdown"></div>
+                    </div>
                     <small id="cityIdError" class="auth-field-error" aria-live="polite"></small>
                   </div>
                 </div>
