@@ -49,20 +49,7 @@ function buildOriginRelativeUrl(pathname, params = {}) {
 }
 
 function shouldUseLegacyListingRoutes() {
-  if (window.__MOTO_ZONA_DEV_SERVER__ === true) {
-    return false;
-  }
-
-  const hostname = String(window.location.hostname || "").toLowerCase();
-  const port = String(window.location.port || "");
-  const protocol = String(window.location.protocol || "").toLowerCase();
-
-  if (protocol === "file:") {
-    return true;
-  }
-
-  const isLocalHost = hostname === "127.0.0.1" || hostname === "localhost";
-  return isLocalHost && port === "5501";
+  return true;
 }
 
 function normalizeEmail(value) {

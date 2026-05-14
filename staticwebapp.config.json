@@ -1,32 +1,11 @@
 {
   "routes": [
-    {
-      "route": "/obiavi",
-      "rewrite": "/index.html"
-    },
-    {
-      "route": "/obiavi/",
-      "rewrite": "/index.html"
-    },
-    {
-      "route": "/obiavi/motori*",
-      "rewrite": "/index.html"
-    },
-    {
-      "route": "/obiavi/ekipirovka*",
-      "rewrite": "/index.html"
-    },
-    {
-      "route": "/obiavi/chasti*",
-      "rewrite": "/index.html"
-    },
-    {
-      "route": "/obiavi/aksesoari*",
-      "rewrite": "/index.html"
-    },
-    {
-      "route": "/obiavi/*",
-      "rewrite": "/ListingDetails.html"
-    }
+    { "route": "/obiavi",            "rewrite": "/index.html" },
+    { "route": "/obiavi/",           "rewrite": "/index.html" },
+    { "route": "/obiavi/motori*",    "rewrite": "/index.html" },
+    { "route": "/obiavi/ekipirovka*","rewrite": "/index.html" },
+    { "route": "/obiavi/chasti*",    "rewrite": "/index.html" },
+    { "route": "/obiavi/aksesoari*", "rewrite": "/index.html" },
+    { "route": "/obiavi/*",          "rewrite": "/ListingDetails.html" }
   ]
 }

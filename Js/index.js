@@ -226,22 +226,22 @@
     VEHICLE: {
       title: "Мотори втора ръка — обяви за мотоциклети в България | Мото Зона",
       description: "Купи или продай мотоциклет в България. Над хиляди обяви за нови и употребявани мотори на ниски цени. Филтрирай по марка, модел, цена и локация.",
-      canonicalPath: "/obiavi/motori"
+      canonicalPath: "/?category=motori"
     },
     GEAR: {
       title: "Мото екипировка втора употреба — каски, якета, ръкавици | Мото Зона",
       description: "Купи или продай мото екипировка в България. Каски, якета, ботуши, ръкавици, панталони на добри цени.",
-      canonicalPath: "/obiavi/ekipirovka"
+      canonicalPath: "/?category=ekipirovka"
     },
     PART: {
       title: "Мото части втора употреба — ауспуси, кормила, двигатели | Мото Зона",
       description: "Обяви за мото части в България. Ауспуси, фарове, двигатели, спирачки, гуми и много повече.",
-      canonicalPath: "/obiavi/chasti"
+      canonicalPath: "/?category=chasti"
     },
     ACCESSORY: {
       title: "Мото аксесоари — куфари, чанти, интеркоми | Мото Зона",
       description: "Обяви за мото аксесоари в България. Топкейси, странични чанти, интеркоми, стойки за телефон.",
-      canonicalPath: "/obiavi/aksesoari"
+      canonicalPath: "/?category=aksesoari"
     }
   };
 
