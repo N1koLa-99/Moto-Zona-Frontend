@@ -160,6 +160,7 @@
 
   const searchableSelectRegistry = new Map();
   let searchableSelectGlobalEventsBound = false;
+  let suppressSearchableSelectClickUntil = 0;
 
   const elements = {
     backToHomeBtn: document.getElementById("backToHomeBtn"),
@@ -773,6 +774,15 @@
       return;
     }
 
+    document.addEventListener("click", event => {
+      if (Date.now() > suppressSearchableSelectClickUntil) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+    }, true);
+
     document.addEventListener("pointerdown", event => {
       for (const instance of searchableSelectRegistry.values()) {
         if (!instance.wrapper.contains(event.target)) {
@@ -848,7 +858,9 @@
       optionsList,
       activeIndex: -1,
       placeholderText: "",
-      visibleOptions: []
+      visibleOptions: [],
+      optionPointer: null,
+      suppressOptionClickUntil: 0
     };
 
     searchableSelectRegistry.set(select, instance);
@@ -935,15 +947,7 @@
       }
     });
 
-    optionsList.addEventListener("pointerdown", event => {
-      const optionButton = event.target.closest("[data-searchable-value]");
-      if (!optionButton || optionButton.disabled) {
-        return;
-      }
-
-      event.preventDefault();
-      applySearchableOptionSelection(instance, optionButton.dataset.searchableValue || "");
-    });
+    bindSearchableOptionTouch(instance);
 
     select.addEventListener("change", () => {
       syncSearchableSelect(select);
@@ -965,6 +969,96 @@
     syncSearchableSelect(select);
   }
 
+  function bindSearchableOptionTouch(instance) {
+    const maxTapMove = 10;
+
+    instance.optionsList.addEventListener("pointerdown", event => {
+      const optionButton = event.target.closest("[data-searchable-value]");
+
+      if (!optionButton || optionButton.disabled || !instance.optionsList.contains(optionButton)) {
+        instance.optionPointer = null;
+        return;
+      }
+
+      if (event.pointerType !== "mouse") {
+        event.preventDefault();
+      }
+
+      instance.optionPointer = {
+        pointerId: event.pointerId,
+        button: optionButton,
+        startX: event.clientX,
+        startY: event.clientY,
+        moved: false,
+        selectedAt: 0
+      };
+    });
+
+    instance.optionsList.addEventListener("pointermove", event => {
+      const pointer = instance.optionPointer;
+
+      if (!pointer || pointer.pointerId !== event.pointerId) {
+        return;
+      }
+
+      const moveX = Math.abs(event.clientX - pointer.startX);
+      const moveY = Math.abs(event.clientY - pointer.startY);
+
+      if (moveX > maxTapMove || moveY > maxTapMove) {
+        pointer.moved = true;
+      }
+    });
+
+    instance.optionsList.addEventListener("pointerup", event => {
+      const pointer = instance.optionPointer;
+      const optionButton = event.target.closest("[data-searchable-value]");
+
+      if (!pointer || pointer.pointerId !== event.pointerId) {
+        return;
+      }
+
+      if (pointer.moved || optionButton !== pointer.button) {
+        instance.suppressOptionClickUntil = Date.now() + 700;
+        instance.optionPointer = null;
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      pointer.selectedAt = Date.now();
+      suppressNextSearchableSelectClick();
+      applySearchableOptionSelection(instance, pointer.button.dataset.searchableValue || "");
+    });
+
+    instance.optionsList.addEventListener("click", event => {
+      const optionButton = event.target.closest("[data-searchable-value]");
+
+      if (!optionButton || optionButton.disabled || !instance.optionsList.contains(optionButton)) {
+        return;
+      }
+
+      const pointer = instance.optionPointer;
+      const pointerHandledRecently = pointer?.selectedAt && Date.now() - pointer.selectedAt < 700;
+      const shouldSuppressClick = Date.now() < instance.suppressOptionClickUntil;
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (pointer?.moved || pointerHandledRecently || shouldSuppressClick) {
+        instance.optionPointer = null;
+        return;
+      }
+
+      suppressNextSearchableSelectClick();
+      applySearchableOptionSelection(instance, optionButton.dataset.searchableValue || "");
+      instance.optionPointer = null;
+    }, true);
+  }
+
+  function suppressNextSearchableSelectClick() {
+    suppressSearchableSelectClickUntil = Date.now() + 750;
+  }
+
   function openSearchableSelect(instance, options = {}) {
     if (!instance) return;
 
@@ -978,15 +1072,23 @@
     renderSearchableSelectOptions(instance);
 
     window.requestAnimationFrame(() => {
+      if (isCoarsePointer()) {
+        return;
+      }
+
       instance.searchInput.focus();
 
       if (instance.searchInput.value) {
         const cursorPosition = instance.searchInput.value.length;
         instance.searchInput.setSelectionRange(cursorPosition, cursorPosition);
-      } else {
+      } else if (!isCoarsePointer()) {
         instance.searchInput.select();
       }
     });
+  }
+
+  function isCoarsePointer() {
+    return window.matchMedia?.("(hover: none) and (pointer: coarse)")?.matches || false;
   }
 
   function closeSearchableSelect(instance, options = {}) {
@@ -999,6 +1101,7 @@
     instance.searchInput.value = "";
     instance.activeIndex = -1;
     instance.visibleOptions = [];
+    instance.optionPointer = null;
 
     if (options.restoreFocus) {
       instance.trigger.focus();
@@ -1023,6 +1126,7 @@
     const currentValue = String(instance.select.value || "");
 
     const visibleOptions = options
+      .filter(option => String(option?.value ?? "") !== "")
       .map(option => buildSearchableSelectOptionModel(instance, option, currentValue))
       .filter(option => {
         if (!query) {
@@ -1090,11 +1194,7 @@
   function buildSearchableSelectOptionModel(instance, option, currentValue) {
     const rawValue = String(option?.value ?? "");
     const optionLabel = cleanText(option?.text) || instance.placeholderText || "Избери";
-    const isPlaceholder = rawValue === "";
-    const label = isPlaceholder ? "Без избор" : optionLabel;
-    const meta = isPlaceholder
-      ? instance.placeholderText
-      : option.disabled
+    const meta = option.disabled
         ? "Временно недостъпно"
         : option.selected
           ? "Текущ избор"
@@ -1103,12 +1203,12 @@
     return {
       key: `${instance.select.id || "select"}-${rawValue || "empty"}`,
       value: rawValue,
-      label,
+      label: optionLabel,
       meta,
       selected: rawValue === currentValue,
       disabled: Boolean(option.disabled),
-      isPlaceholder,
-      searchText: normalizeSearchText([label, optionLabel, meta].filter(Boolean).join(" "))
+      isPlaceholder: false,
+      searchText: normalizeSearchText([optionLabel, meta].filter(Boolean).join(" "))
     };
   }
 
@@ -1151,9 +1251,7 @@
       dispatchChange: true
     });
 
-    closeSearchableSelect(instance, {
-      restoreFocus: true
-    });
+    closeSearchableSelect(instance);
   }
 
   function syncSearchableSelect(select) {

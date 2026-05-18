@@ -77,6 +77,8 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
 }
 
 body {
@@ -86,6 +88,10 @@ body {
   background: linear-gradient(180deg, #f6f8fc 0%, #f2f5fa 100%);
   overflow-x: hidden;
   line-height: 1.45;
+  width: 100%;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
 }
 
 .profile-page-wide {
@@ -2247,7 +2253,7 @@ textarea {
   max-width: 100%;
   border: 1px solid var(--line);
   background: #fff;
-  color: var(--text);
+  color: #000;
   border-radius: 14px;
   padding: 13px 14px;
   outline: none;
@@ -2297,6 +2303,20 @@ textarea {
   width: 100%;
 }
 
+.searchable-select::after {
+  content: "▾";
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  z-index: 2;
+  color: #000;
+  font-size: 1.15rem;
+  font-weight: 900;
+  line-height: 1;
+  pointer-events: none;
+  transform: translateY(-52%);
+}
+
 .searchable-select__native {
   display: none !important;
 }
@@ -2313,18 +2333,14 @@ textarea {
   transition: 0.18s ease;
   box-shadow: 0 1px 0 rgba(23, 32, 45, 0.02);
   min-height: var(--tap);
-  background-image:
-    linear-gradient(45deg, transparent 50%, #758395 50%),
-    linear-gradient(135deg, #758395 50%, transparent 50%);
-  background-position:
-    calc(100% - 18px) calc(50% - 2px),
-    calc(100% - 12px) calc(50% - 2px);
-  background-size: 6px 6px, 6px 6px;
-  background-repeat: no-repeat;
+  background-image: none;
+  font-weight: 900;
 }
 
 .searchable-select__input::placeholder {
-  color: #95a2b2;
+  color: #000;
+  font-weight: 900;
+  opacity: 1;
 }
 
 .searchable-select__input:focus {
@@ -2336,6 +2352,11 @@ textarea {
   cursor: not-allowed;
   color: #8f9caf;
   background-color: #f5f8fc;
+}
+
+.searchable-select.is-mobile-picker .searchable-select__input {
+  cursor: pointer;
+  caret-color: transparent;
 }
 
 .searchable-select__dropdown {
@@ -2352,6 +2373,34 @@ textarea {
   background: rgba(255, 255, 255, 0.98);
   box-shadow: 0 16px 34px rgba(23, 32, 45, 0.14);
   backdrop-filter: blur(14px);
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+.searchable-select__mobile-search-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding-bottom: 8px;
+  background: rgba(255, 255, 255, 0.98);
+}
+
+.searchable-select__mobile-search {
+  width: 100%;
+  min-height: var(--tap);
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--text);
+  outline: none;
+  font: inherit;
+}
+
+.searchable-select__mobile-search:focus {
+  border-color: rgba(255, 106, 42, 0.45);
+  box-shadow: 0 0 0 4px rgba(255, 106, 42, 0.1);
 }
 
 .searchable-select__dropdown::-webkit-scrollbar {
@@ -2373,6 +2422,9 @@ textarea {
   text-align: left;
   border: 1px solid transparent;
   transition: 0.18s ease;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .searchable-select__option:hover,

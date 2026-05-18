@@ -37,6 +37,8 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
 }
 
 body {
@@ -48,6 +50,10 @@ body {
     radial-gradient(circle at top right, rgba(20, 61, 143, 0.06), transparent 24%),
     linear-gradient(180deg, #f7f9fc 0%, #f2f5fa 100%);
   overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
 }
 
 a {
@@ -342,6 +348,18 @@ button {
   background: #f6f8fb;
   color: #93a0b1;
   cursor: not-allowed;
+}
+
+.searchable-select__dropdown {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+.searchable-select__option {
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .auth-field select {

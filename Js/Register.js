@@ -330,8 +330,7 @@
     `).join("");
 
     countryDropdown.querySelectorAll(".searchable-select__option").forEach((btn) => {
-      btn.addEventListener("mousedown", (e) => {
-        e.preventDefault();
+      bindComboboxOptionTap(btn, () => {
         selectCountry(btn.dataset.value, btn.dataset.label);
       });
     });
@@ -433,8 +432,7 @@
     `).join("");
 
     regionDropdown.querySelectorAll(".searchable-select__option").forEach((btn) => {
-      btn.addEventListener("mousedown", (e) => {
-        e.preventDefault();
+      bindComboboxOptionTap(btn, () => {
         selectRegion(btn.dataset.value, btn.dataset.label);
       });
     });
@@ -535,10 +533,75 @@
     `).join("");
 
     cityDropdown.querySelectorAll(".searchable-select__option").forEach((btn) => {
-      btn.addEventListener("mousedown", (e) => {
-        e.preventDefault();
+      bindComboboxOptionTap(btn, () => {
         selectCity(btn.dataset.cityId, btn.dataset.cityName, btn.dataset.regionId, btn.dataset.regionName);
       });
+    });
+  }
+
+  function bindComboboxOptionTap(button, onSelect) {
+    const maxTapMove = 10;
+    let pointer = null;
+    let suppressClickUntil = 0;
+
+    button.addEventListener("pointerdown", (event) => {
+      if (event.pointerType !== "mouse") {
+        event.preventDefault();
+      }
+
+      pointer = {
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        startY: event.clientY,
+        moved: false,
+        selectedAt: 0
+      };
+    });
+
+    button.addEventListener("pointermove", (event) => {
+      if (!pointer || pointer.pointerId !== event.pointerId) {
+        return;
+      }
+
+      const moveX = Math.abs(event.clientX - pointer.startX);
+      const moveY = Math.abs(event.clientY - pointer.startY);
+
+      if (moveX > maxTapMove || moveY > maxTapMove) {
+        pointer.moved = true;
+      }
+    });
+
+    button.addEventListener("pointerup", (event) => {
+      if (!pointer || pointer.pointerId !== event.pointerId) {
+        return;
+      }
+
+      if (pointer.moved) {
+        suppressClickUntil = Date.now() + 700;
+        pointer = null;
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      pointer.selectedAt = Date.now();
+      onSelect();
+    });
+
+    button.addEventListener("click", (event) => {
+      const pointerHandledRecently = pointer?.selectedAt && Date.now() - pointer.selectedAt < 700;
+      const shouldSuppressClick = Date.now() < suppressClickUntil;
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (pointer?.moved || pointerHandledRecently || shouldSuppressClick) {
+        pointer = null;
+        return;
+      }
+
+      onSelect();
+      pointer = null;
     });
   }
 
