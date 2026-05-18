@@ -50,10 +50,12 @@
     shareModalBackdrop: document.getElementById("shareModalBackdrop"),
     shareModalClose: document.getElementById("shareModalClose"),
     shareFacebookBtn: document.getElementById("shareFacebookBtn"),
+    shareInstagramBtn: document.getElementById("shareInstagramBtn"),
     shareMessengerBtn: document.getElementById("shareMessengerBtn"),
     shareWhatsappBtn: document.getElementById("shareWhatsappBtn"),
     shareViberBtn: document.getElementById("shareViberBtn"),
     shareTelegramBtn: document.getElementById("shareTelegramBtn"),
+    shareNativeBtn: document.getElementById("shareNativeBtn"),
     shareDropdownCopyBtn: document.getElementById("shareDropdownCopyBtn"),
     shareUrlInput: document.getElementById("shareUrlInput"),
 
@@ -101,6 +103,71 @@
     return listingId
       ? `${window.location.origin}/share/${listingId}`
       : window.location.href;
+  }
+
+  function getShareTitle() {
+    return cleanNullableText(state.listing?.title) || "Обява в Мото Зона";
+  }
+
+  function getSharePriceText() {
+    if (!state.listing) {
+      return "";
+    }
+
+    return formatCurrency(
+      state.listing.displayPrice ?? state.listing.priceEUR ?? state.listing.priceOriginal ?? 0,
+      state.listing.displayCurrencyCode || state.listing.currencyCode || "EUR"
+    );
+  }
+
+  function getShareText() {
+    return [getShareTitle(), getSharePriceText()].filter(Boolean).join(" | ");
+  }
+
+  function getNativeSharePayload() {
+    return {
+      title: getShareTitle(),
+      text: getShareText(),
+      url: getShareUrl()
+    };
+  }
+
+  async function shareViaNative(fallbackMessage = "Линкът е копиран.") {
+    const sharePayload = getNativeSharePayload();
+
+    if (typeof navigator.share !== "function") {
+      await copyText(sharePayload.url, fallbackMessage);
+      return false;
+    }
+
+    try {
+      if (typeof navigator.canShare === "function" && !navigator.canShare(sharePayload)) {
+        await copyText(sharePayload.url, fallbackMessage);
+        return false;
+      }
+
+      await navigator.share(sharePayload);
+      return true;
+    } catch (error) {
+      if (error?.name === "AbortError") {
+        return false;
+      }
+
+      await copyText(sharePayload.url, fallbackMessage);
+      return false;
+    }
+  }
+
+  function openShareTarget(url, options = {}) {
+    if (!url) return;
+
+    const target = options.target || "_blank";
+    const features = options.features || "noopener,noreferrer";
+    const nextWindow = window.open(url, target, features);
+
+    if (!nextWindow && target === "_blank") {
+      window.location.assign(url);
+    }
   }
 
   function openShareModal() {
@@ -204,34 +271,41 @@
     elements.shareFacebookBtn?.addEventListener("click", () => {
       const shareUrl = getShareUrl();
       const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
-      window.open(fbUrl, "_blank", "width=600,height=460,noopener,noreferrer");
+      openShareTarget(fbUrl, { features: "width=600,height=460,noopener,noreferrer" });
+      closeShareModal();
+    });
+
+    elements.shareInstagramBtn?.addEventListener("click", async () => {
+      await shareViaNative("Instagram се отваря през системното меню за споделяне. Линкът е копиран.");
       closeShareModal();
     });
 
     elements.shareMessengerBtn?.addEventListener("click", () => {
       const shareUrl = getShareUrl();
-      window.open(`fb-messenger://share/?link=${encodeURIComponent(shareUrl)}`, "_blank", "noopener,noreferrer");
+      openShareTarget(`fb-messenger://share/?link=${encodeURIComponent(shareUrl)}`);
       closeShareModal();
     });
 
     elements.shareWhatsappBtn?.addEventListener("click", () => {
       const shareUrl = getShareUrl();
-      const title = state.listing?.title || "Обява в Мото Зона";
-      window.open(`https://wa.me/?text=${encodeURIComponent(`${title} - ${shareUrl}`)}`, "_blank", "noopener,noreferrer");
+      openShareTarget(`https://wa.me/?text=${encodeURIComponent(`${getShareText()} - ${shareUrl}`)}`);
       closeShareModal();
     });
 
     elements.shareViberBtn?.addEventListener("click", () => {
       const shareUrl = getShareUrl();
-      const title = state.listing?.title || "Обява в Мото Зона";
-      window.open(`viber://forward?text=${encodeURIComponent(`${title} - ${shareUrl}`)}`, "_blank", "noopener,noreferrer");
+      openShareTarget(`viber://forward?text=${encodeURIComponent(`${getShareText()} - ${shareUrl}`)}`);
       closeShareModal();
     });
 
     elements.shareTelegramBtn?.addEventListener("click", () => {
       const shareUrl = getShareUrl();
-      const title = state.listing?.title || "Обява в Мото Зона";
-      window.open(`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(title)}`, "_blank", "noopener,noreferrer");
+      openShareTarget(`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(getShareText())}`);
+      closeShareModal();
+    });
+
+    elements.shareNativeBtn?.addEventListener("click", async () => {
+      await shareViaNative();
       closeShareModal();
     });
 
@@ -242,6 +316,10 @@
       const original = btn.textContent;
       btn.textContent = "Копирано!";
       setTimeout(() => { btn.textContent = original; }, 1800);
+    });
+
+    elements.shareUrlInput?.addEventListener("click", (event) => {
+      event.currentTarget?.select?.();
     });
 
     elements.copyPhoneBtn?.addEventListener("click", async () => {

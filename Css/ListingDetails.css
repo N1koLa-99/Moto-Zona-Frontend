@@ -556,6 +556,12 @@ img {
   color: #fff;
 }
 
+.share-tile--instagram .share-tile__icon svg,
+.share-tile--native .share-tile__icon svg {
+  width: 24px;
+  height: 24px;
+}
+
 .share-tile__label {
   font-size: 0.78rem;
   font-weight: 600;
@@ -563,10 +569,12 @@ img {
 }
 
 .share-tile--facebook  .share-tile__icon { background: #1877f2; }
+.share-tile--instagram .share-tile__icon { background: linear-gradient(135deg, #833ab4 0%, #fd1d1d 52%, #fcb045 100%); }
 .share-tile--messenger .share-tile__icon { background: linear-gradient(135deg, #0078ff 0%, #a334fa 100%); }
 .share-tile--whatsapp  .share-tile__icon { background: #25d366; }
 .share-tile--viber     .share-tile__icon { background: #7360f2; }
 .share-tile--telegram  .share-tile__icon { background: #2aabee; }
+.share-tile--native    .share-tile__icon { background: linear-gradient(135deg, #ff6a2a 0%, #ff8a52 100%); }
 
 .share-modal__link-row {
   display: flex;

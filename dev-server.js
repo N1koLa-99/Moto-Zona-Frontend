@@ -124,6 +124,18 @@ const server = http.createServer((request, response) => {
     return;
   }
 
+  if (pathname.startsWith("/share/")) {
+    const listingId = pathname.slice("/share/".length).split("/")[0] || "";
+
+    if (/^\d+$/.test(listingId)) {
+      response.writeHead(302, {
+        Location: `https://motomarketapi.azurewebsites.net/api/listings/${listingId}/og`
+      });
+      response.end();
+      return;
+    }
+  }
+
   const absolutePath = resolveStaticPath(pathname);
   if (!absolutePath) {
     sendText(response, 403, "text/plain; charset=utf-8", "Forbidden");
