@@ -380,11 +380,233 @@ img {
   font-size: 0.92rem;
 }
 
+.ghost-small-btn--share {
+  gap: 6px;
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.ghost-small-btn--share:hover {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+}
+
+.share-btn-icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
 .ghost-btn:hover,
 .ghost-link-btn:hover,
 .ghost-small-btn:hover {
   transform: translateY(-1px);
   border-color: var(--line-2);
+}
+
+.ghost-small-btn--share:hover {
+  border-color: var(--primary);
+}
+
+/* =========================
+   SECTION HEAD ACTIONS
+========================= */
+
+.section-head__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* =========================
+   SHARE MODAL
+========================= */
+
+.share-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+@media (min-width: 540px) {
+  .share-modal {
+    align-items: center;
+  }
+}
+
+.share-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.55);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+
+.share-modal__panel {
+  position: relative;
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-width: 480px;
+  padding: 8px 20px 32px;
+  box-shadow: 0 -4px 40px rgba(23, 32, 45, 0.15);
+  animation: shareSlideUp 0.22s ease-out;
+}
+
+@media (min-width: 540px) {
+  .share-modal__panel {
+    border-radius: 20px;
+    padding: 8px 24px 24px;
+  }
+}
+
+@keyframes shareSlideUp {
+  from { transform: translateY(24px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.share-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0 10px;
+}
+
+.share-modal__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.share-modal__close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.share-modal__close:hover {
+  background: var(--line);
+  color: var(--text);
+}
+
+.share-modal__close svg {
+  width: 16px;
+  height: 16px;
+}
+
+.share-modal__section {
+  margin-top: 16px;
+}
+
+.share-modal__section-label {
+  margin: 0 0 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.share-tiles {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.share-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  padding: 6px 4px;
+  border-radius: 12px;
+  min-width: 68px;
+  transition: background 0.15s;
+}
+
+.share-tile:hover {
+  background: var(--bg);
+}
+
+.share-tile__icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.share-tile__icon svg {
+  width: 26px;
+  height: 26px;
+  color: #fff;
+}
+
+.share-tile__label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.share-tile--facebook  .share-tile__icon { background: #1877f2; }
+.share-tile--messenger .share-tile__icon { background: linear-gradient(135deg, #0078ff 0%, #a334fa 100%); }
+.share-tile--whatsapp  .share-tile__icon { background: #25d366; }
+.share-tile--viber     .share-tile__icon { background: #7360f2; }
+.share-tile--telegram  .share-tile__icon { background: #2aabee; }
+
+.share-modal__link-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.share-url-input {
+  flex: 1;
+  min-width: 0;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-family: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.share-copy-btn {
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+
+.share-copy-btn:hover {
+  opacity: 0.88;
 }
 
 /* =========================

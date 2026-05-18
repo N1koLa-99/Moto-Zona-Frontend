@@ -5,6 +5,11 @@
     { "route": "/obiavi/ekipirovka*","rewrite": "/index.html" },
     { "route": "/obiavi/chasti*",    "rewrite": "/index.html" },
     { "route": "/obiavi/aksesoari*", "rewrite": "/index.html" },
-    { "route": "/obiavi/*",          "rewrite": "/ListingDetails.html" }
+    { "route": "/obiavi/*",          "rewrite": "/ListingDetails.html" },
+    {
+      "route": "/share/*",
+      "redirect": "https://motomarketapi.azurewebsites.net/api/listings/{wildcard}/og",
+      "statusCode": 302
+    }
   ]
 }

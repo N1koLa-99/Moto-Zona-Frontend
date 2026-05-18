@@ -147,7 +147,16 @@
                   <h2>Галерия</h2>
                 </div>
 
-                <button class="ghost-small-btn" id="copyLinkBtn" type="button">Копирай линк</button>
+                <div class="section-head__actions">
+                  <button class="ghost-small-btn" id="copyLinkBtn" type="button">Копирай линк</button>
+                  <button class="ghost-small-btn ghost-small-btn--share" id="shareBtn" type="button">
+                    <svg class="share-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                    </svg>
+                    Сподели
+                  </button>
+                </div>
               </div>
 
               <div class="gallery-stage">
@@ -269,6 +278,77 @@
       </div>
     </div>
   </footer>
+
+  <div class="share-modal hidden" id="shareModal" role="dialog" aria-modal="true" aria-labelledby="shareModalTitle">
+    <div class="share-modal__backdrop" id="shareModalBackdrop"></div>
+    <div class="share-modal__panel">
+      <div class="share-modal__header">
+        <h3 class="share-modal__title" id="shareModalTitle">Сподели обявата</h3>
+        <button class="share-modal__close" id="shareModalClose" type="button" aria-label="Затвори">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="share-modal__section">
+        <p class="share-modal__section-label">Публикувай като пост</p>
+        <div class="share-tiles">
+          <button class="share-tile share-tile--facebook" id="shareFacebookBtn" type="button">
+            <span class="share-tile__icon">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+              </svg>
+            </span>
+            <span class="share-tile__label">Facebook</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="share-modal__section">
+        <p class="share-modal__section-label">Изпрати в чат</p>
+        <div class="share-tiles">
+          <button class="share-tile share-tile--whatsapp" id="shareWhatsappBtn" type="button">
+            <span class="share-tile__icon">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+              </svg>
+            </span>
+            <span class="share-tile__label">WhatsApp</span>
+          </button>
+          <button class="share-tile share-tile--messenger" id="shareMessengerBtn" type="button">
+            <span class="share-tile__icon">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 0C5.373 0 0 4.975 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.3 2.246.464 3.443.464 6.627 0 12-4.975 12-11.111S18.627 0 12 0zm1.191 14.963-3.055-3.26-5.963 3.26L10.732 8l3.131 3.259L19.752 8l-6.561 6.963z"/>
+              </svg>
+            </span>
+            <span class="share-tile__label">Messenger</span>
+          </button>
+          <button class="share-tile share-tile--viber" id="shareViberBtn" type="button">
+            <span class="share-tile__icon">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M19.05 4.91A9.816 9.816 0 0 0 12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01zm-7.01 15.24c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.264 8.264 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24 2.2 0 4.27.86 5.82 2.42a8.183 8.183 0 0 1 2.41 5.83c.02 4.54-3.68 8.23-8.22 8.23zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.78.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43s.17-.25.25-.41c.08-.17.04-.31-.02-.43s-.56-1.34-.76-1.84c-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.22.25-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18s-.22-.16-.47-.28z"/>
+              </svg>
+            </span>
+            <span class="share-tile__label">Viber</span>
+          </button>
+          <button class="share-tile share-tile--telegram" id="shareTelegramBtn" type="button">
+            <span class="share-tile__icon">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+              </svg>
+            </span>
+            <span class="share-tile__label">Telegram</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="share-modal__link-row">
+        <input class="share-url-input" id="shareUrlInput" type="text" readonly aria-label="Линк за споделяне" />
+        <button class="share-copy-btn" id="shareDropdownCopyBtn" type="button">Копирай</button>
+      </div>
+    </div>
+  </div>
 
   <div class="lightbox hidden" id="lightbox">
     <button class="lightbox__close" id="closeLightboxBtn" type="button" aria-label="Затвори">×</button>
