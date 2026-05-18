@@ -35,6 +35,8 @@
     currentDisplayCurrencyCode: "EUR",
     favoriteIds: new Set(),
     searchableSelects: new Map(),
+    searchableSelectionLockUntil: 0,
+    lastSelectedSearchableSelectId: null,
     isMobileFiltersCollapsed: false
   };
 
@@ -2771,17 +2773,24 @@
         mobileSearchTerm: "",
         highlightedIndex: -1,
         optionPointer: null,
-        suppressOptionClickUntil: 0
+        suppressOptionClickUntil: 0,
+        wasOpenOnPointerDown: false
       };
 
       state.searchableSelects.set(select.id, instance);
 
       input.addEventListener("pointerdown", () => {
+        instance.wasOpenOnPointerDown = !instance.dropdown.classList.contains("hidden");
         input.readOnly = isSearchableMobileMode();
       });
 
       input.addEventListener("focus", () => {
         if (select.disabled) return;
+        if (isSearchableSelectionLocked(instance)) {
+          input.blur();
+          return;
+        }
+
         openSearchableSelect(instance);
         renderSearchableOptions(instance, getSearchableSearchTerm(instance));
 
@@ -2792,6 +2801,17 @@
 
       input.addEventListener("click", () => {
         if (select.disabled) return;
+        if (isSearchableSelectionLocked(instance)) {
+          input.blur();
+          return;
+        }
+
+        if (instance.wasOpenOnPointerDown) {
+          closeSearchableSelect(instance);
+          instance.wasOpenOnPointerDown = false;
+          return;
+        }
+
         openSearchableSelect(instance);
         renderSearchableOptions(instance, getSearchableSearchTerm(instance));
       });
@@ -2884,10 +2904,12 @@
 
     if (!selectedOption || selectedOption.value === "") {
       instance.input.value = "";
+      instance.root.classList.remove("has-value");
       return;
     }
 
     instance.input.value = selectedOption.textContent.trim();
+    instance.root.classList.add("has-value");
   }
 
   function syncSearchableControlState(instance) {
@@ -2918,6 +2940,7 @@
     instance.dropdown.classList.add("hidden");
     instance.highlightedIndex = -1;
     instance.optionPointer = null;
+    instance.wasOpenOnPointerDown = false;
     instance.mobileSearchTerm = "";
     if (instance.mobileSearchInput) {
       instance.mobileSearchInput.value = "";
@@ -3037,6 +3060,13 @@
     return window.matchMedia?.("(hover: none) and (pointer: coarse)")?.matches || false;
   }
 
+  function isSearchableSelectionLocked(instance) {
+    return (
+      Date.now() < state.searchableSelectionLockUntil &&
+      state.lastSelectedSearchableSelectId !== instance.select.id
+    );
+  }
+
   function bindSearchableOptionTouch(instance) {
     const maxTapMove = 10;
 
@@ -3131,6 +3161,9 @@
 
     syncSearchableInput(instance);
     closeSearchableSelect(instance);
+    instance.input.blur();
+    state.lastSelectedSearchableSelectId = instance.select.id;
+    state.searchableSelectionLockUntil = Date.now() + 450;
 
     if (currentValue !== value) {
       instance.select.dispatchEvent(new Event("change", { bubbles: true }));

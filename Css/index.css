@@ -522,7 +522,7 @@ button {
   margin-bottom: 10px;
   font-size: 0.95rem;
   font-weight: 800;
-  color: #243140;
+  color: #566170;
 }
 
 .filter-group:has(.searchable-select) > .filter-label {
@@ -769,12 +769,17 @@ button {
   top: 50%;
   right: 16px;
   z-index: 2;
-  color: #000;
+  color: #5f6977;
   font-size: 1.15rem;
-  font-weight: 900;
+  font-weight: 700;
   line-height: 1;
   pointer-events: none;
   transform: translateY(-52%);
+}
+
+.searchable-select.has-value::after {
+  color: #000;
+  font-weight: 900;
 }
 
 .searchable-select__native {
@@ -785,21 +790,27 @@ button {
   width: 100%;
   padding-right: 48px !important;
   background-image: none;
-  color: #000;
-  font-weight: 900;
+  color: #5f6977;
+  font-weight: 600;
 }
 
 .searchable-select__input::placeholder {
-  color: #000;
-  font-weight: 900;
+  color: #5f6977;
+  font-weight: 600;
   opacity: 1;
 }
 
 .filter-group .searchable-select__input,
 .filter-group .searchable-select__input::placeholder {
+  color: #5f6977 !important;
+  font-weight: 600;
+  opacity: 1;
+}
+
+.searchable-select.has-value .searchable-select__input,
+.filter-group .searchable-select.has-value .searchable-select__input {
   color: #000 !important;
   font-weight: 900;
-  opacity: 1;
 }
 
 .searchable-select__input:disabled {
