@@ -189,6 +189,13 @@
       </div>
     </div>
   </header>
+  <div class="dev-banner" id="devBanner">
+    <div class="dev-banner__inner">
+      <span class="dev-banner__text"><span><strong>MotoZona стартира!</strong> Качи обява и се включваш автоматично в томбола — спечели <strong>Shark Ridill 2</strong><strong>BLACK MATT</strong> каска!</span><a href="https://www.facebook.com/MotoZonaBG" target="_blank" rel="noopener" class="dev-banner__cta">Научи повече →</a></span>
+    </div>
+  <button class="dev-banner__close" onclick="document.getElementById('devBanner').style.display='none';sessionStorage.setItem('promoBannerClosed','1')" aria-label="Затвори">✕</button>
+  </div>
+  <script>if(sessionStorage.getItem('promoBannerClosed'))document.getElementById('devBanner').style.display='none'</script>
 
 
   <section class="hero">
