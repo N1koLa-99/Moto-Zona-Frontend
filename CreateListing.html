@@ -392,57 +392,51 @@
               <p>Промените се виждат веднага, докато попълваш.</p>
             </div>
 
-            <article class="listing-preview-card" id="listingPreviewCard">
-              <div class="listing-preview-card__image">
+            <article class="card" id="listingPreviewCard">
+              <div class="card__image">
                 <div
                   id="listingPreviewRibbon"
-                  class="listing-preview-card__ribbon listing-preview-card__ribbon--hidden"
+                  class="card__ribbon hidden"
                 ></div>
 
                 <button
-                  class="listing-preview-card__favorite"
+                  class="favorite-btn"
                   type="button"
                   aria-label="Любима обява"
                   tabindex="-1"
-                >
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path
-                      d="M12 20.5l-1.1-1C5.14 14.36 2 11.39 2 7.75 2 5 4 3 6.75 3c1.56 0 3.06.73 4.03 1.88C11.94 3.73 13.44 3 15 3 17.75 3 19.75 5 19.75 7.75c0 3.64-3.14 6.61-8.9 11.75L12 20.5z"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="1.8"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </button>
+                ></button>
 
                 <img
                   id="listingPreviewImage"
-                  class="listing-preview-card__img hidden"
+                  class="hidden"
                   src=""
                   alt="Преглед на обявата"
                 />
 
-                <div id="listingPreviewPlaceholder" class="listing-preview-card__placeholder">
+                <div id="listingPreviewPlaceholder" class="card__image-placeholder">
                   Няма качена снимка
                 </div>
               </div>
 
-              <div class="listing-preview-card__body">
-                <div class="listing-preview-card__top">
-                  <h4 id="listingPreviewTitle">Заглавието ще се покаже тук</h4>
-                  <strong id="listingPreviewPrice">0.00 EUR</strong>
+              <div class="card__body">
+                <div class="card__top">
+                  <div class="card__title-wrap">
+                    <h3 id="listingPreviewTitle">Заглавието ще се покаже тук</h3>
+                  </div>
+
+                  <div class="card__price">
+                    <span id="listingPreviewPrice">0.00 EUR</span>
+                  </div>
                 </div>
 
-                <div class="listing-preview-card__meta" id="listingPreviewMeta">
+                <div class="card__meta" id="listingPreviewMeta">
                   <span>Година</span>
                   <span>Детайл 1</span>
                   <span>Детайл 2</span>
                 </div>
 
-                <div class="listing-preview-card__bottom">
-                  <span id="listingPreviewLocation">Локацията ще се покаже тук</span>
+                <div class="card__bottom">
+                  <div class="card__location" id="listingPreviewLocation">Локацията ще се покаже тук</div>
                 </div>
               </div>
             </article>

@@ -1786,3 +1786,33 @@ button {
     letter-spacing: 0.28em;
   }
 }
+
+@media (max-width: 860px) {
+  .auth-page--recovery #backToRequestStepBtn {
+    display: none !important;
+  }
+
+  .auth-page--recovery .auth-secondary-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-top: 2px;
+  }
+
+  .auth-page--recovery .auth-helper-btn {
+    flex: 0 0 auto;
+    min-height: 42px;
+    padding: 0 12px;
+    border-radius: 11px;
+    font-size: 0.84rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .auth-page--recovery .auth-helper-btn {
+    min-height: 38px;
+    padding: 0 10px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+  }
+}

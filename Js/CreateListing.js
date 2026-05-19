@@ -3508,42 +3508,42 @@
     if (!elements.listingPreviewRibbon) return;
 
     elements.listingPreviewRibbon.classList.remove(
-      "listing-preview-card__ribbon--hidden",
-      "listing-preview-card__ribbon--vip",
-      "listing-preview-card__ribbon--top"
+      "hidden",
+      "card__ribbon--vip",
+      "card__ribbon--top"
     );
 
     if (promotion === "VIP") {
       elements.listingPreviewRibbon.textContent = "VIP";
-      elements.listingPreviewRibbon.classList.add("listing-preview-card__ribbon--vip");
+      elements.listingPreviewRibbon.classList.add("card__ribbon--vip");
       return;
     }
 
     if (promotion === "TOP") {
       elements.listingPreviewRibbon.textContent = "TOP";
-      elements.listingPreviewRibbon.classList.add("listing-preview-card__ribbon--top");
+      elements.listingPreviewRibbon.classList.add("card__ribbon--top");
       return;
     }
 
     elements.listingPreviewRibbon.textContent = "";
-    elements.listingPreviewRibbon.classList.add("listing-preview-card__ribbon--hidden");
+    elements.listingPreviewRibbon.classList.add("hidden");
   }
 
   function updateListingPreviewCardTheme(promotion) {
     if (!elements.listingPreviewCard) return;
 
     elements.listingPreviewCard.classList.remove(
-      "listing-preview-card--vip",
-      "listing-preview-card--top"
+      "card--vip",
+      "card--top"
     );
 
     if (promotion === "VIP") {
-      elements.listingPreviewCard.classList.add("listing-preview-card--vip");
+      elements.listingPreviewCard.classList.add("card--vip");
       return;
     }
 
     if (promotion === "TOP") {
-      elements.listingPreviewCard.classList.add("listing-preview-card--top");
+      elements.listingPreviewCard.classList.add("card--top");
     }
   }
 

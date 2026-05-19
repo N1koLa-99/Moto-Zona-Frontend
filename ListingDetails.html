@@ -160,9 +160,17 @@
               </div>
 
               <div class="gallery-stage">
-                <button class="gallery-nav gallery-nav--prev" id="prevPhotoBtn" type="button" aria-label="Предишна снимка">‹</button>
+                <button class="gallery-nav gallery-nav--prev" id="prevPhotoBtn" type="button" aria-label="Предишна снимка">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
+                </button>
                 <img id="mainPhoto" alt="Снимка на обявата" />
-                <button class="gallery-nav gallery-nav--next" id="nextPhotoBtn" type="button" aria-label="Следваща снимка">›</button>
+                <button class="gallery-nav gallery-nav--next" id="nextPhotoBtn" type="button" aria-label="Следваща снимка">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </button>
 
                 <button class="zoom-btn" id="zoomPhotoBtn" type="button">Увеличи</button>
                 <div class="gallery-counter" id="galleryCounter">1 / 1</div>
@@ -379,14 +387,22 @@
   <div class="lightbox hidden" id="lightbox">
     <button class="lightbox__close" id="closeLightboxBtn" type="button" aria-label="Затвори">×</button>
 
-    <button class="lightbox__nav lightbox__nav--prev" id="prevLightboxBtn" type="button" aria-label="Предишна снимка">‹</button>
+    <button class="lightbox__nav lightbox__nav--prev" id="prevLightboxBtn" type="button" aria-label="Предишна снимка">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+    </button>
 
     <div class="lightbox__content">
       <img id="lightboxImage" alt="Увеличена снимка" />
       <div class="lightbox__counter" id="lightboxCounter">1 / 1</div>
     </div>
 
-    <button class="lightbox__nav lightbox__nav--next" id="nextLightboxBtn" type="button" aria-label="Следваща снимка">›</button>
+    <button class="lightbox__nav lightbox__nav--next" id="nextLightboxBtn" type="button" aria-label="Следваща снимка">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+    </button>
   </div>
 
   <script src="Js/auth.js"></script>

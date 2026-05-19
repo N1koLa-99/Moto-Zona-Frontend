@@ -2548,18 +2548,18 @@
     elements.editPromotionRemaining.textContent = "Няма активна промоция";
     elements.editLastRefreshInfo.textContent = "-";
     if (elements.editPromotionStatusNote) {
-      elements.editPromotionStatusNote.textContent = "Ако няма активен VIP или TOP, обявата е в нормален статус.";
+      elements.editPromotionStatusNote.textContent = "Без VIP или TOP обявата е в NORMAL режим.";
     }
 
     if (elements.editAccountTypeValue) elements.editAccountTypeValue.textContent = normalizeAccountType(state.accountType || "PRIVATE");
     if (elements.editRefreshPriceValue) elements.editRefreshPriceValue.textContent = "Безплатно";
     if (elements.editPublishOverLimitPriceValue) elements.editPublishOverLimitPriceValue.textContent = "Безплатно";
-    if (elements.editVipPriceText) elements.editVipPriceText.textContent = "Очаквайте скоро";
-    if (elements.editTopPriceText) elements.editTopPriceText.textContent = "Очаквайте скоро";
-    if (elements.editRefreshPriceText) elements.editRefreshPriceText.textContent = "Очаквайте скоро";
+    if (elements.editVipPriceText) elements.editVipPriceText.textContent = "Неактивно";
+    if (elements.editTopPriceText) elements.editTopPriceText.textContent = "Неактивно";
+    if (elements.editRefreshPriceText) elements.editRefreshPriceText.textContent = "Неактивно";
     if (elements.editSubscriptionRulesText) {
       elements.editSubscriptionRulesText.textContent =
-        "Сайтът е в безплатен режим — платените функции са временно недостъпни.";
+        "Платените опции са изключени в момента.";
     }
 
     resetPromotionButtons();
@@ -2670,19 +2670,19 @@
     }
 
     if (elements.editVipPriceText) {
-      elements.editVipPriceText.textContent = "Очаквайте скоро";
+      elements.editVipPriceText.textContent = "Неактивно";
     }
 
     if (elements.editTopPriceText) {
-      elements.editTopPriceText.textContent = "Очаквайте скоро";
+      elements.editTopPriceText.textContent = "Неактивно";
     }
 
     if (elements.editRefreshPriceText) {
-      elements.editRefreshPriceText.textContent = "Очаквайте скоро";
+      elements.editRefreshPriceText.textContent = "Неактивно";
     }
 
     if (elements.editSubscriptionRulesText) {
-      elements.editSubscriptionRulesText.textContent = "Сайтът е в безплатен режим — платените функции са временно недостъпни.";
+      elements.editSubscriptionRulesText.textContent = "Платените опции са изключени в момента.";
     }
   }
 
@@ -2740,9 +2740,9 @@
   }
 
   function resetPromotionButtons() {
-    setButtonDisabled(elements.modalVipBtn, true, "Очаквайте скоро");
-    setButtonDisabled(elements.modalTopBtn, true, "Очаквайте скоро");
-    setButtonDisabled(elements.modalRefreshBtn, true, "Очаквайте скоро");
+    setButtonDisabled(elements.modalVipBtn, true, "Скоро");
+    setButtonDisabled(elements.modalTopBtn, true, "Скоро");
+    setButtonDisabled(elements.modalRefreshBtn, true, "Скоро");
   }
 
   function setButtonDisabled(button, isDisabled, text) {
@@ -4269,7 +4269,7 @@
     const normalized = normalizePromotionType(type);
 
     if (normalized === "NORMAL" || !promotionEndAt) {
-      return "Обявата е в нормален статус. Можеш да активираш VIP, TOP или refresh от секцията по-долу.";
+      return "Обявата е в NORMAL режим. Промоциите ще бъдат активни скоро.";
     }
 
     const remaining = getPromotionRemainingLabel(normalized, promotionEndAt);

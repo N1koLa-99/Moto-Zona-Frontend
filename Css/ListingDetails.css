@@ -989,10 +989,40 @@ img {
 .gallery-nav {
   top: 50%;
   transform: translateY(-50%);
-  width: 46px;
+  width: 20px;
   height: 46px;
-  font-size: 1.55rem;
-  font-weight: 700;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  font-size: 0;
+  line-height: 1;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.gallery-nav svg,
+.lightbox__nav svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+  transform: translateX(0);
+}
+
+.gallery-nav--prev svg,
+.lightbox__nav--prev svg {
+  transform: translateX(-1px);
+}
+
+.gallery-nav--next svg,
+.lightbox__nav--next svg {
+  transform: translateX(1px);
 }
 
 .gallery-nav--prev {
@@ -1287,7 +1317,11 @@ img {
 .lightbox__nav {
   top: 50%;
   transform: translateY(-50%);
-  font-size: 1.6rem;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  font-size: 0;
+  line-height: 1;
 }
 
 .lightbox__nav--prev {
@@ -1486,17 +1520,27 @@ img {
   }
 
   .gallery-nav {
-    width: 40px;
+    width: 20px;
     height: 40px;
-    font-size: 1.3rem;
+    border-radius: 14px;
+    background: rgba(17, 24, 33, 0.52);
+    border-color: rgba(255, 255, 255, 0.18);
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(12, 18, 27, 0.18);
+  }
+
+  .gallery-nav svg,
+  .lightbox__nav svg {
+    width: 18px;
+    height: 18px;
   }
 
   .gallery-nav--prev {
-    left: 10px;
+    left: 8px;
   }
 
   .gallery-nav--next {
-    right: 10px;
+    right: 8px;
   }
 
   .zoom-btn {
@@ -1538,13 +1582,17 @@ img {
 
   .specs-grid {
     padding-top: 12px;
-    grid-template-columns: 1fr;
-    gap: 10px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
   }
 
   .spec-item {
-    padding: 14px;
-    border-radius: 15px;
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .spec-item:first-child {
+    grid-column: 1 / -1;
   }
 
   .spec-item__label {
@@ -1584,13 +1632,16 @@ img {
   .info-list {
     gap: 8px;
     margin-top: 12px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .info-row {
-    padding: 11px 12px;
+    padding: 10px 11px;
     border-radius: 12px;
     flex-direction: column;
     align-items: flex-start;
+    gap: 4px;
   }
 
   .info-row span,
@@ -1617,8 +1668,8 @@ img {
 
   .lightbox__close,
   .lightbox__nav {
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
     border-radius: 13px;
   }
 
@@ -1628,12 +1679,20 @@ img {
     font-size: 1.5rem;
   }
 
+  .lightbox__nav {
+    width: 42px;
+    height: 52px;
+    border-radius: 14px;
+    background: rgba(17, 24, 33, 0.52);
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+
   .lightbox__nav--prev {
-    left: 10px;
+    left: 8px;
   }
 
   .lightbox__nav--next {
-    right: 10px;
+    right: 8px;
   }
 }
 
@@ -1700,6 +1759,39 @@ img {
 
   .gallery-stage {
     height: 250px;
+  }
+
+  .specs-grid {
+    gap: 7px;
+  }
+
+  .spec-item {
+    padding: 11px;
+  }
+
+  .spec-item__label {
+    font-size: 0.68rem;
+  }
+
+  .spec-item__value {
+    font-size: 0.86rem;
+    line-height: 1.32;
+  }
+
+  .info-list {
+    gap: 7px;
+  }
+
+  .info-row {
+    padding: 9px 10px;
+  }
+
+  .info-row span {
+    font-size: 0.78rem;
+  }
+
+  .info-row strong {
+    font-size: 0.88rem;
   }
 }
 
