@@ -101,7 +101,7 @@
   function getShareUrl() {
     const listingId = state.listing?.id || getListingIdFromUrl();
     return listingId
-      ? `${window.location.origin}/share/${listingId}`
+      ? (window.Auth?.buildShareUrl?.(listingId, { absolute: true }) || `${window.location.origin}/share/${listingId}`)
       : window.location.href;
   }
 
@@ -656,6 +656,9 @@
     const canonicalUrl = listingId
       ? (window.Auth?.buildListingUrl?.(listingId, { absolute: true }) || window.location.href)
       : window.location.href;
+    const shareUrl = listingId
+      ? (window.Auth?.buildShareUrl?.(listingId, { absolute: true }) || canonicalUrl)
+      : canonicalUrl;
 
     document.title = pageTitle;
     setMetaContent('meta[name="description"]', pageDescription);
@@ -664,11 +667,12 @@
     setMetaContent('meta[property="og:description"]', pageDescription);
     setMetaContent('meta[property="og:image"]', imageUrl);
     setMetaContent('meta[property="og:image:alt"]', cleanNullableText(listing.title) || "Обява в Мото Зона");
-    setMetaContent('meta[property="og:url"]', canonicalUrl, { attribute: "property", value: "og:url" });
+    setMetaContent('meta[property="og:url"]', shareUrl, { attribute: "property", value: "og:url" });
     setMetaContent('meta[name="twitter:title"]', pageTitle);
     setMetaContent('meta[name="twitter:description"]', pageDescription);
     setMetaContent('meta[name="twitter:image"]', imageUrl);
     setMetaContent('meta[name="twitter:image:alt"]', cleanNullableText(listing.title) || "Обява в Мото Зона");
+    setMetaContent('meta[name="twitter:url"]', shareUrl, { attribute: "name", value: "twitter:url" });
     setLinkHref('link[rel="canonical"]', canonicalUrl, { rel: "canonical" });
   }
 

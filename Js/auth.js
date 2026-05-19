@@ -145,6 +145,19 @@ function buildLegacyListingUrl(listingId, options = {}) {
   return path;
 }
 
+function buildShareUrl(listingId, options = {}) {
+  const normalizedId = String(listingId ?? "").trim();
+  const path = normalizedId
+    ? buildOriginRelativeUrl(`/share/${encodeURIComponent(normalizedId)}`)
+    : buildOriginRelativeUrl("/");
+
+  if (options.absolute) {
+    return new URL(path, window.location.origin).toString();
+  }
+
+  return path;
+}
+
 function getListingIdFromLocation(target = window.location) {
   const url = typeof target === "string"
     ? new URL(target, window.location.origin)
@@ -496,6 +509,7 @@ window.Auth = {
   buildCategoryUrl,
   buildListingUrl,
   buildLegacyListingUrl,
+  buildShareUrl,
   getCategorySlugFromCode,
   getCategoryCodeFromSlug,
   getListingIdFromLocation,
