@@ -54,7 +54,7 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
   -webkit-text-size-adjust: 100%;
   overflow-x: hidden;
   overscroll-behavior-x: none;
@@ -76,6 +76,14 @@ body {
 .create-listing-page-wide {
   --container: 100%;
   --page-pad: clamp(20px, 2.6vw, 40px);
+}
+
+.create-listing-page-wide *,
+.create-listing-page-wide *::before,
+.create-listing-page-wide *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
 }
 
 img {

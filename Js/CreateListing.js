@@ -1752,17 +1752,7 @@
     const normalizedQuery = normalizeSearchText(query);
 
     if (!normalizedQuery || normalizedQuery.length < 2) {
-      return [...state.smartCategory.index]
-        .sort((a, b) =>
-          cleanText(a.label).localeCompare(cleanText(b.label), "bg", {
-            sensitivity: "base",
-            numeric: true
-          }) ||
-          cleanText(a.pathLabel).localeCompare(cleanText(b.pathLabel), "bg", {
-            sensitivity: "base",
-            numeric: true
-          })
-        );
+      return [];
     }
 
     const queryTokens = normalizedQuery.split(" ").filter(Boolean);
@@ -1813,7 +1803,7 @@
     const suggestions = state.smartCategory.visibleSuggestions;
     const query = cleanText(elements.smartCategoryInput?.value);
 
-    if ((!query || normalizeSearchText(query).length < 2) && !suggestions.length) {
+    if (!query || normalizeSearchText(query).length < 2) {
       elements.smartCategorySuggestions.innerHTML = "";
       elements.smartCategorySuggestions.classList.add("hidden");
       return;
