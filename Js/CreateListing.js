@@ -67,23 +67,19 @@
   const CATEGORY_OVERVIEW_CONFIG = [
     {
       code: "VEHICLE",
-      label: "Превозни средства",
-      description: "Мотори, скутери, ATV и други превозни средства."
+      label: "Превозно средство"
     },
     {
       code: "GEAR",
-      label: "Екипировка",
-      description: "Каски, якета, ръкавици, ботуши и защита за каране."
+      label: "Екипировка"
     },
     {
       code: "ACCESSORY",
-      label: "Аксесоари",
-      description: "Куфари, стойки, навигации и удобства за мотора."
+      label: "Аксесоар"
     },
     {
       code: "PART",
-      label: "Части",
-      description: "Части за поддръжка, ремонт и подобрения."
+      label: "Част"
     }
   ];
 
@@ -1344,15 +1340,14 @@
     const code = String(item?.code || "").trim().toUpperCase();
     const label = resolveLookupLabel(item, "nameBg");
 
-    const summaries = {
-      VEHICLE: "мотори, скутери, ATV и още",
-      GEAR: "каски, якета, ръкавици и още",
-      ACCESSORY: "куфари, стойки, навигации и още",
-      PART: "джанти, гуми, ауспуси и още"
+    const labels = {
+      VEHICLE: "Превозно средство",
+      GEAR: "Екипировка",
+      ACCESSORY: "Аксесоар",
+      PART: "Част"
     };
 
-    const summary = summaries[code];
-    return summary ? `${label} - ${summary}` : label;
+    return labels[code] || label;
   }
 
   function normalizeSearchText(value) {
@@ -1671,32 +1666,13 @@
     if (!elements.categoryOverviewGrid) return;
 
     const selectedMainCategoryCode = getSelectedCategoryCode();
-    const selectedSubcategoryId = getCurrentSelectedOverviewSubcategoryId(selectedMainCategoryCode);
 
     elements.categoryOverviewGrid.innerHTML = CATEGORY_OVERVIEW_CONFIG.map(config => {
       const mainEntry = getMainCategoryEntry(config.code);
       if (!mainEntry) return "";
 
       const meta = CATEGORY_OVERVIEW_META[config.code] || {};
-      const previewEntries = getCategoryOverviewEntries(config.code);
       const isActive = selectedMainCategoryCode === config.code;
-      const visiblePreviewEntries = previewEntries.slice(0, 6);
-
-      const previewHtml = visiblePreviewEntries.map(entry => {
-        const isChipActive = isActive && selectedSubcategoryId !== null && selectedSubcategoryId === entry.subCategoryId;
-
-        return `
-          <button
-            class="category-feature-link ${isChipActive ? "category-feature-link--active" : ""}"
-            type="button"
-            data-entry-key="${escapeHtml(entry.key)}"
-          >
-            ${escapeHtml(entry.label)}
-          </button>
-        `;
-      }).join("");
-
-      const extraCount = Math.max(0, previewEntries.length - visiblePreviewEntries.length);
 
       return `
         <article
@@ -1714,13 +1690,7 @@
               </span>
               <span class="category-feature-card__title">${escapeHtml(config.label || mainEntry.label)}</span>
             </span>
-            <span class="category-feature-card__description">${escapeHtml(config.description)}</span>
           </button>
-
-          <div class="category-feature-card__links">
-            ${previewHtml}
-            ${extraCount > 0 ? `<span class="category-feature-links__more">+${extraCount} още</span>` : ""}
-          </div>
         </article>
       `;
     }).join("");
@@ -3005,7 +2975,7 @@
       regionId: null,
       cityId: null,
       contactName: cleanNullableText(elements.contactNameInput.value),
-      contactPhone: cleanText(elements.contactPhoneInput.value),
+      contactPhone: cleanNullableText(elements.contactPhoneInput?.value),
       requestedPromotionType: cleanText(elements.promotionTypeSelect.value || "NORMAL").toUpperCase(),
       photos: state.uploadedPhotos.map(photo => ({
         fileName: photo.fileName,
@@ -3095,10 +3065,6 @@
       if (!payload.cityId) {
         throw new Error("За България градът е задължителен.");
       }
-    }
-
-    if (!payload.contactPhone || payload.contactPhone.length < 5) {
-      throw new Error("Телефонът е задължителен.");
     }
 
     if (!Array.isArray(payload.photos) || payload.photos.length === 0) {
