@@ -796,6 +796,10 @@ textarea {
 }
 
 @media (max-width: 768px) {
+  .smart-category-field {
+    display: none !important;
+  }
+
   .category-feature-grid--create {
     grid-template-columns: 1fr;
   }
