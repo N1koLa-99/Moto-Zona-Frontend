@@ -2019,7 +2019,7 @@ textarea {
   .topbar__actions .ghost-btn {
     width: auto;
     min-height: 40px;
-    padding: 0 12px;
+    padding: 0 40px;
     border-radius: 12px;
     font-size: 0.82rem;
   }
@@ -2220,6 +2220,31 @@ textarea {
     font-size: 0.92rem;
   }
 
+  .page-subtitle,
+  .form-field small,
+  .upload-box p,
+  .preview-side-card .side-card__intro p,
+  .publish-summary-card .side-card__intro p,
+  .due-box__note,
+  .quick-check-card {
+    display: none;
+  }
+
+  .dev-banner__text {
+    display: block;
+  }
+
+  .dev-banner__text > span:first-child {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .dev-banner__cta {
+    display: none;
+  }
+
   .create-card {
     padding: 12px;
   }
@@ -2256,8 +2281,7 @@ textarea {
   }
 
   .user-box {
-    padding: 14px;
-    border-radius: 16px;
+    display: none;
   }
 
   .status-message {
@@ -2343,6 +2367,10 @@ textarea {
     min-height: 28px;
   }
 
+  .listing-preview-card__meta span:nth-child(3) {
+    display: none;
+  }
+
   .listing-preview-card__bottom span {
     font-size: 0.72rem;
   }
@@ -2391,6 +2419,16 @@ textarea {
   .tips-list--compact {
     font-size: 0.84rem;
     line-height: 1.5;
+  }
+
+  .smart-category__hint {
+    margin-top: 8px;
+    padding: 10px 12px;
+    font-size: 0.84rem;
+  }
+
+  .smart-category__hint-note {
+    display: none;
   }
 
   .billing-mini-row span,
@@ -2576,7 +2614,7 @@ textarea {
   .topbar__actions .ghost-btn {
     min-height: 46px;
     border-radius: 12px;
-    padding-inline: 14px;
+    padding-inline: 40px;
     font-size: 0.95rem;
   }
 }
