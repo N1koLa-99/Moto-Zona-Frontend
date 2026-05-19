@@ -745,10 +745,15 @@
     } = options;
 
     const safeItems = Array.isArray(items) ? items : [];
+    const sortedItems = [...safeItems].sort((a, b) => {
+      const labelA = cleanText(resolveLookupLabel(a, preferredLabelKey));
+      const labelB = cleanText(resolveLookupLabel(b, preferredLabelKey));
+      return labelA.localeCompare(labelB, "bg", { sensitivity: "base", numeric: true });
+    });
 
     const html = [
       `<option value="">${escapeHtml(placeholder)}</option>`,
-      ...safeItems.map(item => {
+      ...sortedItems.map(item => {
         const label = resolveLookupLabel(item, preferredLabelKey);
         const value = resolveLookupValue(item, preferredValueKey);
 
@@ -761,6 +766,7 @@
   }
 
   function enhanceSearchableSelects() {
+    return;
     document.querySelectorAll(SEARCHABLE_SELECT_ROOT_SELECTOR).forEach(select => {
       if (searchableSelectRegistry.has(select)) {
         syncSearchableSelect(select);
@@ -1746,7 +1752,17 @@
     const normalizedQuery = normalizeSearchText(query);
 
     if (!normalizedQuery || normalizedQuery.length < 2) {
-      return [];
+      return [...state.smartCategory.index]
+        .sort((a, b) =>
+          cleanText(a.label).localeCompare(cleanText(b.label), "bg", {
+            sensitivity: "base",
+            numeric: true
+          }) ||
+          cleanText(a.pathLabel).localeCompare(cleanText(b.pathLabel), "bg", {
+            sensitivity: "base",
+            numeric: true
+          })
+        );
     }
 
     const queryTokens = normalizedQuery.split(" ").filter(Boolean);
@@ -1797,7 +1813,7 @@
     const suggestions = state.smartCategory.visibleSuggestions;
     const query = cleanText(elements.smartCategoryInput?.value);
 
-    if (!query || normalizeSearchText(query).length < 2) {
+    if ((!query || normalizeSearchText(query).length < 2) && !suggestions.length) {
       elements.smartCategorySuggestions.innerHTML = "";
       elements.smartCategorySuggestions.classList.add("hidden");
       return;

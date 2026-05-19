@@ -3620,10 +3620,15 @@
 
     const currentValue = select.value;
     const safeItems = Array.isArray(items) ? items : [];
+    const sortedItems = [...safeItems].sort((a, b) => {
+      const labelA = String(a?.[labelKey] ?? a?.nameBg ?? a?.name ?? a?.code ?? "").trim();
+      const labelB = String(b?.[labelKey] ?? b?.nameBg ?? b?.name ?? b?.code ?? "").trim();
+      return labelA.localeCompare(labelB, "bg", { sensitivity: "base", numeric: true });
+    });
 
     select.innerHTML =
       `<option value="">Избери</option>` +
-      safeItems
+      sortedItems
         .map((item) => {
           const label = item?.[labelKey] ?? item?.nameBg ?? item?.name ?? item?.code ?? "";
           const value = item?.[valueKey] ?? item?.id ?? item?.code ?? "";
@@ -3657,6 +3662,7 @@
   }
 
   function initEditSearchableSelects() {
+    return;
     enhanceEditSearchableSelects();
 
     document.querySelectorAll(".searchable-select--edit").forEach((root) => {
@@ -4123,10 +4129,15 @@
 
     const currentValue = select.value;
     const safeItems = Array.isArray(items) ? items : [];
+    const sortedItems = [...safeItems].sort((a, b) => {
+      const labelA = String(a?.[labelKey] ?? a?.nameBg ?? a?.name ?? a?.code ?? "").trim();
+      const labelB = String(b?.[labelKey] ?? b?.nameBg ?? b?.name ?? b?.code ?? "").trim();
+      return labelA.localeCompare(labelB, "bg", { sensitivity: "base", numeric: true });
+    });
 
     select.innerHTML =
       `<option value="">Избери</option>` +
-      safeItems
+      sortedItems
         .map((item) => {
           const label = item?.[labelKey] ?? item?.nameBg ?? item?.name ?? item?.code ?? "";
           const value = item?.[valueKey] ?? item?.id ?? item?.code ?? "";

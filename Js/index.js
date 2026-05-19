@@ -145,11 +145,7 @@
     vehicleClassFilter: document.getElementById("vehicleClassFilter"),
     vehicleTypeFilter: document.getElementById("vehicleTypeFilter"),
     vehicleBrandFilter: document.getElementById("vehicleBrandFilter"),
-    vehicleBrandSearch: document.getElementById("vehicleBrandSearch"),
-    vehicleBrandOptions: document.getElementById("vehicleBrandOptions"),
     vehicleModelFilter: document.getElementById("vehicleModelFilter"),
-    vehicleModelSearch: document.getElementById("vehicleModelSearch"),
-    vehicleModelOptions: document.getElementById("vehicleModelOptions"),
     vehicleConditionFilter: document.getElementById("vehicleConditionFilter"),
     vehicleLocationModeFilter: document.getElementById("vehicleLocationModeFilter"),
     vehicleCountryWrap: document.getElementById("vehicleCountryWrap"),
@@ -2744,8 +2740,7 @@
   }
 
   function initSearchableSelects() {
-    enhanceNativeSearchableSelects();
-
+    return;
     document.querySelectorAll(".searchable-select").forEach((root) => {
       const select = resolveSearchableSelect(root);
       const input = resolveSearchableInput(root);
@@ -3171,6 +3166,7 @@
   }
 
   function enhanceNativeSearchableSelects() {
+    return;
     document.querySelectorAll(AUTO_SEARCHABLE_SELECT_SELECTOR).forEach((select) => {
       if (!(select instanceof HTMLSelectElement) || !select.id) return;
       if (select.closest(".searchable-select")) return;

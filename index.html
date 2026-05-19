@@ -298,53 +298,17 @@
             </div>
 
             <div class="filter-group">
-              <label class="filter-label" for="vehicleBrandSearch">Марка</label>
-
-              <div
-                class="searchable-select"
-                id="vehicleBrandSearchable"
-                data-target-select="vehicleBrandFilter"
-                data-search-input="vehicleBrandSearch"
-                data-options-list="vehicleBrandOptions"
-                data-placeholder="Търси марка..."
-              >
-                <input
-                  type="text"
-                  id="vehicleBrandSearch"
-                  class="searchable-select__input"
-                  placeholder="Марка"
-                  autocomplete="off"
-                />
-                <div class="searchable-select__dropdown hidden" id="vehicleBrandOptions"></div>
-                <select id="vehicleBrandFilter" class="searchable-select__native hidden">
-                  <option value="">Всички</option>
-                </select>
-              </div>
+              <label class="filter-label" for="vehicleBrandFilter">Марка</label>
+              <select id="vehicleBrandFilter">
+                <option value="">Всички</option>
+              </select>
             </div>
 
             <div class="filter-group">
-              <label class="filter-label" for="vehicleModelSearch">Модел</label>
-
-              <div
-                class="searchable-select"
-                id="vehicleModelSearchable"
-                data-target-select="vehicleModelFilter"
-                data-search-input="vehicleModelSearch"
-                data-options-list="vehicleModelOptions"
-                data-placeholder="Търси модел..."
-              >
-                <input
-                  type="text"
-                  id="vehicleModelSearch"
-                  class="searchable-select__input"
-                  placeholder="Модел"
-                  autocomplete="off"
-                />
-                <div class="searchable-select__dropdown hidden" id="vehicleModelOptions"></div>
-                <select id="vehicleModelFilter" class="searchable-select__native hidden">
-                  <option value="">Всички</option>
-                </select>
-              </div>
+              <label class="filter-label" for="vehicleModelFilter">Модел</label>
+              <select id="vehicleModelFilter">
+                <option value="">Всички</option>
+              </select>
             </div>
 
             <div class="filter-group">
@@ -358,9 +322,9 @@
               <label class="filter-label" for="vehicleLocationModeFilter">Локация</label>
               <select id="vehicleLocationModeFilter">
                 <option value="">Всички</option>
+                <option value="city">По град</option>
                 <option value="country">По държава</option>
                 <option value="region">По област</option>
-                <option value="city">По град</option>
               </select>
             </div>
 
@@ -506,9 +470,9 @@
               <label class="filter-label" for="gearLocationModeFilter">Локация</label>
               <select id="gearLocationModeFilter">
                 <option value="">Всички</option>
+                <option value="city">По град</option>
                 <option value="country">По държава</option>
                 <option value="region">По област</option>
-                <option value="city">По град</option>
               </select>
             </div>
 
@@ -611,9 +575,9 @@
               <label class="filter-label" for="partLocationModeFilter">Локация</label>
               <select id="partLocationModeFilter">
                 <option value="">Всички</option>
+                <option value="city">По град</option>
                 <option value="country">По държава</option>
                 <option value="region">По област</option>
-                <option value="city">По град</option>
               </select>
             </div>
 
@@ -716,9 +680,9 @@
               <label class="filter-label" for="accessoryLocationModeFilter">Локация</label>
               <select id="accessoryLocationModeFilter">
                 <option value="">Всички</option>
+                <option value="city">По град</option>
                 <option value="country">По държава</option>
                 <option value="region">По област</option>
-                <option value="city">По град</option>
               </select>
             </div>
 
@@ -806,12 +770,12 @@
             </button>
 
             <select id="sortSelect">
-              <option value="newest">Най-нови</option>
-              <option value="priceasc">Цена: ниска към висока</option>
-              <option value="pricedesc">Цена: висока към ниска</option>
+              <option value="newest" selected>Най-нови</option>
               <option value="yeardesc">Най-нови по година</option>
-              <option value="yearasc">Най-стари по година</option>
               <option value="oldest">Най-стари</option>
+              <option value="yearasc">Най-стари по година</option>
+              <option value="pricedesc">Цена: висока към ниска</option>
+              <option value="priceasc">Цена: ниска към висока</option>
             </select>
           </div>
         </div>

@@ -88,7 +88,8 @@
                       id="smartCategoryInput"
                       type="text"
                       autocomplete="off"
-                      placeholder="Напр. мотор, каска, яке, куфар..."
+                      readonly
+                      placeholder="Избери от списъка"
                     />
 
                     <div
@@ -99,7 +100,7 @@
                     ></div>
                   </div>
 
-                  <small>Пиши какво продаваш и избери от списъка.</small>
+                  <small>Избери най-близката категория от списъка.</small>
                   <div class="smart-category__hint hidden" id="smartCategoryHint"></div>
                 </div>
 
@@ -305,12 +306,12 @@
                 <div class="form-field">
                   <label for="currencyCodeSelect">Валута *</label>
                   <select id="currencyCodeSelect">
-                    <option value="EUR">EUR</option>
                     <option value="BGN">BGN</option>
-                    <option value="USD">USD</option>
+                    <option value="EUR" selected>EUR</option>
                     <option value="GBP">GBP</option>
                     <option value="RON">RON</option>
                     <option value="TRY">TRY</option>
+                    <option value="USD">USD</option>
                   </select>
                 </div>
 
