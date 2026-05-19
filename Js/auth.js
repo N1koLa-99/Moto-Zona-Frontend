@@ -148,10 +148,10 @@ function buildLegacyListingUrl(listingId, options = {}) {
 function buildShareUrl(listingId, options = {}) {
   const normalizedId = String(listingId ?? "").trim();
   const path = normalizedId
-    ? buildOriginRelativeUrl(`/share/${encodeURIComponent(normalizedId)}`)
+    ? `${API_BASE_URL.replace(/\/+$/, "")}/api/listings/${encodeURIComponent(normalizedId)}/og`
     : buildOriginRelativeUrl("/");
 
-  if (options.absolute) {
+  if (options.absolute && !/^https?:\/\//i.test(path)) {
     return new URL(path, window.location.origin).toString();
   }
 
@@ -168,7 +168,7 @@ function getListingIdFromLocation(target = window.location) {
     return queryId;
   }
 
-  const match = url.pathname.match(/\/obiavi\/(\d+)(?:\/)?$/i);
+  const match = url.pathname.match(/\/(?:obiavi|share)\/(\d+)(?:\/)?$/i);
   if (!match) {
     return null;
   }

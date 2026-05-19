@@ -128,10 +128,7 @@ const server = http.createServer((request, response) => {
     const listingId = pathname.slice("/share/".length).split("/")[0] || "";
 
     if (/^\d+$/.test(listingId)) {
-      response.writeHead(302, {
-        Location: `https://motomarketapi.azurewebsites.net/api/listings/${listingId}/og`
-      });
-      response.end();
+      sendHtmlWithBase(response, "ListingDetails.html");
       return;
     }
   }

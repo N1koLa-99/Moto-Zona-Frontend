@@ -8,8 +8,7 @@
     { "route": "/obiavi/*",          "rewrite": "/ListingDetails.html" },
     {
       "route": "/share/*",
-      "redirect": "https://motomarketapi.azurewebsites.net/api/listings/{wildcard}/og",
-      "statusCode": 302
+      "rewrite": "/ListingDetails.html"
     }
   ]
 }
