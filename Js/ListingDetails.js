@@ -44,20 +44,7 @@
     zoomPhotoBtn: document.getElementById("zoomPhotoBtn"),
     galleryCounter: document.getElementById("galleryCounter"),
     galleryThumbs: document.getElementById("galleryThumbs"),
-    copyLinkBtn: document.getElementById("copyLinkBtn"),
     shareBtn: document.getElementById("shareBtn"),
-    shareModal: document.getElementById("shareModal"),
-    shareModalBackdrop: document.getElementById("shareModalBackdrop"),
-    shareModalClose: document.getElementById("shareModalClose"),
-    shareFacebookBtn: document.getElementById("shareFacebookBtn"),
-    shareInstagramBtn: document.getElementById("shareInstagramBtn"),
-    shareMessengerBtn: document.getElementById("shareMessengerBtn"),
-    shareWhatsappBtn: document.getElementById("shareWhatsappBtn"),
-    shareViberBtn: document.getElementById("shareViberBtn"),
-    shareTelegramBtn: document.getElementById("shareTelegramBtn"),
-    shareNativeBtn: document.getElementById("shareNativeBtn"),
-    shareDropdownCopyBtn: document.getElementById("shareDropdownCopyBtn"),
-    shareUrlInput: document.getElementById("shareUrlInput"),
 
     specsGrid: document.getElementById("specsGrid"),
     descriptionContent: document.getElementById("descriptionContent"),
@@ -84,6 +71,7 @@
   document.addEventListener("DOMContentLoaded", init);
 
   async function init() {
+    document.getElementById("copyLinkBtn")?.remove();
     bindEvents();
     await initTopbarAuth();
     await loadListing();
@@ -126,8 +114,6 @@
 
   function getNativeSharePayload() {
     return {
-      title: getShareTitle(),
-      text: getShareText(),
       url: getShareUrl()
     };
   }
@@ -156,32 +142,6 @@
       await copyText(sharePayload.url, fallbackMessage);
       return false;
     }
-  }
-
-  function openShareTarget(url, options = {}) {
-    if (!url) return;
-
-    const target = options.target || "_blank";
-    const features = options.features || "noopener,noreferrer";
-    const nextWindow = window.open(url, target, features);
-
-    if (!nextWindow && target === "_blank") {
-      window.location.assign(url);
-    }
-  }
-
-  function openShareModal() {
-    const shareUrl = getShareUrl();
-    if (elements.shareUrlInput) {
-      elements.shareUrlInput.value = shareUrl;
-    }
-    elements.shareModal?.classList.remove("hidden");
-    document.body.classList.add("modal-open");
-  }
-
-  function closeShareModal() {
-    elements.shareModal?.classList.add("hidden");
-    document.body.classList.remove("modal-open");
   }
 
   function toggleProfileDropdown() {
@@ -258,24 +218,12 @@
       await copyText(getShareUrl(), "Линкът е копиран.");
     });
 
-    elements.shareBtn?.addEventListener("click", openShareModal);
-    elements.shareModalClose?.addEventListener("click", closeShareModal);
-    elements.shareModalBackdrop?.addEventListener("click", closeShareModal);
-
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && !elements.shareModal?.classList.contains("hidden")) {
-        closeShareModal();
-      }
+    elements.shareBtn?.addEventListener("click", async () => {
+      await shareViaNative();
     });
 
-    elements.shareFacebookBtn?.addEventListener("click", () => {
-      const shareUrl = getShareUrl();
-      const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
-      openShareTarget(fbUrl, { features: "width=600,height=460,noopener,noreferrer" });
-      closeShareModal();
-    });
-
-    elements.shareInstagramBtn?.addEventListener("click", async () => {
+    if (false) {
+      elements.shareInstagramBtn?.addEventListener("click", async () => {
       await shareViaNative("Instagram се отваря през системното меню за споделяне. Линкът е копиран.");
       closeShareModal();
     });
@@ -321,6 +269,8 @@
     elements.shareUrlInput?.addEventListener("click", (event) => {
       event.currentTarget?.select?.();
     });
+
+    }
 
     elements.copyPhoneBtn?.addEventListener("click", async () => {
       const phone = state.listing?.contactPhone || state.listing?.seller?.phone || "";

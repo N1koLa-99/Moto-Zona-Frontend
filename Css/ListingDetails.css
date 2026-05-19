@@ -409,6 +409,10 @@ img {
   border-color: var(--primary);
 }
 
+#copyLinkBtn {
+  display: none !important;
+}
+
 /* =========================
    SECTION HEAD ACTIONS
 ========================= */
