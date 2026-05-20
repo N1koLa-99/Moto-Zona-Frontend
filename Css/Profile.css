@@ -2298,6 +2298,28 @@ textarea {
   box-shadow: 0 0 0 4px rgba(255, 106, 42, 0.1);
 }
 
+.form-group.has-error input,
+.form-group.has-error select,
+.form-group.has-error textarea {
+  border-color: rgba(180, 35, 24, 0.62);
+  background: #fffafa;
+}
+
+.form-group.has-error input:focus,
+.form-group.has-error select:focus,
+.form-group.has-error textarea:focus {
+  border-color: rgba(180, 35, 24, 0.72);
+  box-shadow: 0 0 0 4px rgba(180, 35, 24, 0.1);
+}
+
+.field-error {
+  margin-top: 8px;
+  color: var(--danger);
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
 .searchable-select {
   position: relative;
   width: 100%;

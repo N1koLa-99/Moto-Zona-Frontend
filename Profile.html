@@ -378,13 +378,13 @@
 
                 <div class="form-grid">
                   <div class="form-group form-group--full">
-                    <label for="editTitle">Заглавие</label>
-                    <input type="text" id="editTitle" maxlength="160" placeholder="Например: Kawasaki Z750 A2" />
+                    <label for="editTitle">Заглавие *</label>
+                    <input type="text" id="editTitle" maxlength="45" placeholder="Например: Kawasaki Z750 A2" />
                   </div>
 
                   <div class="form-group form-group--full">
-                    <label for="editDescription">Описание</label>
-                    <textarea id="editDescription" rows="5" placeholder="Опиши обявата подробно..."></textarea>
+                    <label for="editDescription">Описание *</label>
+                    <textarea id="editDescription" rows="5" maxlength="4000" placeholder="Опиши обявата подробно..."></textarea>
                   </div>
 
                   <div class="form-group">
@@ -403,11 +403,11 @@
 
                   <div class="form-group">
                     <label for="editItemModelText">Модел текст</label>
-                    <input type="text" id="editItemModelText" placeholder="Ако няма модел в списъка" />
+                    <input type="text" id="editItemModelText" maxlength="100" placeholder="Ако няма модел в списъка" />
                   </div>
 
                   <div class="form-group">
-                    <label for="editConditionLookupId">Състояние</label>
+                    <label for="editConditionLookupId">Състояние *</label>
                     <select id="editConditionLookupId">
                       <option value="">Избери</option>
                     </select>
@@ -422,41 +422,41 @@
 
                 <div class="form-grid">
                   <div class="form-group">
-                    <label for="editSubCategoryLookupId">Клас</label>
+                    <label for="editSubCategoryLookupId">Клас *</label>
                     <select id="editSubCategoryLookupId">
                       <option value="">Избери</option>
                     </select>
                   </div>
 
                   <div class="form-group">
-                    <label for="editSubCategory2LookupId">Вид</label>
+                    <label for="editSubCategory2LookupId">Вид *</label>
                     <select id="editSubCategory2LookupId">
                       <option value="">Избери</option>
                     </select>
                   </div>
 
                   <div class="form-group">
-                    <label for="editVehicleYear">Година</label>
-                    <input type="number" id="editVehicleYear" min="1900" max="2100" placeholder="Напр. 2009" />
+                    <label for="editVehicleYear">Година *</label>
+                    <input type="number" id="editVehicleYear" min="1900" max="2100" step="1" inputmode="numeric" placeholder="Напр. 2009" />
                   </div>
 
                   <div class="form-group">
-                    <label for="editEngineCC">Кубици</label>
-                    <input type="number" id="editEngineCC" min="0" placeholder="Напр. 750" />
+                    <label for="editEngineCC">Кубици *</label>
+                    <input type="number" id="editEngineCC" min="1" max="15000" step="1" inputmode="numeric" placeholder="Напр. 750" />
                   </div>
 
                   <div class="form-group">
-                    <label for="editHorsePower">Конски сили</label>
-                    <input type="number" id="editHorsePower" min="0" placeholder="Напр. 110" />
+                    <label for="editHorsePower">Конски сили *</label>
+                    <input type="number" id="editHorsePower" min="1" max="5000" step="1" inputmode="numeric" placeholder="Напр. 110" />
                   </div>
 
                   <div class="form-group">
-                    <label for="editMileage">Пробег</label>
-                    <input type="number" id="editMileage" min="0" placeholder="Напр. 32000" />
+                    <label for="editMileage">Пробег *</label>
+                    <input type="number" id="editMileage" min="0" step="1" inputmode="numeric" placeholder="Напр. 32000" />
                   </div>
 
                   <div class="form-group">
-                    <label for="editLicenseCategoryLookupId">Категория книжка</label>
+                    <label for="editLicenseCategoryLookupId">Категория книжка *</label>
                     <select id="editLicenseCategoryLookupId">
                       <option value="">Избери</option>
                     </select>
@@ -464,7 +464,7 @@
 
                   <div class="form-group">
                     <label for="editColor">Цвят</label>
-                    <input type="text" id="editColor" placeholder="Напр. Черен" />
+                    <input type="text" id="editColor" maxlength="50" placeholder="Напр. Черен" />
                   </div>
                 </div>
               </section>
@@ -476,22 +476,22 @@
 
                 <div class="form-grid">
                   <div class="form-group">
-                    <label for="editGearTypeId">Тип екипировка</label>
+                    <label for="editGearTypeId">Тип екипировка *</label>
                     <select id="editGearTypeId">
                       <option value="">Избери</option>
                     </select>
                   </div>
 
                   <div class="form-group">
-                    <label for="editHelmetTypeId">Тип каска</label>
+                    <label for="editHelmetTypeId">Тип каска *</label>
                     <select id="editHelmetTypeId">
                       <option value="">Избери</option>
                     </select>
                   </div>
 
                   <div class="form-group">
-                    <label for="editGearYear">Година</label>
-                    <input type="number" id="editGearYear" min="1900" max="2100" placeholder="Напр. 2024" />
+                    <label for="editGearYear">Година *</label>
+                    <input type="number" id="editGearYear" min="1900" max="2100" step="1" inputmode="numeric" placeholder="Напр. 2024" />
                   </div>
                 </div>
               </section>
@@ -503,7 +503,7 @@
 
                 <div class="form-grid">
                   <div class="form-group">
-                    <label for="editPartAccessoryTypeId">Подкатегория</label>
+                    <label for="editPartAccessoryTypeId">Подкатегория *</label>
                     <select id="editPartAccessoryTypeId">
                       <option value="">Избери</option>
                     </select>
@@ -518,12 +518,12 @@
 
                 <div class="form-grid">
                   <div class="form-group">
-                    <label for="editPriceOriginal">Цена</label>
+                    <label for="editPriceOriginal">Цена *</label>
                     <input type="number" id="editPriceOriginal" min="0" step="0.01" placeholder="Напр. 3900" />
                   </div>
 
                   <div class="form-group">
-                    <label for="editCurrencyCode">Валута</label>
+                    <label for="editCurrencyCode">Валута *</label>
                     <select id="editCurrencyCode">
                       <option value="BGN">BGN</option>
                       <option value="EUR" selected>EUR</option>
@@ -532,13 +532,13 @@
                   </div>
 
                   <div class="form-group">
-                    <label for="editContactName">Лице за контакт</label>
-                    <input type="text" id="editContactName" placeholder="Напр. Никола" />
+                    <label for="editContactName">Лице за контакт *</label>
+                    <input type="text" id="editContactName" maxlength="120" placeholder="Напр. Никола" />
                   </div>
 
                   <div class="form-group">
-                    <label for="editContactPhone">Телефон</label>
-                    <input type="text" id="editContactPhone" placeholder="Напр. 0878123456" />
+                    <label for="editContactPhone">Телефон *</label>
+                    <input type="tel" id="editContactPhone" minlength="5" maxlength="30" placeholder="Напр. 0878123456" />
                   </div>
                 </div>
               </section>
@@ -550,21 +550,21 @@
 
                 <div class="form-grid">
                   <div class="form-group">
-                    <label for="editCountryId">Държава</label>
+                    <label for="editCountryId">Държава *</label>
                     <select id="editCountryId">
                       <option value="">Избери</option>
                     </select>
                   </div>
 
                   <div class="form-group">
-                    <label for="editRegionId">Област</label>
+                    <label for="editRegionId">Област *</label>
                     <select id="editRegionId">
                       <option value="">Избери</option>
                     </select>
                   </div>
 
                   <div class="form-group">
-                    <label for="editCityId">Град</label>
+                    <label for="editCityId">Град *</label>
                     <select id="editCityId">
                       <option value="">Избери</option>
                     </select>
@@ -574,7 +574,7 @@
 
               <section class="edit-section">
                 <div class="edit-section__head">
-                  <h3>Снимки</h3>
+                  <h3>Снимки *</h3>
                 </div>
 
                 <div class="form-grid">
@@ -582,7 +582,7 @@
                     <label for="editPhotosInput">Добави нови снимки</label>
                     <input type="file" id="editPhotosInput" accept=".jpg,.jpeg,.png,.webp" multiple />
                     <small class="field-hint">
-                      Можеш да качваш jpg, jpeg, png и webp.
+                      Можеш да качваш jpg, jpeg, png и webp. Максимум 10 снимки.
                     </small>
                   </div>
 

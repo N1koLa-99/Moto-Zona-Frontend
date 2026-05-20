@@ -12,6 +12,9 @@
     COMPANY_OVER_LIMIT_PUBLISH_EUR: 0.5
   };
 
+  const MAX_PHOTOS_PER_LISTING = 10;
+  const TITLE_MAX_LENGTH = 45;
+
   const AUTO_RATES_TO_EUR = {
     EUR: 1,
     BGN: 0.51129,
@@ -212,6 +215,7 @@
     }
 
     initEditSearchableSelects();
+    setEditNumericInputConstraints();
     syncPaymentsVisibility();
     hydrateStaticUserInfo();
     bindStaticEvents();
@@ -250,6 +254,8 @@
     });
 
     elements.editListingForm?.addEventListener("submit", onEditFormSubmit);
+    elements.editListingForm?.addEventListener("input", (event) => clearEditFieldError(event.target));
+    elements.editListingForm?.addEventListener("change", (event) => clearEditFieldError(event.target));
     elements.modalRefreshBtn?.addEventListener("click", onModalRefreshClick);
     elements.modalTopBtn?.addEventListener("click", () => onModalPromoteClick("TOP"));
     elements.modalVipBtn?.addEventListener("click", () => onModalPromoteClick("VIP"));
@@ -2530,6 +2536,7 @@
       renderModalPreview();
       applyCategoryVisibility();
       handleGearHelmetVisibility();
+      syncEditRequiredLabels();
       refreshAllSearchableSelects();
 
       elements.editListingModalOverlay.classList.remove("hidden");
@@ -2561,6 +2568,7 @@
     cancelEditPhotoDrag();
 
     elements.editListingForm?.reset();
+    clearEditValidationErrors();
     elements.editPhotoManager.innerHTML = `<div class="photo-manager__empty">Няма снимки</div>`;
     elements.editMainPreview.innerHTML = `<div class="edit-main-preview__placeholder">Няма снимка</div>`;
     elements.editCurrentPromotionType.textContent = "NORMAL";
@@ -2833,6 +2841,24 @@
     if (!files.length) return;
 
     try {
+      clearEditFieldError(elements.editPhotosInput);
+
+      const remainingSlots = MAX_PHOTOS_PER_LISTING - state.modal.photos.length;
+      if (remainingSlots <= 0) {
+        setEditFieldError("editPhotosInput", `Можеш да качиш максимум ${MAX_PHOTOS_PER_LISTING} снимки.`);
+        showToast(`Можеш да качиш максимум ${MAX_PHOTOS_PER_LISTING} снимки.`, "error");
+        return;
+      }
+
+      if (files.length > remainingSlots) {
+        setEditFieldError(
+          "editPhotosInput",
+          `Можеш да добавиш още ${remainingSlots} ${remainingSlots === 1 ? "снимка" : "снимки"}. Максимумът е ${MAX_PHOTOS_PER_LISTING}.`
+        );
+        showToast(`Избрани са повече снимки от позволеното. Максимумът е ${MAX_PHOTOS_PER_LISTING}.`, "error");
+        return;
+      }
+
       const uploaded = await uploadListingImages(files);
 
       const mapped = uploaded.map((item, index) => ({
@@ -3042,6 +3068,45 @@
     }));
   }
 
+  function setEditNumericInputConstraints() {
+    const maxYear = String(getMaxAllowedVehicleYear());
+
+    [
+      elements.editVehicleYear,
+      elements.editGearYear
+    ].forEach((input) => {
+      if (!input) return;
+      input.max = maxYear;
+      input.step = "1";
+      input.inputMode = "numeric";
+    });
+
+    [
+      elements.editEngineCC,
+      elements.editHorsePower,
+      elements.editMileage
+    ].forEach((input) => {
+      if (!input) return;
+      input.step = "1";
+      input.inputMode = "numeric";
+    });
+  }
+
+  function getMaxAllowedVehicleYear() {
+    return new Date().getFullYear() + 1;
+  }
+
+  function syncEditRequiredLabels() {
+    setEditLabelText("editBrandId", state.modal.categoryCode === "VEHICLE" ? "Марка *" : "Марка");
+    setEditLabelText("editModelId", "Модел");
+    setEditLabelText("editItemModelText", "Модел текст");
+  }
+
+  function setEditLabelText(fieldId, text) {
+    const label = elements.editListingForm?.querySelector(`label[for="${fieldId}"]`);
+    if (label) label.textContent = text;
+  }
+
   function startEditPhotoDrag(index, event) {
     if (!Number.isInteger(index) || !state.modal.photos[index]) {
       return;
@@ -3185,7 +3250,13 @@
     if (!state.modal.listingId) return;
 
     try {
-      validateBeforeSave();
+      clearEditValidationErrors();
+      const validationErrors = validateBeforeSave();
+
+      if (validationErrors.length > 0) {
+        showEditValidationErrors(validationErrors);
+        return;
+      }
 
       const payload = buildUpdatePayload();
       const result = await authFetchJson(
@@ -3208,42 +3279,157 @@
   }
 
   function validateBeforeSave() {
-    if (!elements.editTitle.value.trim()) {
-      throw new Error("Заглавието е задължително.");
+    const errors = [];
+    const category = state.modal.categoryCode;
+
+    const title = elements.editTitle.value.trim();
+    const description = elements.editDescription.value.trim();
+    const itemModelText = elements.editItemModelText.value.trim();
+    const color = elements.editColor.value.trim();
+    const priceOriginal = toNullableDecimal(elements.editPriceOriginal.value);
+    const contactName = elements.editContactName.value.trim();
+    const contactPhone = elements.editContactPhone.value.trim();
+
+    if (!title || title.length < 3) {
+      errors.push({ field: "editTitle", message: "Заглавието трябва да е поне 3 символа." });
     }
 
-    if (!elements.editPriceOriginal.value) {
-      throw new Error("Цената е задължителна.");
+    if (title.length > TITLE_MAX_LENGTH) {
+      errors.push({ field: "editTitle", message: `Заглавието не може да е над ${TITLE_MAX_LENGTH} символа.` });
+    }
+
+    if (!description) {
+      errors.push({ field: "editDescription", message: "Описанието е задължително." });
+    }
+
+    if (description.length > 4000) {
+      errors.push({ field: "editDescription", message: "Описанието не може да е над 4000 символа." });
+    }
+
+    if (itemModelText.length > 100) {
+      errors.push({ field: "editItemModelText", message: "Модел текст не може да е над 100 символа." });
+    }
+
+    if (color.length > 50) {
+      errors.push({ field: "editColor", message: "Цветът не може да е над 50 символа." });
+    }
+
+    if (priceOriginal === null || priceOriginal < 0) {
+      errors.push({ field: "editPriceOriginal", message: "Въведи валидна цена." });
+    }
+
+    if (priceOriginal !== null && priceOriginal > 999999999) {
+      errors.push({ field: "editPriceOriginal", message: "Цената не може да е над 999999999." });
+    }
+
+    if (!elements.editCurrencyCode.value.trim()) {
+      errors.push({ field: "editCurrencyCode", message: "Избери валута." });
     }
 
     if (!elements.editCountryId.value) {
-      throw new Error("Държавата е задължителна.");
+      errors.push({ field: "editCountryId", message: "Избери държава." });
     }
 
-    if (!elements.editContactPhone.value.trim()) {
-      throw new Error("Телефонът е задължителен.");
+    if (isEditSelectedCountryBulgaria()) {
+      if (!elements.editRegionId.value) {
+        errors.push({ field: "editRegionId", message: "За България областта е задължителна." });
+      }
+
+      if (!elements.editCityId.value) {
+        errors.push({ field: "editCityId", message: "За България градът е задължителен." });
+      }
+    }
+
+    if (!contactName) {
+      errors.push({ field: "editContactName", message: "Името за контакт е задължително." });
+    }
+
+    if (contactName.length > 120) {
+      errors.push({ field: "editContactName", message: "Името за контакт не може да е над 120 символа." });
+    }
+
+    if (!contactPhone || contactPhone.length < 5) {
+      errors.push({ field: "editContactPhone", message: "Телефонът е задължителен и трябва да е поне 5 символа." });
+    }
+
+    if (contactPhone.length > 30) {
+      errors.push({ field: "editContactPhone", message: "Телефонът не може да е над 30 символа." });
     }
 
     if (!state.modal.photos.length) {
-      throw new Error("Трябва да има поне една снимка.");
+      errors.push({ field: "editPhotosInput", message: "Трябва да има поне една снимка." });
+    }
+
+    if (state.modal.photos.length > MAX_PHOTOS_PER_LISTING) {
+      errors.push({ field: "editPhotosInput", message: `Можеш да качиш максимум ${MAX_PHOTOS_PER_LISTING} снимки.` });
     }
 
     if (!state.modal.photos.some((x) => x.isMain)) {
-      throw new Error("Трябва да има главна снимка.");
+      errors.push({ field: "editPhotosInput", message: "Трябва да има главна снимка." });
     }
 
-    const category = state.modal.categoryCode;
-    if (category === "VEHICLE" && !elements.editSubCategoryLookupId.value) {
-      throw new Error("Класът е задължителен.");
+    if (state.modal.photos.some((x) => !x.blobName)) {
+      errors.push({ field: "editPhotosInput", message: "Има снимка, която не е качена правилно. Качи я наново." });
     }
 
-    if (category === "GEAR" && !elements.editGearTypeId.value) {
-      throw new Error("Типът екипировка е задължителен.");
+    const duplicateBlobNames = state.modal.photos
+      .map((x) => x.blobName)
+      .filter(Boolean)
+      .filter((value, index, arr) => arr.indexOf(value) !== index);
+
+    if (duplicateBlobNames.length > 0) {
+      errors.push({ field: "editPhotosInput", message: "Има дублирани снимки в заявката." });
+    }
+
+    if (category === "VEHICLE") {
+      if (!elements.editSubCategoryLookupId.value) {
+        errors.push({ field: "editSubCategoryLookupId", message: "Класът е задължителен." });
+      }
+
+      if (!elements.editSubCategory2LookupId.value) {
+        errors.push({ field: "editSubCategory2LookupId", message: "Видът е задължителен." });
+      }
+
+      if (!elements.editBrandId.value) {
+        errors.push({ field: "editBrandId", message: "При мотор марката е задължителна." });
+      }
+
+      if (!elements.editLicenseCategoryLookupId.value) {
+        errors.push({ field: "editLicenseCategoryLookupId", message: "Категорията книжка е задължителна." });
+      }
+
+      addEditRequiredNumberError(errors, "editVehicleYear", "Годината");
+      addEditRequiredNumberError(errors, "editEngineCC", "Кубиците");
+      addEditRequiredNumberError(errors, "editHorsePower", "Конските сили");
+      addEditRequiredNumberError(errors, "editMileage", "Пробегът");
+      addEditNumberRangeError(errors, "editVehicleYear", "Годината", { min: 1900, max: getMaxAllowedVehicleYear(), integer: true });
+      addEditNumberRangeError(errors, "editEngineCC", "Кубиците", { min: 1, max: 15000, integer: true });
+      addEditNumberRangeError(errors, "editHorsePower", "Конските сили", { min: 1, max: 5000, integer: true });
+      addEditNumberRangeError(errors, "editMileage", "Пробегът", { min: 0, integer: true });
+    }
+
+    if (category === "GEAR") {
+      if (!elements.editGearTypeId.value) {
+        errors.push({ field: "editGearTypeId", message: "Типът екипировка е задължителен." });
+      }
+
+      if (isEditGearHelmetSelected() && !elements.editHelmetTypeId.value) {
+        errors.push({ field: "editHelmetTypeId", message: "Типът каска е задължителен." });
+      }
+
+      addEditRequiredNumberError(errors, "editGearYear", "Годината");
+      addEditNumberRangeError(errors, "editGearYear", "Годината", { min: 1900, max: getMaxAllowedVehicleYear(), integer: true });
     }
 
     if ((category === "PART" || category === "ACCESSORY") && !elements.editPartAccessoryTypeId.value) {
-      throw new Error("Подкатегорията е задължителна.");
+      errors.push({ field: "editPartAccessoryTypeId", message: "Подкатегорията е задължителна." });
     }
+
+    if (!elements.editConditionLookupId.value) {
+      errors.push({ field: "editConditionLookupId", message: "Състоянието е задължително." });
+    }
+
+    return errors;
   }
 
   function buildUpdatePayload() {
@@ -3299,6 +3485,154 @@
     }
 
     return common;
+  }
+
+  function showEditValidationErrors(errors) {
+    clearEditValidationErrors();
+
+    const uniqueErrors = [];
+    const seenFields = new Set();
+
+    errors.forEach((error) => {
+      if (!error?.field || seenFields.has(error.field)) return;
+      seenFields.add(error.field);
+      uniqueErrors.push(error);
+      setEditFieldError(error.field, error.message);
+    });
+
+    const firstInvalidElement = elements[uniqueErrors[0]?.field];
+    const firstInvalidBlock = firstInvalidElement?.closest?.(".form-group, .edit-section") || firstInvalidElement;
+
+    firstInvalidBlock?.scrollIntoView?.({
+      block: "center",
+      behavior: "smooth"
+    });
+
+    window.setTimeout(() => {
+      if (firstInvalidElement && !firstInvalidElement.disabled && firstInvalidElement.type !== "file") {
+        firstInvalidElement.focus({ preventScroll: true });
+      }
+    }, 240);
+
+    showToast("Поправи отбелязаните полета и опитай пак.", "error");
+  }
+
+  function setEditFieldError(fieldName, message) {
+    const field = elements[fieldName];
+    if (!field) return;
+
+    const wrapper = field.closest(".form-group") || field.parentElement;
+    if (!wrapper) return;
+
+    const errorId = `${field.id || fieldName}-error`;
+    let errorElement = document.getElementById(errorId);
+
+    if (!errorElement) {
+      errorElement = document.createElement("div");
+      errorElement.id = errorId;
+      errorElement.className = "field-error";
+      wrapper.appendChild(errorElement);
+    }
+
+    wrapper.classList.add("has-error");
+    field.setAttribute("aria-invalid", "true");
+
+    const describedByIds = (field.getAttribute("aria-describedby") || "")
+      .split(/\s+/)
+      .filter(Boolean)
+      .filter((id) => id !== errorId);
+    describedByIds.push(errorId);
+    field.setAttribute("aria-describedby", describedByIds.join(" "));
+    errorElement.textContent = message;
+  }
+
+  function clearEditFieldError(field) {
+    if (!field) return;
+
+    const wrapper = field.closest?.(".form-group") || field.parentElement;
+    if (!wrapper) return;
+
+    wrapper.classList.remove("has-error");
+    field.removeAttribute("aria-invalid");
+
+    const describedBy = field.getAttribute("aria-describedby") || "";
+    const nextDescribedBy = describedBy
+      .split(/\s+/)
+      .filter(Boolean)
+      .filter((id) => !id.endsWith("-error"))
+      .join(" ");
+
+    if (nextDescribedBy) {
+      field.setAttribute("aria-describedby", nextDescribedBy);
+    } else {
+      field.removeAttribute("aria-describedby");
+    }
+
+    wrapper.querySelectorAll(".field-error").forEach((errorElement) => errorElement.remove());
+  }
+
+  function clearEditValidationErrors() {
+    elements.editListingForm
+      ?.querySelectorAll("[aria-invalid='true']")
+      .forEach((field) => clearEditFieldError(field));
+
+    elements.editListingForm
+      ?.querySelectorAll(".has-error")
+      .forEach((wrapper) => {
+        wrapper.classList.remove("has-error");
+        wrapper.querySelectorAll(".field-error").forEach((errorElement) => errorElement.remove());
+      });
+  }
+
+  function addEditRequiredNumberError(errors, fieldName, label) {
+    const input = elements[fieldName];
+    if (String(input?.value || "").trim()) return;
+
+    errors.push({ field: fieldName, message: `${label} е задължително поле.` });
+  }
+
+  function addEditNumberRangeError(errors, fieldName, label, options = {}) {
+    const input = elements[fieldName];
+    const rawValue = String(input?.value || "").trim();
+
+    if (!rawValue) return;
+
+    if (options.integer && !/^\d+$/.test(rawValue)) {
+      errors.push({ field: fieldName, message: `${label} трябва да е цяло число, изписано само с цифри.` });
+      return;
+    }
+
+    const value = Number(rawValue);
+    if (!Number.isFinite(value)) {
+      errors.push({ field: fieldName, message: `${label} трябва да е число.` });
+      return;
+    }
+
+    if (options.integer && !Number.isInteger(value)) {
+      errors.push({ field: fieldName, message: `${label} трябва да е цяло число.` });
+      return;
+    }
+
+    if (options.min !== undefined && value < options.min) {
+      errors.push({ field: fieldName, message: `${label} трябва да е поне ${options.min}.` });
+      return;
+    }
+
+    if (options.max !== undefined && value > options.max) {
+      errors.push({ field: fieldName, message: `${label} трябва да е най-много ${options.max}.` });
+    }
+  }
+
+  function isEditSelectedCountryBulgaria() {
+    const countryId = Number(elements.editCountryId?.value || 0);
+    const country = state.lookups.countries.find((item) => Number(item?.id) === countryId);
+    return String(country?.countryCode || "").toUpperCase() === "BG";
+  }
+
+  function isEditGearHelmetSelected() {
+    const gearTypeId = Number(elements.editGearTypeId?.value || 0);
+    const gearType = state.lookups.gearTypes.find((item) => Number(item?.id) === gearTypeId);
+    return String(gearType?.code || "").toUpperCase() === "HELMET";
   }
 
   async function onModalRefreshClick() {
@@ -4891,6 +5225,12 @@
   function toNullableNumber(value) {
     if (value === null || value === undefined || String(value).trim() === "") return null;
     const parsed = Number(value);
+    return Number.isNaN(parsed) ? null : parsed;
+  }
+
+  function toNullableDecimal(value) {
+    if (value === null || value === undefined || String(value).trim() === "") return null;
+    const parsed = Number(String(value).replace(",", "."));
     return Number.isNaN(parsed) ? null : parsed;
   }
 
