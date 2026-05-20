@@ -21,6 +21,8 @@
     TRY: 0.028
   };
 
+  const PAYMENTS_ENABLED = false;
+
   const PROFILE_SECTION_HASH_MAP = {
     dashboard: "dashboard",
     listings: "listings",
@@ -210,6 +212,7 @@
     }
 
     initEditSearchableSelects();
+    syncPaymentsVisibility();
     hydrateStaticUserInfo();
     bindStaticEvents();
 
@@ -287,9 +290,21 @@
     });
   }
 
+  function syncPaymentsVisibility() {
+    elements.navButtons
+      .filter((button) => button.dataset.section === "payments")
+      .forEach((button) => {
+        button.classList.toggle("hidden", !PAYMENTS_ENABLED);
+        button.setAttribute("aria-hidden", PAYMENTS_ENABLED ? "false" : "true");
+        button.tabIndex = PAYMENTS_ENABLED ? 0 : -1;
+      });
+  }
+
   function normalizeProfileSection(sectionRaw) {
     const normalized = String(sectionRaw || "").trim().toLowerCase();
-    return PROFILE_SECTION_HASH_MAP[normalized] || null;
+    const section = PROFILE_SECTION_HASH_MAP[normalized] || null;
+    if (section === "payments" && !PAYMENTS_ENABLED) return null;
+    return section;
   }
 
   function getSectionFromHash() {
@@ -605,7 +620,7 @@
         }
       }
 
-      if (normalizedSection === "payments") {
+      if (PAYMENTS_ENABLED && normalizedSection === "payments") {
         await preloadPaymentListingPreviews(state.data.payments?.items || []);
       }
 
@@ -650,6 +665,10 @@
       }
 
       case "payments": {
+        if (!PAYMENTS_ENABLED) {
+          throw new Error("Секцията за плащания е временно скрита.");
+        }
+
         const page = state.pages.payments;
         const pageSize = state.pageSizes.payments;
         state.data.payments = await authFetchJson(
@@ -708,7 +727,7 @@
           <div class="intro-state__badge">Профил</div>
           <h2>Избери секция</h2>
           <p>
-            Дашборд, Моите обяви, Любими, Плащания и при частен акаунт - Редактиране на профила.
+            Дашборд, Моите обяви, Любими и при частен акаунт - Редактиране на профила.
             Данните ще се заредят чак когато отвориш конкретната секция.
           </p>
         </div>
@@ -789,7 +808,7 @@
       <div class="section-head">
         <div class="section-head__copy">
           <h2>Дашборд</h2>
-          <p>Общ преглед на акаунта, лимитите, плащанията и цените за този профил.</p>
+          <p>Общ преглед на акаунта и лимитите. В момента качването е безплатно.</p>
         </div>
 
         <div class="section-head__actions">
@@ -815,20 +834,22 @@
             <div class="stat-card__value">${favoritesCount}</div>
           </article>
 
-          <article class="stat-card">
-            <div class="stat-card__label">Платени действия</div>
-            <div class="stat-card__value">${paidListingActionsCount}</div>
-          </article>
+          ${PAYMENTS_ENABLED ? `
+            <article class="stat-card">
+              <div class="stat-card__label">Платени действия</div>
+              <div class="stat-card__value">${paidListingActionsCount}</div>
+            </article>
 
-          <article class="stat-card">
-            <div class="stat-card__label">Общо плащания</div>
-            <div class="stat-card__value">${totalPaymentsCount}</div>
-          </article>
+            <article class="stat-card">
+              <div class="stat-card__label">Общо плащания</div>
+              <div class="stat-card__value">${totalPaymentsCount}</div>
+            </article>
 
-          <article class="stat-card">
-            <div class="stat-card__label">Платено общо</div>
-            <div class="stat-card__value">${escapeHtml(formatMoney(totalPaidAmountEUR, "EUR"))}</div>
-          </article>
+            <article class="stat-card">
+              <div class="stat-card__label">Платено общо</div>
+              <div class="stat-card__value">${escapeHtml(formatMoney(totalPaidAmountEUR, "EUR"))}</div>
+            </article>
+          ` : ""}
 
           <article class="stat-card">
             <div class="stat-card__label">Безплатни качвания в момента</div>

@@ -3185,10 +3185,6 @@
         errors.push({ field: "gearHelmetTypeSelect", message: "Типът каска е задължителен." });
       }
 
-      if (!payload.brandId) {
-        errors.push({ field: "gearBrandSelect", message: "При екипировка марката е задължителна." });
-      }
-
       if (!payload.conditionLookupId) {
         errors.push({ field: "gearConditionSelect", message: "Състоянието е задължително." });
       }
@@ -3202,10 +3198,6 @@
         errors.push({ field: "partTypeSelect", message: "При част типът е задължителен." });
       }
 
-      if (!payload.brandId) {
-        errors.push({ field: "partBrandSelect", message: "При част марката е задължителна." });
-      }
-
       if (!payload.conditionLookupId) {
         errors.push({ field: "partConditionSelect", message: "Състоянието е задължително." });
       }
@@ -3215,10 +3207,6 @@
     if (categoryCode === "ACCESSORY") {
       if (!payload.subCategoryLookupId) {
         errors.push({ field: "accessoryTypeSelect", message: "При аксесоар типът е задължителен." });
-      }
-
-      if (!payload.brandId) {
-        errors.push({ field: "accessoryBrandSelect", message: "При аксесоар марката е задължителна." });
       }
 
       if (!payload.conditionLookupId) {
