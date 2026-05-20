@@ -81,7 +81,7 @@
 
               <div class="form-grid form-grid--2">
                 <div class="form-field form-field--full smart-category-field">
-                  <label for="smartCategoryInput">Какво продаваш? *</label>
+                  <label for="smartCategoryInput">Какво продаваш?</label>
 
                   <div class="smart-category">
                     <input
@@ -99,7 +99,7 @@
                     ></div>
                   </div>
 
-                  <small>Пиши какво продаваш и избери от списъка.</small>
+                  <small>По желание - помага за по-бърз избор на категория.</small>
                   <div class="smart-category__hint hidden" id="smartCategoryHint"></div>
                 </div>
 
@@ -110,7 +110,7 @@
                 </div>
 
                 <div class="form-field">
-                  <label for="promotionTypeSelect">Ниво на обявата</label>
+                  <label for="promotionTypeSelect">Ниво на обявата *</label>
                   <select id="promotionTypeSelect" aria-describedby="promotionTypeHint">
                     <option value="NORMAL">Нормална • стандартна видимост</option>
                     <option value="TOP" disabled>TOP • очаквайте скоро</option>
@@ -136,12 +136,12 @@
                 </div>
 
                 <div class="form-field">
-                  <label for="vehicleTypeSelect">Вид</label>
+                  <label for="vehicleTypeSelect">Вид *</label>
                   <select id="vehicleTypeSelect"></select>
                 </div>
 
                 <div class="form-field">
-                  <label for="vehicleConditionSelect">Състояние</label>
+                  <label for="vehicleConditionSelect">Състояние *</label>
                   <select id="vehicleConditionSelect"></select>
                 </div>
 
@@ -156,28 +156,28 @@
                 </div>
 
                 <div class="form-field">
-                  <label for="vehicleLicenseCategorySelect">Категория книжка</label>
+                  <label for="vehicleLicenseCategorySelect">Категория книжка *</label>
                   <select id="vehicleLicenseCategorySelect"></select>
                 </div>
 
                 <div class="form-field">
-                  <label for="vehicleYearInput">Година</label>
-                  <input id="vehicleYearInput" type="number" min="1900" max="2100" placeholder="2022" />
+                  <label for="vehicleYearInput">Година *</label>
+                  <input id="vehicleYearInput" type="number" min="1900" max="2100" step="1" inputmode="numeric" placeholder="2022" required />
                 </div>
 
                 <div class="form-field">
-                  <label for="vehicleHorsePowerInput">Конски сили</label>
-                  <input id="vehicleHorsePowerInput" type="number" min="1" max="5000" placeholder="74" />
+                  <label for="vehicleHorsePowerInput">Конски сили *</label>
+                  <input id="vehicleHorsePowerInput" type="number" min="1" max="5000" step="1" inputmode="numeric" placeholder="74" required />
                 </div>
 
                 <div class="form-field">
-                  <label for="vehicleEngineCcInput">Кубици</label>
-                  <input id="vehicleEngineCcInput" type="number" min="1" max="15000" placeholder="689" />
+                  <label for="vehicleEngineCcInput">Кубици *</label>
+                  <input id="vehicleEngineCcInput" type="number" min="1" max="15000" step="1" inputmode="numeric" placeholder="689" required />
                 </div>
 
                 <div class="form-field">
-                  <label for="vehicleMileageInput">Пробег (км)</label>
-                  <input id="vehicleMileageInput" type="number" min="0" placeholder="18500" />
+                  <label for="vehicleMileageInput">Пробег (км) *</label>
+                  <input id="vehicleMileageInput" type="number" min="0" step="1" inputmode="numeric" placeholder="18500" required />
                 </div>
 
                 <div class="form-field">
@@ -199,7 +199,7 @@
                 </div>
 
                 <div class="form-field hidden" id="gearHelmetTypeWrap">
-                  <label for="gearHelmetTypeSelect">Тип каска</label>
+                  <label for="gearHelmetTypeSelect">Тип каска *</label>
                   <select id="gearHelmetTypeSelect"></select>
                 </div>
 
@@ -209,13 +209,13 @@
                 </div>
 
                 <div class="form-field">
-                  <label for="gearConditionSelect">Състояние</label>
+                  <label for="gearConditionSelect">Състояние *</label>
                   <select id="gearConditionSelect"></select>
                 </div>
 
                 <div class="form-field">
-                  <label for="gearYearInput">Година</label>
-                  <input id="gearYearInput" type="number" min="1900" max="2100" placeholder="2024" />
+                  <label for="gearYearInput">Година *</label>
+                  <input id="gearYearInput" type="number" min="1900" max="2100" step="1" inputmode="numeric" placeholder="2024" required />
                 </div>
 
                 <div class="form-field">
@@ -242,12 +242,12 @@
                 </div>
 
                 <div class="form-field">
-                  <label for="partBrandSelect">Марка</label>
+                  <label for="partBrandSelect">Марка *</label>
                   <select id="partBrandSelect"></select>
                 </div>
 
                 <div class="form-field">
-                  <label for="partConditionSelect">Състояние</label>
+                  <label for="partConditionSelect">Състояние *</label>
                   <select id="partConditionSelect"></select>
                 </div>
 
@@ -270,12 +270,12 @@
                 </div>
 
                 <div class="form-field">
-                  <label for="accessoryBrandSelect">Марка</label>
+                  <label for="accessoryBrandSelect">Марка *</label>
                   <select id="accessoryBrandSelect"></select>
                 </div>
 
                 <div class="form-field">
-                  <label for="accessoryConditionSelect">Състояние</label>
+                  <label for="accessoryConditionSelect">Състояние *</label>
                   <select id="accessoryConditionSelect"></select>
                 </div>
 
@@ -294,12 +294,12 @@
               <div class="form-grid form-grid--3">
                 <div class="form-field form-field--full">
                   <label for="titleInput">Заглавие *</label>
-                  <input id="titleInput" type="text" maxlength="180" placeholder="Пример: Yamaha MT-07 2021 в отлично състояние" />
+                  <input id="titleInput" type="text" maxlength="120" placeholder="Пример: Yamaha MT-07 2021 в отлично състояние" />
                 </div>
 
                 <div class="form-field">
                   <label for="priceOriginalInput">Цена *</label>
-                  <input id="priceOriginalInput" type="number" min="0" step="0.01" placeholder="15000" />
+                  <input id="priceOriginalInput" type="number" min="0" max="999999999" step="0.01" placeholder="15000" />
                 </div>
 
                 <div class="form-field">
@@ -338,10 +338,13 @@
 
               <div class="form-grid form-grid--2">
                 <div class="form-field form-field--full">
-                  <label for="contactNameInput">Име за контакт</label>
+                  <label for="contactNameInput">Име за контакт *</label>
                   <input id="contactNameInput" type="text" maxlength="120" placeholder="Иван Петров" />
                 </div>
-                <input id="contactPhoneInput" type="hidden" />
+                <div class="form-field form-field--full">
+                  <label for="contactPhoneInput">Телефон за контакт *</label>
+                  <input id="contactPhoneInput" type="tel" minlength="5" maxlength="30" autocomplete="tel" placeholder="+359 88 123 4567" required />
+                </div>
               </div>
             </div>
 
@@ -352,7 +355,7 @@
 
               <div class="form-grid">
                 <div class="form-field form-field--full">
-                  <label for="descriptionInput">Описание</label>
+                  <label for="descriptionInput">Описание *</label>
                   <textarea id="descriptionInput" rows="6" maxlength="4000" placeholder="Опиши състояние, екстри, история, забележки и всичко важно."></textarea>
                 </div>
               </div>
@@ -360,7 +363,7 @@
 
             <div class="section-block">
               <div class="section-block__head">
-                <h2>Снимки</h2>
+                <h2>Снимки *</h2>
               </div>
 
               <div class="upload-box">

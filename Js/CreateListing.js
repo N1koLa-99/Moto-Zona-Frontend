@@ -264,6 +264,7 @@
 
   async function init() {
     enhanceSearchableSelects();
+    setNumericInputConstraints();
     bindEvents();
 
     const currentUser = await ensureAuthenticatedPage();
@@ -451,11 +452,13 @@
     elements.createListingForm?.addEventListener("input", event => {
       if (event.target === elements.photosInput) return;
       if (event.target?.classList?.contains("searchable-select__search")) return;
+      clearFieldError(event.target);
       updateListingPreview();
       updateCreateChargePreview();
     });
 
     elements.createListingForm?.addEventListener("change", event => {
+      clearFieldError(event.target);
       if (event.target === elements.photosInput) return;
       updateListingPreview();
       updateCreateChargePreview();
@@ -557,6 +560,8 @@
       const phone =
         cleanNullableText(user?.phone) ||
         cleanNullableText(user?.contactPhone) ||
+        cleanNullableText(user?.phoneNumber) ||
+        cleanNullableText(user?.mobile) ||
         cleanNullableText(user?.mobilePhone);
 
       if (phone) {
@@ -2260,7 +2265,21 @@
       }
 
       if (!response.ok) {
-        throw new Error(await extractErrorMessage(response));
+        const apiError = await extractApiError(response);
+        logCreateListingApiError(apiError, {
+          photos: files.map(file => ({
+            fileName: file.name,
+            size: file.size,
+            type: file.type
+          }))
+        });
+
+        if (showApiFieldErrors(apiError)) {
+          setStatus("API върна грешки по полетата. Провери отбелязаните места.", "error");
+          return;
+        }
+
+        throw new Error(apiError?.message || "Неуспешно качване на снимки.");
       }
 
       const responseData = await response.json();
@@ -2891,11 +2910,17 @@
     if (!user) return;
 
     try {
+      clearValidationErrors();
+      const payload = buildPayload();
+      const validationErrors = validateClientPayload(payload);
+
+      if (validationErrors.length > 0) {
+        showValidationErrors(validationErrors);
+        return;
+      }
+
       setSubmitBusy(true);
       setStatus("Публикуваме обявата...", "info");
-
-      const payload = buildPayload();
-      validateClientPayload(payload);
 
       const breakdown = getCreateChargeBreakdown();
 
@@ -3033,50 +3058,80 @@
   }
 
   function validateClientPayload(payload) {
+    const errors = [];
+
     if (!payload.mainCategoryLookupId) {
-      throw new Error("Избери категория.");
+      errors.push({ field: "mainCategorySelect", message: "Избери категория." });
+    }
+
+    if (!payload.requestedPromotionType) {
+      errors.push({ field: "promotionTypeSelect", message: "Избери ниво на обявата." });
     }
 
     if (!payload.title || payload.title.length < 3) {
-      throw new Error("Заглавието трябва да е поне 3 символа.");
+      errors.push({ field: "titleInput", message: "Заглавието трябва да е поне 3 символа." });
+    }
+
+    if (payload.title && payload.title.length > 120) {
+      errors.push({ field: "titleInput", message: "Заглавието не може да е над 120 символа." });
     }
 
     if (payload.priceOriginal === null || payload.priceOriginal < 0) {
-      throw new Error("Въведи валидна цена.");
+      errors.push({ field: "priceOriginalInput", message: "Въведи валидна цена." });
+    }
+
+    if (payload.priceOriginal !== null && payload.priceOriginal > 999999999) {
+      errors.push({ field: "priceOriginalInput", message: "Цената не може да е над 999999999." });
     }
 
     if (!payload.currencyCode || payload.currencyCode.length !== 3) {
-      throw new Error("Въведи валидна валута.");
+      errors.push({ field: "currencyCodeSelect", message: "Избери валидна валута." });
     }
 
     if (payload.exchangeRateToEUR === null || payload.exchangeRateToEUR <= 0) {
-      throw new Error("Въведи валиден курс към EUR.");
+      errors.push({ field: "currencyCodeSelect", message: "Няма валиден курс към EUR за тази валута." });
     }
 
     if (!payload.countryId) {
-      throw new Error("Избери държава.");
+      errors.push({ field: "countrySelect", message: "Избери държава." });
     }
 
     if (isSelectedCountryBulgaria()) {
       if (!payload.regionId) {
-        throw new Error("За България областта е задължителна.");
+        errors.push({ field: "regionSelect", message: "За България областта е задължителна." });
       }
 
       if (!payload.cityId) {
-        throw new Error("За България градът е задължителен.");
+        errors.push({ field: "citySelect", message: "За България градът е задължителен." });
       }
     }
 
+    if (payload.contactName && payload.contactName.length > 120) {
+      errors.push({ field: "contactNameInput", message: "Името за контакт не може да е над 120 символа." });
+    }
+
+    if (!payload.contactName) {
+      errors.push({ field: "contactNameInput", message: "Името за контакт е задължително." });
+    }
+
+    if (!payload.contactPhone || payload.contactPhone.length < 5) {
+      errors.push({ field: "contactPhoneInput", message: "Телефонът е задължителен и трябва да е поне 5 символа." });
+    }
+
+    if (payload.contactPhone && payload.contactPhone.length > 30) {
+      errors.push({ field: "contactPhoneInput", message: "Телефонът не може да е над 30 символа." });
+    }
+
     if (!Array.isArray(payload.photos) || payload.photos.length === 0) {
-      throw new Error("Качи поне една снимка.");
+      errors.push({ field: "photosInput", message: "Качи поне една снимка." });
     }
 
     if (payload.photos.filter(x => x.isMain).length !== 1) {
-      throw new Error("Трябва да има точно една главна снимка.");
+      errors.push({ field: "photosInput", message: "Трябва да има точно една главна снимка." });
     }
 
     if (payload.photos.some(x => !x.blobName)) {
-      throw new Error("Има снимка без blobName. Качи я наново.");
+      errors.push({ field: "photosInput", message: "Има снимка, която не е качена правилно. Качи я наново." });
     }
 
     const duplicateBlobNames = payload.photos
@@ -3085,42 +3140,483 @@
       .filter((value, index, arr) => arr.indexOf(value) !== index);
 
     if (duplicateBlobNames.length > 0) {
-      throw new Error("Има дублирани снимки в заявката.");
+      errors.push({ field: "photosInput", message: "Има дублирани снимки в заявката." });
     }
 
     const categoryCode = getSelectedCategoryCode();
 
     if (categoryCode === "VEHICLE") {
       if (!payload.subCategoryLookupId) {
-        throw new Error("При мотор класът е задължителен.");
+        errors.push({ field: "vehicleClassSelect", message: "При мотор класът е задължителен." });
+      }
+
+      if (!payload.subCategory2LookupId) {
+        errors.push({ field: "vehicleTypeSelect", message: "При мотор видът е задължителен." });
       }
 
       if (!payload.brandId) {
-        throw new Error("При мотор марката е задължителна.");
+        errors.push({ field: "vehicleBrandSelect", message: "При мотор марката е задължителна." });
       }
+
+      if (!payload.licenseCategoryLookupId) {
+        errors.push({ field: "vehicleLicenseCategorySelect", message: "Категорията книжка е задължителна." });
+      }
+
+      if (!payload.conditionLookupId) {
+        errors.push({ field: "vehicleConditionSelect", message: "Състоянието е задължително." });
+      }
+
+      addRequiredNumberError(errors, "vehicleYearInput", "Годината");
+      addRequiredNumberError(errors, "vehicleHorsePowerInput", "Конските сили");
+      addRequiredNumberError(errors, "vehicleEngineCcInput", "Кубиците");
+      addRequiredNumberError(errors, "vehicleMileageInput", "Пробегът");
+      addNumberRangeError(errors, "vehicleYearInput", "Годината", { min: 1900, max: getMaxAllowedVehicleYear(), integer: true });
+      addNumberRangeError(errors, "vehicleHorsePowerInput", "Конските сили", { min: 1, max: 5000, integer: true });
+      addNumberRangeError(errors, "vehicleEngineCcInput", "Кубиците", { min: 1, max: 15000, integer: true });
+      addNumberRangeError(errors, "vehicleMileageInput", "Пробегът", { min: 0, integer: true });
     }
 
     if (categoryCode === "GEAR") {
       if (!payload.subCategoryLookupId) {
-        throw new Error("При екипировка типът е задължителен.");
+        errors.push({ field: "gearTypeSelect", message: "При екипировка типът е задължителен." });
+      }
+
+      if (isGearHelmetSelected() && !payload.subCategory2LookupId) {
+        errors.push({ field: "gearHelmetTypeSelect", message: "Типът каска е задължителен." });
       }
 
       if (!payload.brandId) {
-        throw new Error("При екипировка марката е задължителна.");
+        errors.push({ field: "gearBrandSelect", message: "При екипировка марката е задължителна." });
       }
+
+      if (!payload.conditionLookupId) {
+        errors.push({ field: "gearConditionSelect", message: "Състоянието е задължително." });
+      }
+
+      addRequiredNumberError(errors, "gearYearInput", "Годината");
+      addNumberRangeError(errors, "gearYearInput", "Годината", { min: 1900, max: getMaxAllowedVehicleYear(), integer: true });
     }
 
     if (categoryCode === "PART") {
       if (!payload.subCategoryLookupId) {
-        throw new Error("При част типът е задължителен.");
+        errors.push({ field: "partTypeSelect", message: "При част типът е задължителен." });
       }
+
+      if (!payload.brandId) {
+        errors.push({ field: "partBrandSelect", message: "При част марката е задължителна." });
+      }
+
+      if (!payload.conditionLookupId) {
+        errors.push({ field: "partConditionSelect", message: "Състоянието е задължително." });
+      }
+
     }
 
     if (categoryCode === "ACCESSORY") {
       if (!payload.subCategoryLookupId) {
-        throw new Error("При аксесоар типът е задължителен.");
+        errors.push({ field: "accessoryTypeSelect", message: "При аксесоар типът е задължителен." });
       }
+
+      if (!payload.brandId) {
+        errors.push({ field: "accessoryBrandSelect", message: "При аксесоар марката е задължителна." });
+      }
+
+      if (!payload.conditionLookupId) {
+        errors.push({ field: "accessoryConditionSelect", message: "Състоянието е задължително." });
+      }
+
     }
+
+    if (!payload.description) {
+      errors.push({ field: "descriptionInput", message: "Описанието е задължително." });
+    }
+
+    if (payload.description && payload.description.length > 4000) {
+      errors.push({ field: "descriptionInput", message: "Описанието не може да е над 4000 символа." });
+    }
+
+    return errors;
+  }
+
+  function addNumberRangeError(errors, fieldName, label, options = {}) {
+    const input = elements[fieldName];
+    const rawValue = cleanText(input?.value || "");
+
+    if (!rawValue) return;
+
+    if (options.integer && !/^\d+$/.test(rawValue)) {
+      errors.push({ field: fieldName, message: `${label} трябва да е цяло число, изписано само с цифри.` });
+      return;
+    }
+
+    const value = toDecimalOrNull(rawValue);
+    if (value === null) {
+      errors.push({ field: fieldName, message: `${label} трябва да е число.` });
+      return;
+    }
+
+    if (options.integer && !Number.isInteger(value)) {
+      errors.push({ field: fieldName, message: `${label} трябва да е цяло число.` });
+      return;
+    }
+
+    if (options.min !== undefined && value < options.min) {
+      errors.push({ field: fieldName, message: `${label} трябва да е поне ${options.min}.` });
+      return;
+    }
+
+    if (options.max !== undefined && value > options.max) {
+      errors.push({ field: fieldName, message: `${label} трябва да е най-много ${options.max}.` });
+    }
+  }
+
+  function addRequiredNumberError(errors, fieldName, label) {
+    const input = elements[fieldName];
+    if (cleanText(input?.value || "")) return;
+
+    errors.push({ field: fieldName, message: `${label} е задължително поле.` });
+  }
+
+  function getMaxAllowedVehicleYear() {
+    return new Date().getFullYear() + 1;
+  }
+
+  function setNumericInputConstraints() {
+    const maxYear = String(getMaxAllowedVehicleYear());
+
+    [
+      elements.vehicleYearInput,
+      elements.gearYearInput
+    ].forEach(input => {
+      if (!input) return;
+      input.max = maxYear;
+      input.step = "1";
+      input.inputMode = "numeric";
+    });
+
+    [
+      elements.vehicleHorsePowerInput,
+      elements.vehicleEngineCcInput,
+      elements.vehicleMileageInput
+    ].forEach(input => {
+      if (!input) return;
+      input.step = "1";
+      input.inputMode = "numeric";
+    });
+  }
+
+  function isGearHelmetSelected() {
+    const gearTypeId = Number(elements.gearTypeSelect?.value || 0);
+    const gearType = state.lookups.gearTypes.find(x => Number(x.id) === gearTypeId);
+    return (gearType?.code || "").toUpperCase() === "HELMET";
+  }
+
+  function showValidationErrors(errors) {
+    clearValidationErrors();
+
+    const uniqueErrors = [];
+    const seenFields = new Set();
+
+    errors.forEach(error => {
+      if (!error?.field || seenFields.has(error.field)) return;
+      seenFields.add(error.field);
+      uniqueErrors.push(error);
+      setFieldError(error.field, error.message);
+    });
+
+    setStatus("Поправи отбелязаните полета и опитай пак.", "error");
+
+    const firstInvalidElement = elements[uniqueErrors[0]?.field];
+    const firstInvalidBlock =
+      firstInvalidElement?.closest?.(".form-field, .upload-box, .section-block") || firstInvalidElement;
+
+    firstInvalidBlock?.scrollIntoView?.({
+      block: "center",
+      behavior: "smooth"
+    });
+
+    window.setTimeout(() => {
+      if (firstInvalidElement && !firstInvalidElement.disabled && firstInvalidElement.type !== "file") {
+        firstInvalidElement.focus({ preventScroll: true });
+      }
+    }, 240);
+  }
+
+  function setFieldError(fieldName, message) {
+    const field = elements[fieldName];
+    if (!field) return;
+
+    const wrapper = field.closest(".form-field") || field.closest(".upload-box") || field.parentElement;
+    if (!wrapper) return;
+
+    const errorId = `${field.id || fieldName}-error`;
+    let errorElement = document.getElementById(errorId);
+
+    if (!errorElement) {
+      errorElement = document.createElement("div");
+      errorElement.id = errorId;
+      errorElement.className = "field-error";
+      wrapper.appendChild(errorElement);
+    }
+
+    wrapper.classList.add("has-error");
+    field.setAttribute("aria-invalid", "true");
+    const describedByIds = (field.getAttribute("aria-describedby") || "")
+      .split(/\s+/)
+      .filter(Boolean)
+      .filter(id => id !== errorId);
+    describedByIds.push(errorId);
+    field.setAttribute("aria-describedby", describedByIds.join(" "));
+    errorElement.textContent = message;
+  }
+
+  function clearFieldError(field) {
+    if (!field) return;
+
+    const wrapper = field.closest(".form-field") || field.closest(".upload-box") || field.parentElement;
+    if (!wrapper) return;
+
+    wrapper.classList.remove("has-error");
+    field.removeAttribute("aria-invalid");
+
+    const describedBy = field.getAttribute("aria-describedby") || "";
+    const nextDescribedBy = describedBy
+      .split(/\s+/)
+      .filter(Boolean)
+      .filter(id => !id.endsWith("-error"))
+      .join(" ");
+
+    if (nextDescribedBy) {
+      field.setAttribute("aria-describedby", nextDescribedBy);
+    } else {
+      field.removeAttribute("aria-describedby");
+    }
+
+    wrapper.querySelectorAll(".field-error").forEach(errorElement => errorElement.remove());
+  }
+
+  function clearValidationErrors() {
+    elements.createListingForm
+      ?.querySelectorAll("[aria-invalid='true']")
+      .forEach(field => clearFieldError(field));
+
+    elements.createListingForm
+      ?.querySelectorAll(".has-error")
+      .forEach(wrapper => {
+        wrapper.classList.remove("has-error");
+        wrapper.querySelectorAll(".field-error").forEach(errorElement => errorElement.remove());
+      });
+  }
+
+  function showApiFieldErrors(apiError) {
+    const fieldErrors = getApiFieldErrors(apiError);
+
+    if (!fieldErrors.length) {
+      return false;
+    }
+
+    clearValidationErrors();
+
+    fieldErrors.forEach(error => {
+      setFieldError(error.field, error.message);
+    });
+
+    const firstInvalidElement = elements[fieldErrors[0]?.field];
+    const firstInvalidBlock =
+      firstInvalidElement?.closest?.(".form-field, .upload-box, .section-block") || firstInvalidElement;
+
+    firstInvalidBlock?.scrollIntoView?.({
+      block: "center",
+      behavior: "smooth"
+    });
+
+    return true;
+  }
+
+  function getApiFieldErrors(apiError) {
+    const errors = apiError?.data?.errors;
+    const fieldErrors = [];
+
+    if (errors && typeof errors === "object" && !Array.isArray(errors)) {
+      Object.entries(errors).forEach(([fieldKey, messages]) => {
+        const field = resolveApiFieldName(fieldKey);
+        if (!field) return;
+
+        const message = Array.isArray(messages)
+          ? messages.filter(Boolean).join(" ")
+          : cleanText(messages);
+
+        fieldErrors.push({
+          field,
+          message: message || "Провери стойността в това поле."
+        });
+      });
+    }
+
+    const messageField = resolveApiMessageField(apiError?.message || apiError?.rawText || "");
+    if (messageField && !fieldErrors.some(error => error.field === messageField)) {
+      fieldErrors.push({
+        field: messageField,
+        message: apiError.message || "Провери стойността в това поле."
+      });
+    }
+
+    return fieldErrors;
+  }
+
+  function resolveApiFieldName(fieldKey) {
+    const normalizedKey = normalizeApiFieldKey(fieldKey);
+
+    const fieldMap = {
+      maincategorylookupid: "mainCategorySelect",
+      maincategoryid: "mainCategorySelect",
+      subcategorylookupid: getCategorySpecificRequiredField(),
+      subcategory2lookupid: getCategorySpecificSecondaryField(),
+      brandid: getCategorySpecificBrandField(),
+      modelid: "vehicleModelSelect",
+      itemmodeltext: getCategorySpecificItemModelField(),
+      licensecategorylookupid: "vehicleLicenseCategorySelect",
+      conditionlookupid: getCategorySpecificConditionField(),
+      title: "titleInput",
+      description: "descriptionInput",
+      vehicleyear: getSelectedCategoryCode() === "GEAR" ? "gearYearInput" : "vehicleYearInput",
+      horsepower: "vehicleHorsePowerInput",
+      enginecc: "vehicleEngineCcInput",
+      mileage: "vehicleMileageInput",
+      color: getSelectedCategoryCode() === "GEAR" ? "gearColorInput" : "vehicleColorInput",
+      priceoriginal: "priceOriginalInput",
+      price: "priceOriginalInput",
+      currencycode: "currencyCodeSelect",
+      exchangeratetoeur: "currencyCodeSelect",
+      countryid: "countrySelect",
+      regionid: "regionSelect",
+      cityid: "citySelect",
+      contactname: "contactNameInput",
+      contactphone: "contactPhoneInput",
+      requestedpromotiontype: "promotionTypeSelect",
+      photos: "photosInput",
+      images: "photosInput"
+    };
+
+    if (fieldMap[normalizedKey]) {
+      return fieldMap[normalizedKey];
+    }
+
+    const photosMatch = normalizedKey.startsWith("photos") || normalizedKey.startsWith("images");
+    if (photosMatch) {
+      return "photosInput";
+    }
+
+    return "";
+  }
+
+  function normalizeApiFieldKey(fieldKey) {
+    return cleanText(fieldKey)
+      .replace(/\[[^\]]*\]/g, "")
+      .replace(/\./g, "")
+      .toLowerCase();
+  }
+
+  function resolveApiMessageField(message) {
+    const normalizedMessage = cleanText(message).toLowerCase();
+    if (!normalizedMessage) return "";
+
+    const messageMap = [
+      { includes: ["телефон"], field: "contactPhoneInput" },
+      { includes: ["заглав"], field: "titleInput" },
+      { includes: ["описани"], field: "descriptionInput" },
+      { includes: ["цен"], field: "priceOriginalInput" },
+      { includes: ["валут"], field: "currencyCodeSelect" },
+      { includes: ["exchangeratetoeur", "курс"], field: "currencyCodeSelect" },
+      { includes: ["държава"], field: "countrySelect" },
+      { includes: ["област"], field: "regionSelect" },
+      { includes: ["град"], field: "citySelect" },
+      { includes: ["сним"], field: "photosInput" },
+      { includes: ["blobname"], field: "photosInput" },
+      { includes: ["vehicle class"], field: "vehicleClassSelect" },
+      { includes: ["gear type"], field: "gearTypeSelect" },
+      { includes: ["part type"], field: "partTypeSelect" },
+      { includes: ["accessory type"], field: "accessoryTypeSelect" },
+      { includes: ["марк"], field: getCategorySpecificBrandField() },
+      { includes: ["модел"], field: "vehicleModelSelect" },
+      { includes: ["годин"], field: getSelectedCategoryCode() === "GEAR" ? "gearYearInput" : "vehicleYearInput" },
+      { includes: ["конски"], field: "vehicleHorsePowerInput" },
+      { includes: ["кубиц"], field: "vehicleEngineCcInput" },
+      { includes: ["пробег"], field: "vehicleMileageInput" },
+      { includes: ["цвят", "color"], field: getSelectedCategoryCode() === "GEAR" ? "gearColorInput" : "vehicleColorInput" },
+      { includes: ["itemmodeltext"], field: getCategorySpecificItemModelField() },
+      { includes: ["subcategorylookupid"], field: getCategorySpecificRequiredField() },
+      { includes: ["subcategory2lookupid"], field: getCategorySpecificSecondaryField() },
+      { includes: ["conditionlookupid"], field: getCategorySpecificConditionField() },
+      { includes: ["licensecategorylookupid"], field: "vehicleLicenseCategorySelect" }
+    ];
+
+    const match = messageMap.find(item =>
+      item.field && item.includes.some(fragment => normalizedMessage.includes(fragment))
+    );
+
+    return match?.field || "";
+  }
+
+  function getCategorySpecificRequiredField() {
+    const categoryCode = getSelectedCategoryCode();
+    if (categoryCode === "VEHICLE") return "vehicleClassSelect";
+    if (categoryCode === "GEAR") return "gearTypeSelect";
+    if (categoryCode === "PART") return "partTypeSelect";
+    if (categoryCode === "ACCESSORY") return "accessoryTypeSelect";
+    return "mainCategorySelect";
+  }
+
+  function getCategorySpecificSecondaryField() {
+    const categoryCode = getSelectedCategoryCode();
+    if (categoryCode === "VEHICLE") return "vehicleTypeSelect";
+    if (categoryCode === "GEAR") return "gearHelmetTypeSelect";
+    return "";
+  }
+
+  function getCategorySpecificBrandField() {
+    const categoryCode = getSelectedCategoryCode();
+    if (categoryCode === "VEHICLE") return "vehicleBrandSelect";
+    if (categoryCode === "GEAR") return "gearBrandSelect";
+    if (categoryCode === "PART") return "partBrandSelect";
+    if (categoryCode === "ACCESSORY") return "accessoryBrandSelect";
+    return "";
+  }
+
+  function getCategorySpecificConditionField() {
+    const categoryCode = getSelectedCategoryCode();
+    if (categoryCode === "VEHICLE") return "vehicleConditionSelect";
+    if (categoryCode === "GEAR") return "gearConditionSelect";
+    if (categoryCode === "PART") return "partConditionSelect";
+    if (categoryCode === "ACCESSORY") return "accessoryConditionSelect";
+    return "";
+  }
+
+  function getCategorySpecificItemModelField() {
+    const categoryCode = getSelectedCategoryCode();
+    if (categoryCode === "GEAR") return "gearItemModelTextInput";
+    if (categoryCode === "PART") return "partItemModelTextInput";
+    if (categoryCode === "ACCESSORY") return "accessoryItemModelTextInput";
+    return "";
+  }
+
+  function buildCreateListingApiErrorMessage(apiError) {
+    if (apiError?.status >= 500) {
+      return "Сървърът върна 500 при публикуване. Отвори Console и виж 'Create listing API error' - там е payload-ът, който го предизвиква.";
+    }
+
+    return apiError?.message || "Не успяхме да публикуваме обявата.";
+  }
+
+  function logCreateListingApiError(apiError, payload) {
+    const debugPayload = {
+      status: apiError?.status,
+      message: apiError?.message,
+      response: apiError?.data || apiError?.rawText || null,
+      payload
+    };
+
+    console.error("Create listing API error", debugPayload);
   }
 
   async function resetForm(options = {}) {
@@ -3134,6 +3630,7 @@
     }
 
     elements.createListingForm?.reset();
+    clearValidationErrors();
     state.uploadedPhotos = [];
     state.isSubmitting = false;
     syncAllSearchableSelects();
@@ -3276,11 +3773,16 @@
     });
   }
 
-  async function extractErrorMessage(response) {
+  async function extractApiError(response) {
     const text = await response.text();
 
     if (!text) {
-      return `Грешка ${response.status}`;
+      return {
+        status: response.status,
+        message: `Грешка ${response.status}`,
+        rawText: "",
+        data: null
+      };
     }
 
     try {
@@ -3288,17 +3790,31 @@
 
       const flattenedModelErrors = flattenErrorObject(data?.errors);
 
-      return (
+      return {
+        status: response.status,
+        message:
         data?.message ||
         data?.title ||
         data?.error ||
         data?.detail ||
         flattenedModelErrors ||
-        `Грешка ${response.status}`
-      );
+        `Грешка ${response.status}`,
+        rawText: text,
+        data
+      };
     } catch {
-      return text;
+      return {
+        status: response.status,
+        message: text,
+        rawText: text,
+        data: null
+      };
     }
+  }
+
+  async function extractErrorMessage(response) {
+    const apiError = await extractApiError(response);
+    return apiError.message;
   }
 
   function flattenErrorObject(errors) {

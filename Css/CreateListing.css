@@ -879,6 +879,30 @@ textarea {
   box-shadow: 0 0 0 4px rgba(255, 106, 42, 0.1);
 }
 
+.form-field.has-error input,
+.form-field.has-error select,
+.form-field.has-error textarea,
+.upload-box.has-error,
+.upload-box.has-error input[type="file"] {
+  border-color: rgba(180, 35, 24, 0.62);
+  background: #fffafa;
+}
+
+.form-field.has-error input:focus,
+.form-field.has-error select:focus,
+.form-field.has-error textarea:focus {
+  border-color: rgba(180, 35, 24, 0.72);
+  box-shadow: 0 0 0 4px rgba(180, 35, 24, 0.1);
+}
+
+.field-error {
+  margin-top: 8px;
+  color: var(--danger);
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
 .form-field input[type="number"] {
   appearance: textfield;
   -moz-appearance: textfield;
