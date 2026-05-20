@@ -21,6 +21,8 @@
     COMPANY_REFRESH_EUR: 0.25
   };
 
+  const MAX_PHOTOS_PER_LISTING = 10;
+
   const SEARCHABLE_SELECT_ROOT_SELECTOR = "#createListingForm select";
 
   const SMART_CATEGORY_ALIAS_GROUPS = [
@@ -2249,6 +2251,26 @@
     if (!user) return;
 
     try {
+      clearFieldError(elements.photosInput);
+
+      const remainingSlots = MAX_PHOTOS_PER_LISTING - state.uploadedPhotos.length;
+      if (remainingSlots <= 0) {
+        setFieldError("photosInput", `Можеш да качиш максимум ${MAX_PHOTOS_PER_LISTING} снимки.`);
+        setStatus(`Можеш да качиш максимум ${MAX_PHOTOS_PER_LISTING} снимки.`, "error");
+        elements.photosInput.value = "";
+        return;
+      }
+
+      if (files.length > remainingSlots) {
+        setFieldError(
+          "photosInput",
+          `Можеш да добавиш още ${remainingSlots} ${remainingSlots === 1 ? "снимка" : "снимки"}. Максимумът е ${MAX_PHOTOS_PER_LISTING}.`
+        );
+        setStatus(`Избрани са повече снимки от позволеното. Максимумът е ${MAX_PHOTOS_PER_LISTING}.`, "error");
+        elements.photosInput.value = "";
+        return;
+      }
+
       setStatus("Качваме снимките...", "info");
 
       const formData = new FormData();
@@ -3072,8 +3094,8 @@
       errors.push({ field: "titleInput", message: "Заглавието трябва да е поне 3 символа." });
     }
 
-    if (payload.title && payload.title.length > 120) {
-      errors.push({ field: "titleInput", message: "Заглавието не може да е над 120 символа." });
+    if (payload.title && payload.title.length > 45) {
+      errors.push({ field: "titleInput", message: "Заглавието не може да е над 45 символа." });
     }
 
     if (payload.priceOriginal === null || payload.priceOriginal < 0) {
@@ -3124,6 +3146,10 @@
 
     if (!Array.isArray(payload.photos) || payload.photos.length === 0) {
       errors.push({ field: "photosInput", message: "Качи поне една снимка." });
+    }
+
+    if (Array.isArray(payload.photos) && payload.photos.length > MAX_PHOTOS_PER_LISTING) {
+      errors.push({ field: "photosInput", message: `Можеш да качиш максимум ${MAX_PHOTOS_PER_LISTING} снимки.` });
     }
 
     if (payload.photos.filter(x => x.isMain).length !== 1) {
