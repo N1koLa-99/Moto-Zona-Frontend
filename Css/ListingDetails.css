@@ -1209,6 +1209,32 @@ img {
   font-weight: 700;
 }
 
+.seller-profile-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 14px 20px 0;
+  padding: 9px 16px;
+  border-radius: 12px;
+  border: 1.5px solid var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-weight: 800;
+  font-size: 0.92rem;
+  text-decoration: none;
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+
+.seller-profile-link:hover {
+  background: rgba(255, 106, 42, 0.14);
+  transform: translateY(-1px);
+}
+
+.seller-profile-link svg {
+  width: 16px;
+  height: 16px;
+}
+
 .info-list {
   margin-top: 14px;
   display: flex;

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="bg" translate="no" class="notranslate">
+<head>
+  <meta charset="UTF-8" />
+  <base href="/" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="google" content="notranslate" />
+  <title>Мото Зона | Профил на продавач</title>
+  <meta name="description" content="Разгледай профила на продавача в Мото Зона и всичките му обяви." />
+  <meta name="robots" content="index,follow" />
+  <meta name="theme-color" content="#ff6a2a" />
+
+  <link rel="icon" type="image/png" href="ImagesVideos/LogoMotoZonaNew.png" sizes="any" />
+  <link rel="apple-touch-icon" href="ImagesVideos/LogoMotoZonaNew.png" />
+  <link rel="manifest" href="site.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="Css/index.css" />
+  <link rel="stylesheet" href="Css/SellerProfile.css" />
+  <link rel="stylesheet" href="Css/Footer.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar__inner">
+      <a href="index.html" class="brand">
+        <img src="ImagesVideos/LogoMotoZonaNew.png" alt="Лого на Мото Зона" class="brand__logo" />
+        <span class="brand__divider" aria-hidden="true"></span>
+        <span class="brand__text">Мото Зона</span>
+      </a>
+
+      <div class="topbar__actions">
+        <button class="ghost-nav-btn" id="backToHomeBtn" type="button">Начало</button>
+
+        <button class="icon-btn" id="favoritesBtn" aria-label="Любими обяви" type="button">
+          ❤ <span id="favoritesCount">0</span>
+        </button>
+
+        <div class="guest-actions hidden" id="guestActions">
+          <button class="auth-action-btn auth-action-btn--ghost" id="loginBtn" type="button">Вход</button>
+        </div>
+
+        <div class="profile-menu hidden" id="profileMenu">
+          <button class="profile-btn" id="profileMenuBtn" type="button" aria-label="Профил" aria-haspopup="menu" aria-expanded="false">
+            <span class="profile-btn__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M12 12a4.25 4.25 0 1 0 0-8.5 4.25 4.25 0 0 0 0 8.5Z" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M4 20.25c1.3-3.55 4.18-5.25 8-5.25s6.7 1.7 8 5.25" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="profile-btn__text" id="userDisplayName">Профил</span>
+          </button>
+
+          <div class="profile-menu__dropdown hidden" id="profileDropdown">
+            <button class="profile-menu__item" id="createListingBtn" type="button">Нова обява</button>
+            <button class="profile-menu__item profile-menu__item--danger" id="logoutBtn" type="button">Изход</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="container">
+      <div id="loadingState" class="page-state">
+        <div class="spinner" aria-hidden="true"></div>
+        <h2>Зареждаме профила...</h2>
+        <p>Изчакай секунда. Взимаме данните на продавача и обявите му.</p>
+      </div>
+
+      <div id="errorState" class="page-state hidden">
+        <h2>Не успяхме да заредим профила</h2>
+        <p id="errorText">Възникна проблем при зареждането.</p>
+        <div class="page-state__actions">
+          <a class="ghost-link-btn" href="index.html">Към началото</a>
+        </div>
+      </div>
+
+      <div id="sellerContent" class="seller-profile hidden">
+        <!-- Хедър на продавача -->
+        <section class="seller-hero">
+          <div class="seller-hero__avatar">
+            <img id="sellerAvatar" class="hidden" alt="Профилна снимка" />
+            <span id="sellerAvatarInitials">MM</span>
+          </div>
+
+          <div class="seller-hero__main">
+            <div class="seller-hero__badges">
+              <span class="seller-hero__badge" id="sellerTypeBadge">Продавач</span>
+              <span class="seller-hero__badge seller-hero__badge--soft hidden" id="sellerLocationBadge"></span>
+            </div>
+
+            <h1 id="sellerHeroName">Продавач</h1>
+            <p class="seller-hero__contact-person hidden" id="sellerContactPerson"></p>
+            <p class="seller-hero__description hidden" id="sellerDescription"></p>
+
+            <div class="seller-hero__actions">
+              <a href="#" id="sellerCallBtn" class="primary-btn hidden">Обади се</a>
+              <a href="#" id="sellerWebsiteBtn" class="ghost-btn hidden" target="_blank" rel="noopener noreferrer">Уебсайт</a>
+            </div>
+          </div>
+
+          <div class="seller-hero__stats">
+            <div class="seller-stat">
+              <strong id="statListings">0</strong>
+              <span>Активни обяви</span>
+            </div>
+            <div class="seller-stat">
+              <strong id="statSince">—</strong>
+              <span>В Мото Зона от</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Обяви -->
+        <section class="seller-listings">
+          <div class="seller-listings__head">
+            <div>
+              <p class="section-eyebrow">Обяви</p>
+              <h2 id="listingsHeading">Обяви на продавача</h2>
+            </div>
+
+            <div class="seller-listings__tools">
+              <input type="text" id="searchInput" class="seller-input" placeholder="Търси по заглавие, марка, град..." />
+              <select id="sortSelect" class="seller-input">
+                <option value="newest">Най-нови</option>
+                <option value="priceasc">Цена: ниска → висока</option>
+                <option value="pricedesc">Цена: висока → ниска</option>
+                <option value="yeardesc">Година: нови → стари</option>
+                <option value="yearasc">Година: стари → нови</option>
+              </select>
+            </div>
+          </div>
+
+          <button class="seller-filters-toggle" id="filtersToggleBtn" type="button" aria-expanded="false" aria-controls="sellerFilterbar">
+            <span class="seller-filters-toggle__label">Филтри</span>
+            <span class="seller-filters-toggle__arrow" aria-hidden="true">▾</span>
+          </button>
+
+          <div class="seller-filterbar" id="sellerFilterbar">
+            <div class="seller-filter-row">
+              <div class="seller-filter seller-filter--grow">
+                <label for="categoryFilter">Категория</label>
+                <select id="categoryFilter" class="seller-input">
+                  <option value="">Всички</option>
+                  <option value="VEHICLE">Мотори</option>
+                  <option value="GEAR">Екипировка</option>
+                  <option value="PART">Части</option>
+                  <option value="ACCESSORY">Аксесоари</option>
+                </select>
+              </div>
+              <div class="seller-filter seller-filter--grow">
+                <label for="licenseCategoryFilter">Книжка</label>
+                <select id="licenseCategoryFilter" class="seller-input">
+                  <option value="">Всички</option>
+                  <option value="А1">А1</option>
+                  <option value="А2">А2</option>
+                  <option value="А">А</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="seller-filter-row">
+              <div class="seller-filter seller-filter--grow">
+                <label for="priceMin">Цена от (€)</label>
+                <input type="number" id="priceMin" class="seller-input" placeholder="От" min="0" />
+              </div>
+              <div class="seller-filter seller-filter--grow">
+                <label for="priceMax">Цена до (€)</label>
+                <input type="number" id="priceMax" class="seller-input" placeholder="До" min="0" />
+              </div>
+            </div>
+
+            <div class="seller-filter-row">
+              <div class="seller-filter seller-filter--grow">
+                <label for="yearFrom">Година от</label>
+                <input type="number" id="yearFrom" class="seller-input" placeholder="От" min="1900" max="2100" />
+              </div>
+              <div class="seller-filter seller-filter--grow">
+                <label for="yearTo">Година до</label>
+                <input type="number" id="yearTo" class="seller-input" placeholder="До" min="1900" max="2100" />
+              </div>
+            </div>
+            <div class="seller-filter seller-filter--checks">
+              <label class="seller-check"><input type="checkbox" id="vipOnlyFilter" /> <span>Само VIP</span></label>
+              <label class="seller-check"><input type="checkbox" id="topOnlyFilter" /> <span>Само TOP</span></label>
+            </div>
+            <button class="ghost-btn seller-clear-btn" id="clearFiltersBtn" type="button">Изчисти</button>
+          </div>
+
+          <p id="resultsCount" class="seller-results-count">Зареждане...</p>
+
+          <div class="listings-grid" id="listingsGrid"></div>
+
+          <div class="pagination" id="pagination"></div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__shell">
+      <div class="site-footer__panel">
+        <div class="site-footer__brand-row">
+          <a href="index.html" class="site-footer__brand-link" aria-label="MotoZona начало">
+            <img src="ImagesVideos/LogoMotoZonaNew.png" alt="MotoZona лого" class="site-footer__logo" />
+            <span class="site-footer__brand-copy">
+              <span class="site-footer__brand-name">MotoZona</span>
+              <span class="site-footer__brand-tag">Всичко за един моторист на едно място</span>
+            </span>
+          </a>
+        </div>
+
+        <div class="site-footer__bottom">
+          <p>© 2026 MotoZona. Професионална среда за мотористи, търговци и любители.</p>
+          <nav class="site-footer__bottom-links" aria-label="Footer навигация">
+            <a href="PrivacyPolicy.html">Поверителност</a>
+            <a href="about.html">За нас</a>
+            <a href="mailto:motozona.support@gmail.com">motozona.support@gmail.com</a>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="true"></div>
+
+  <script src="Js/auth.js"></script>
+  <script src="Js/SellerProfile.js"></script>
+  <script src="Js/animations.js" defer></script>
+</body>
+</html>

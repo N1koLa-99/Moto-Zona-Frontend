@@ -18,7 +18,7 @@
   --container: 1480px;
   --page-pad: 48px;
   --app-vh: 1vh;
-  --topbar-height: 82px;
+  --topbar-height: 96px;
   --radius-xl: 24px;
   --radius-lg: 18px;
   --radius-md: 14px;
@@ -114,7 +114,7 @@ button {
 }
 
 .topbar__inner {
-  min-height: 82px;
+  min-height: 96px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -132,8 +132,8 @@ button {
 
 .brand__logo {
   display: block;
-  width: 90px;
-  height: 90px;
+  width: 110px;
+  height: 110px;
   object-fit: contain;
   flex-shrink: 0;
 }
@@ -2176,7 +2176,7 @@ button {
 @media (max-width: 700px) {
   :root {
     --page-pad: 12px;
-    --topbar-height: 66px;
+    --topbar-height: 76px;
   }
 
   body {
@@ -2184,7 +2184,7 @@ button {
   }
 
   .topbar__inner {
-    min-height: 66px;
+    min-height: 76px;
     gap: 10px;
   }
 
@@ -2195,8 +2195,8 @@ button {
   }
 
   .brand__logo {
-    width: 64px;
-    height: 64px;
+    width: 76px;
+    height: 76px;
   }
 
   .brand__divider {
@@ -2954,8 +2954,8 @@ button {
   }
 
   .brand__logo {
-    width: 56px;
-    height: 56px;
+    width: 64px;
+    height: 64px;
   }
 
   .brand__text {

@@ -53,6 +53,7 @@
     sellerInitials: document.getElementById("sellerInitials"),
     sellerName: document.getElementById("sellerName"),
     sellerType: document.getElementById("sellerType"),
+    sellerProfileLink: document.getElementById("sellerProfileLink"),
     contactName: document.getElementById("contactName"),
     contactPhone: document.getElementById("contactPhone"),
     sidebarPublished: document.getElementById("sidebarPublished"),
@@ -583,6 +584,16 @@
       elements.sellerLogo.classList.add("hidden");
       elements.sellerInitials.classList.remove("hidden");
       elements.sellerInitials.textContent = getInitials(sellerDisplayName);
+    }
+
+    const sellerUserId = seller.userId ?? seller.id ?? listing.userId ?? null;
+    if (elements.sellerProfileLink) {
+      if (sellerUserId !== null && sellerUserId !== undefined && String(sellerUserId).trim() !== "") {
+        elements.sellerProfileLink.href = `SellerProfile.html?id=${encodeURIComponent(sellerUserId)}`;
+        elements.sellerProfileLink.classList.remove("hidden");
+      } else {
+        elements.sellerProfileLink.classList.add("hidden");
+      }
     }
   }
 

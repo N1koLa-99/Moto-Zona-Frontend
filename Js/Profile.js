@@ -116,6 +116,9 @@
     profileName: document.getElementById("profileName"),
     profileMeta: document.getElementById("profileMeta"),
     profileAvatar: document.getElementById("profileAvatar"),
+    avatarEditBtn: document.getElementById("avatarEditBtn"),
+    avatarRemoveBtn: document.getElementById("avatarRemoveBtn"),
+    avatarFileInput: document.getElementById("avatarFileInput"),
     sectionContent: document.getElementById("sectionContent"),
     adminPanelLink: document.getElementById("adminPanelLink"),
     logoutBtn: document.getElementById("logoutBtn"),
@@ -232,6 +235,10 @@
   function bindStaticEvents() {
     elements.logoutBtn?.addEventListener("click", onLogoutClick);
     bindPriceChangeIndicatorEvents();
+
+    elements.avatarEditBtn?.addEventListener("click", () => elements.avatarFileInput?.click());
+    elements.avatarFileInput?.addEventListener("change", onAvatarFileSelected);
+    elements.avatarRemoveBtn?.addEventListener("click", onAvatarRemoveClick);
 
     elements.navButtons.forEach((button) => {
       button.addEventListener("click", () => {
@@ -493,6 +500,123 @@
     }
   }
 
+  function applyProfileAvatar(avatarUrl, displayName) {
+    if (!elements.profileAvatar) return;
+
+    const url = String(avatarUrl ?? "").trim();
+    const initial = (displayName || "M").trim().charAt(0).toUpperCase() || "M";
+
+    const hasImage = !!(url && url.toLowerCase() !== "null");
+
+    if (hasImage) {
+      elements.profileAvatar.classList.add("profile-avatar--image");
+      elements.profileAvatar.innerHTML =
+        `<img src="${url.replaceAll('"', "&quot;")}" alt="Профилна снимка" />`;
+      const img = elements.profileAvatar.querySelector("img");
+      if (img) {
+        img.onerror = () => {
+          elements.profileAvatar.classList.remove("profile-avatar--image");
+          elements.profileAvatar.textContent = initial;
+          elements.avatarRemoveBtn?.classList.add("hidden");
+        };
+      }
+    } else {
+      elements.profileAvatar.classList.remove("profile-avatar--image");
+      elements.profileAvatar.textContent = initial;
+    }
+
+    elements.avatarRemoveBtn?.classList.toggle("hidden", !hasImage);
+  }
+
+  async function onAvatarFileSelected(event) {
+    const input = event.target;
+    const file = input?.files?.[0];
+    if (!file) return;
+
+    const allowed = ["image/png", "image/jpeg", "image/webp"];
+    if (!allowed.includes(file.type)) {
+      showToast("Позволени формати: PNG, JPG, WEBP.", "error");
+      input.value = "";
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      showToast("Файлът е твърде голям (макс. 10 MB).", "error");
+      input.value = "";
+      return;
+    }
+
+    setAvatarBusy(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await window.Auth.authFetch(`${API_BASE_URL}/api/profile/avatar`, {
+        method: "POST",
+        body: formData
+      });
+
+      if (!response.ok) throw new Error("upload failed");
+
+      const data = await response.json().catch(() => ({}));
+      const avatarUrl = data?.avatarUrl || "";
+
+      const displayName = elements.profileName?.textContent || "M";
+      applyProfileAvatar(avatarUrl, displayName);
+      window.Auth?.applyTopbarAvatar?.(avatarUrl);
+      persistAvatarInStoredUser(avatarUrl);
+
+      showToast("Профилната снимка е обновена.", "success");
+    } catch {
+      showToast("Не успяхме да качим снимката. Опитай пак.", "error");
+    } finally {
+      setAvatarBusy(false);
+      input.value = "";
+    }
+  }
+
+  async function onAvatarRemoveClick() {
+    const confirmed = await showConfirmModal({
+      title: "Премахване на профилна снимка",
+      text: "Сигурни ли сте, че искате да премахнете профилната си снимка / лого?"
+    });
+    if (!confirmed) return;
+
+    setAvatarBusy(true);
+
+    try {
+      const response = await window.Auth.authFetch(`${API_BASE_URL}/api/profile/avatar`, {
+        method: "DELETE"
+      });
+
+      if (!response.ok) throw new Error("delete failed");
+
+      const displayName = elements.profileName?.textContent || "M";
+      applyProfileAvatar("", displayName);
+      persistAvatarInStoredUser("");
+
+      showToast("Профилната снимка е премахната.", "info");
+    } catch {
+      showToast("Не успяхме да премахнем снимката.", "error");
+    } finally {
+      setAvatarBusy(false);
+    }
+  }
+
+  function setAvatarBusy(isBusy) {
+    [elements.avatarEditBtn, elements.avatarRemoveBtn].forEach((btn) => {
+      if (btn) btn.disabled = isBusy;
+    });
+    elements.profileAvatar?.classList.toggle("profile-avatar--busy", isBusy);
+  }
+
+  function persistAvatarInStoredUser(avatarUrl) {
+    const storedUser = readStoredUser() || {};
+    const nextUser = { ...storedUser, avatarUrl: avatarUrl || null, logoUrl: avatarUrl || null };
+    window.Auth?.setCurrentUser?.(nextUser);
+  }
+
   function hydrateStaticUserInfo() {
     const storedUser = readStoredUser();
     const accountType = normalizeAccountType(storedUser?.accountType);
@@ -501,7 +625,7 @@
 
     elements.profileName.textContent = displayName;
     elements.profileMeta.textContent = getAccountTypeLabel(accountType);
-    elements.profileAvatar.textContent = (displayName || "M").trim().charAt(0).toUpperCase() || "M";
+    applyProfileAvatar(storedUser?.avatarUrl, displayName);
     syncEditProfileAvailability(accountType);
     syncAdminPanelAvailability(storedUser);
   }
@@ -545,7 +669,7 @@
       "MotoZone User";
 
     elements.profileName.textContent = fullName;
-    elements.profileAvatar.textContent = (fullName || "M").trim().charAt(0).toUpperCase() || "M";
+    applyProfileAvatar(data?.avatarUrl, fullName);
     syncAdminPanelAvailability(data);
   }
 

@@ -500,6 +500,98 @@ async function logoutUser() {
   }
 }
 
+function getUserAvatarUrl(user = getCurrentUser()) {
+  const url = String(user?.avatarUrl ?? user?.logoUrl ?? "").trim();
+  return url && url.toLowerCase() !== "null" ? url : "";
+}
+
+function fillAvatarImage(container, url, { circle = true } = {}) {
+  if (container.dataset.avatarApplied === url) return;
+  container.dataset.avatarApplied = url;
+
+  container.style.overflow = "hidden";
+  container.style.padding = "0";
+  if (circle) container.style.borderRadius = "50%";
+  container.innerHTML = `<img src="${url.replaceAll('"', "&quot;")}" alt="Профил" />`;
+
+  const img = container.querySelector("img");
+  if (img) {
+    img.style.width = "100%";
+    img.style.height = "100%";
+    img.style.objectFit = "cover";
+    img.style.display = "block";
+    if (circle) img.style.borderRadius = "50%";
+    img.onerror = () => {
+      container.removeAttribute("data-avatar-applied");
+      container.removeAttribute("style");
+      container.innerHTML = "";
+    };
+  }
+}
+
+function ensureStandaloneTopbarAvatar() {
+  const actions = document.querySelector(".topbar__actions");
+  if (!actions) return null;
+
+  let avatar = actions.querySelector(".topbar-avatar");
+  if (!avatar) {
+    avatar = document.createElement("a");
+    avatar.className = "topbar-avatar";
+    avatar.href = "Profile.html";
+    avatar.setAttribute("aria-label", "Профил");
+    avatar.title = "Профил";
+    avatar.style.width = "40px";
+    avatar.style.height = "40px";
+    avatar.style.flexShrink = "0";
+    avatar.style.display = "inline-block";
+    avatar.style.borderRadius = "50%";
+    avatar.style.border = "2px solid rgba(255,255,255,0.85)";
+    avatar.style.boxShadow = "0 4px 12px rgba(23,32,45,0.16)";
+    actions.insertBefore(avatar, actions.firstChild);
+  }
+  return avatar;
+}
+
+function applyTopbarAvatar(avatarUrl) {
+  const url = String(avatarUrl || "").trim();
+  if (!url) return;
+
+  const icons = document.querySelectorAll(".profile-btn__icon");
+
+  if (icons.length) {
+    // Страници с профил-бутон (index, ListingDetails, SellerProfile)
+    icons.forEach((icon) => fillAvatarImage(icon, url, { circle: true }));
+    return;
+  }
+
+  // Всяка друга страница с топбар → самостоятелен кръгъл аватар
+  const standalone = ensureStandaloneTopbarAvatar();
+  if (standalone) fillAvatarImage(standalone, url, { circle: true });
+}
+
+async function hydrateTopbarAvatar() {
+  if (!isLoggedIn()) return;
+
+  const cached = getUserAvatarUrl();
+  if (cached) {
+    applyTopbarAvatar(cached);
+    return;
+  }
+
+  try {
+    const user = await fetchCurrentUserFromApi();
+    applyTopbarAvatar(getUserAvatarUrl(user));
+  } catch {
+    // умишлено празно
+  }
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", hydrateTopbarAvatar);
+} else {
+  hydrateTopbarAvatar();
+}
+
 window.Auth = {
   API_BASE_URL,
   normalizeEmail,
@@ -525,6 +617,9 @@ window.Auth = {
   isLoggedIn,
   authFetch,
   fetchCurrentUserFromApi,
+  getUserAvatarUrl,
+  applyTopbarAvatar,
+  hydrateTopbarAvatar,
   requireAuth,
   redirectToLogin,
   redirectToRegister,

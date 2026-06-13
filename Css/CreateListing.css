@@ -181,6 +181,11 @@ textarea {
   text-overflow: ellipsis;
 }
 
+/* Аватарът в топбара няма смисъл при качване на обява */
+.topbar-avatar {
+  display: none !important;
+}
+
 .topbar__actions {
   display: flex;
   align-items: center;
