@@ -1686,7 +1686,8 @@
       return;
     }
 
-    elements.listingsGrid.innerHTML = items.map(renderCard).join("");
+    elements.listingsGrid.innerHTML = items.map((item, index) => renderCard(item, index)).join("");
+    hydrateListingImages();
 
     [...elements.listingsGrid.querySelectorAll(".favorite-btn")].forEach((button) => {
       setFavoriteButtonState(button, button.classList.contains("active"));
@@ -1703,7 +1704,7 @@
     });
   }
 
-  function renderCard(item) {
+  function renderCard(item, index = 0) {
     const promotion = getPromotionType(item);
     const itemCategoryCode = getItemMainCategoryCode(item);
 
@@ -1721,8 +1722,16 @@
           ? `<div class="card__ribbon card__ribbon--top">TOP</div>`
           : "";
 
+    const isPriorityImage = index < 2;
     const imageHtml = item.mainPhotoUrl
-      ? `<img src="${escapeHtml(item.mainPhotoUrl)}" alt="${escapeHtml(item.title || "Обява")}" loading="lazy" />`
+      ? `<img
+          class="card__photo"
+          src="${escapeHtml(item.mainPhotoUrl)}"
+          alt="${escapeHtml(item.title || "Обява")}"
+          loading="${isPriorityImage ? "eager" : "lazy"}"
+          fetchpriority="${isPriorityImage ? "high" : "low"}"
+          decoding="async"
+        />`
       : `<div class="card__image-placeholder">Няма снимка</div>`;
 
     const meta = buildCardMeta(item, itemCategoryCode);
@@ -1767,6 +1776,28 @@
         </article>
       </a>
     `;
+  }
+
+  function hydrateListingImages() {
+    if (!elements.listingsGrid) return;
+
+    [...elements.listingsGrid.querySelectorAll(".card__photo")].forEach((image) => {
+      const markLoaded = () => image.classList.add("is-loaded");
+      const markFailed = () => {
+        const fallback = document.createElement("div");
+        fallback.className = "card__image-placeholder";
+        fallback.textContent = "Няма снимка";
+        image.replaceWith(fallback);
+      };
+
+      if (image.complete && image.naturalWidth > 0) {
+        markLoaded();
+        return;
+      }
+
+      image.addEventListener("load", markLoaded, { once: true });
+      image.addEventListener("error", markFailed, { once: true });
+    });
   }
 
   function syncCategoryRouteState() {
