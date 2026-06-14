@@ -3184,10 +3184,6 @@
         errors.push({ field: "vehicleBrandSelect", message: "При мотор марката е задължителна." });
       }
 
-      if (!payload.licenseCategoryLookupId) {
-        errors.push({ field: "vehicleLicenseCategorySelect", message: "Категорията книжка е задължителна." });
-      }
-
       if (!payload.conditionLookupId) {
         errors.push({ field: "vehicleConditionSelect", message: "Състоянието е задължително." });
       }
