@@ -231,7 +231,7 @@
         : "";
 
     const imageHtml = item.mainPhotoUrl
-      ? `<img src="${escapeHtml(item.mainPhotoUrl)}" alt="${escapeHtml(item.title || "Обява")}" loading="lazy" />`
+      ? `<img class="card__photo" src="${escapeHtml(item.mainPhotoUrl)}" alt="${escapeHtml(item.title || "Обява")}" loading="lazy" decoding="async" />`
       : `<div class="card__image-placeholder">Няма снимка</div>`;
 
     const meta = buildCardMeta(item, code);
@@ -419,6 +419,8 @@
 
     elements.listingsGrid.innerHTML = items.map(renderCard).join("");
 
+    hydrateListingImages();
+
     [...elements.listingsGrid.querySelectorAll(".favorite-btn")].forEach((button) => {
       button.addEventListener("click", onFavoriteClick);
     });
@@ -431,6 +433,28 @@
     });
 
     renderPagination(totalPages);
+  }
+
+  function hydrateListingImages() {
+    if (!elements.listingsGrid) return;
+
+    [...elements.listingsGrid.querySelectorAll(".card__photo")].forEach((image) => {
+      const markLoaded = () => image.classList.add("is-loaded");
+      const markFailed = () => {
+        const fallback = document.createElement("div");
+        fallback.className = "card__image-placeholder";
+        fallback.textContent = "Няма снимка";
+        image.replaceWith(fallback);
+      };
+
+      if (image.complete && image.naturalWidth > 0) {
+        markLoaded();
+        return;
+      }
+
+      image.addEventListener("load", markLoaded, { once: true });
+      image.addEventListener("error", markFailed, { once: true });
+    });
   }
 
   function renderPagination(totalPages) {
@@ -469,7 +493,7 @@
     }
 
     try {
-      const response = await window.Auth.authFetch(`${API_BASE_URL}/api/profile/favorites?page=1&pageSize=200`);
+      const response = await window.Auth.authFetch(`${API_BASE_URL}/api/profile/favorites?page=1&pageSize=100`);
       if (!response.ok) {
         state.favoriteIds = new Set();
         updateFavoritesCount(0);

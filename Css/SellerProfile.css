@@ -343,75 +343,75 @@ body {
 /* ── Filter bar ── */
 .seller-filterbar {
   display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 14px;
-  padding: 16px 18px;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px 20px;
   margin-bottom: 18px;
   border-radius: var(--radius-md);
   background: var(--surface-2);
   border: 1px solid var(--line);
 }
 
-.seller-filter-row {
-  display: flex;
-  gap: 10px;
-  align-items: flex-end;
-  width: 100%;
+.seller-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px 16px;
 }
 
 .seller-filter {
   display: flex;
   flex-direction: column;
   gap: 6px;
-}
-
-.seller-filter--grow {
-  flex: 1 1 0;
   min-width: 0;
-}
-
-.seller-filter--grow .seller-input {
-  width: 100%;
 }
 
 .seller-filter label {
   font-size: 0.76rem;
   font-weight: 700;
+  letter-spacing: 0.01em;
   color: var(--muted);
 }
 
 .seller-filter .seller-input {
-  width: 122px;
+  width: 100%;
 }
 
-.seller-filter--checks {
-  flex-direction: row;
+.seller-filter-footer {
+  display: flex;
   align-items: center;
-  gap: 16px;
-  align-self: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.seller-filter-checks {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
 }
 
 .seller-check {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   font-size: 0.9rem;
   font-weight: 700;
   color: var(--text);
   cursor: pointer;
+  user-select: none;
 }
 
 .seller-check input {
-  width: 17px;
-  height: 17px;
+  width: 18px;
+  height: 18px;
   accent-color: var(--primary);
   cursor: pointer;
 }
 
 .seller-clear-btn {
-  margin-left: auto;
-  align-self: center;
   min-height: 44px;
 }
 
@@ -563,23 +563,24 @@ body {
     display: flex;
   }
 
-  .seller-filter-row {
-    width: 100%;
-    gap: 8px;
+  .seller-filter-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px 10px;
   }
 
-  .seller-filter--grow .seller-input {
-    width: 100%;
+  .seller-filter-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding-top: 12px;
   }
 
-  .seller-filter--checks {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 14px;
+  .seller-filter-checks {
+    justify-content: center;
+    gap: 18px;
   }
 
   .seller-clear-btn {
-    margin-left: 0;
     width: 100%;
   }
 

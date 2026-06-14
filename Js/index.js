@@ -657,7 +657,7 @@
 
     try {
       const response = await window.Auth.authFetch(
-        `${API_BASE_URL}/api/profile/favorites?page=1&pageSize=200`
+        `${API_BASE_URL}/api/profile/favorites?page=1&pageSize=100`
       );
 
       if (!response.ok) {

@@ -141,8 +141,8 @@
           </button>
 
           <div class="seller-filterbar" id="sellerFilterbar">
-            <div class="seller-filter-row">
-              <div class="seller-filter seller-filter--grow">
+            <div class="seller-filter-grid">
+              <div class="seller-filter">
                 <label for="categoryFilter">Категория</label>
                 <select id="categoryFilter" class="seller-input">
                   <option value="">Всички</option>
@@ -152,7 +152,7 @@
                   <option value="ACCESSORY">Аксесоари</option>
                 </select>
               </div>
-              <div class="seller-filter seller-filter--grow">
+              <div class="seller-filter">
                 <label for="licenseCategoryFilter">Книжка</label>
                 <select id="licenseCategoryFilter" class="seller-input">
                   <option value="">Всички</option>
@@ -161,34 +161,31 @@
                   <option value="А">А</option>
                 </select>
               </div>
-            </div>
-
-            <div class="seller-filter-row">
-              <div class="seller-filter seller-filter--grow">
+              <div class="seller-filter">
                 <label for="priceMin">Цена от (€)</label>
                 <input type="number" id="priceMin" class="seller-input" placeholder="От" min="0" />
               </div>
-              <div class="seller-filter seller-filter--grow">
+              <div class="seller-filter">
                 <label for="priceMax">Цена до (€)</label>
                 <input type="number" id="priceMax" class="seller-input" placeholder="До" min="0" />
               </div>
-            </div>
-
-            <div class="seller-filter-row">
-              <div class="seller-filter seller-filter--grow">
+              <div class="seller-filter">
                 <label for="yearFrom">Година от</label>
                 <input type="number" id="yearFrom" class="seller-input" placeholder="От" min="1900" max="2100" />
               </div>
-              <div class="seller-filter seller-filter--grow">
+              <div class="seller-filter">
                 <label for="yearTo">Година до</label>
                 <input type="number" id="yearTo" class="seller-input" placeholder="До" min="1900" max="2100" />
               </div>
             </div>
-            <div class="seller-filter seller-filter--checks">
-              <label class="seller-check"><input type="checkbox" id="vipOnlyFilter" /> <span>Само VIP</span></label>
-              <label class="seller-check"><input type="checkbox" id="topOnlyFilter" /> <span>Само TOP</span></label>
+
+            <div class="seller-filter-footer">
+              <div class="seller-filter-checks">
+                <label class="seller-check"><input type="checkbox" id="vipOnlyFilter" /> <span>Само VIP</span></label>
+                <label class="seller-check"><input type="checkbox" id="topOnlyFilter" /> <span>Само TOP</span></label>
+              </div>
+              <button class="ghost-btn seller-clear-btn" id="clearFiltersBtn" type="button">Изчисти филтрите</button>
             </div>
-            <button class="ghost-btn seller-clear-btn" id="clearFiltersBtn" type="button">Изчисти</button>
           </div>
 
           <p id="resultsCount" class="seller-results-count">Зареждане...</p>
