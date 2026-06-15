@@ -1167,7 +1167,8 @@ button {
 }
 
 .skeleton-card__img {
-  height: 220px;
+  aspect-ratio: 3 / 2;
+  height: auto;
   flex-shrink: 0;
   background: linear-gradient(90deg, #eef2f7 25%, #dde5ef 50%, #eef2f7 75%);
   background-size: 480px 100%;
@@ -1333,7 +1334,8 @@ button {
 
 .card__image {
   position: relative;
-  height: 220px;
+  aspect-ratio: 4 / 3;
+  height: auto;
   flex-shrink: 0;
   overflow: hidden;
   background:
@@ -1374,6 +1376,7 @@ button {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center center;
   opacity: 0;
   filter: blur(10px);
   transform: scale(1.015);
@@ -2557,6 +2560,7 @@ button {
   }
 
   .card__image {
+    aspect-ratio: auto;
     height: 100%;
     min-height: 164px;
     border-right: 1px solid rgba(0, 0, 0, 0.04);
@@ -3159,6 +3163,7 @@ button {
   }
 
   .card__image {
+    aspect-ratio: auto;
     height: 150px;
     min-height: 150px;
     border-right: 1px solid rgba(0, 0, 0, 0.04);
@@ -3180,6 +3185,7 @@ button {
   }
 
   .card__image {
+    aspect-ratio: auto;
     height: 138px;
     min-height: 138px;
   }
