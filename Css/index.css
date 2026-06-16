@@ -1401,6 +1401,26 @@ button {
   transform: scale(1.05);
 }
 
+.card__image--gear {
+  background: #ffffff;
+}
+
+.card__image--gear::before {
+  background:
+    linear-gradient(100deg, transparent 0%, rgba(255, 255, 255, 0.8) 46%, transparent 78%),
+    linear-gradient(180deg, #ffffff, #f5f5f5);
+  background-size: 220% 100%, 100% 100%;
+}
+
+.card__image--gear img {
+  object-fit: contain;
+  padding: 6px;
+}
+
+.card:hover .card__image--gear img {
+  transform: scale(1.04);
+}
+
 @keyframes card-image-sheen {
   0% {
     background-position: 140% 0, 0 0, 0 0;
@@ -3176,6 +3196,11 @@ button {
     display: block;
     object-fit: cover;
     object-position: center;
+  }
+
+  .card__image--gear img {
+    object-fit: contain;
+    padding: 6px;
   }
 }
 

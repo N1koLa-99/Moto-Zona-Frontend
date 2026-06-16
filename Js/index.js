@@ -1745,7 +1745,7 @@
     return `
       <a class="listing-link" href="${escapeHtml(listingUrl)}">
         <article class="${cardClass}">
-          <div class="card__image">
+          <div class="card__image${itemCategoryCode === "GEAR" ? " card__image--gear" : ""}">
             ${ribbon}
             <button class="favorite-btn ${favoriteActive ? "active" : ""}" type="button" data-id="${escapeHtml(String(item.id))}" aria-label="Любима обява">
               ❤
