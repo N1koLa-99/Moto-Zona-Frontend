@@ -1,3 +1,7 @@
+html {
+  touch-action: manipulation;
+}
+
 /* ── Page shell / shared base (not in index.css) ── */
 html,
 body {
