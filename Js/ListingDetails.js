@@ -439,8 +439,20 @@
     const mainPhotoUrl = currentPhoto?.fileUrl || fallbackImage;
     const mainPhotoAlt = currentPhoto?.fileName || state.listing?.title || "Снимка на обявата";
 
-    elements.mainPhoto.src = mainPhotoUrl;
+    elements.mainPhoto.classList.remove("is-loaded");
     elements.mainPhoto.alt = mainPhotoAlt;
+
+    const markMainLoaded = () => elements.mainPhoto.classList.add("is-loaded");
+    if (elements.mainPhoto.src !== mainPhotoUrl) {
+      elements.mainPhoto.addEventListener("load", markMainLoaded, { once: true });
+      elements.mainPhoto.addEventListener("error", markMainLoaded, { once: true });
+      elements.mainPhoto.src = mainPhotoUrl;
+    } else if (elements.mainPhoto.complete && elements.mainPhoto.naturalWidth > 0) {
+      markMainLoaded();
+    } else {
+      elements.mainPhoto.addEventListener("load", markMainLoaded, { once: true });
+      elements.mainPhoto.addEventListener("error", markMainLoaded, { once: true });
+    }
 
     elements.heroImage.src = mainPhotoUrl;
     elements.heroImage.alt = mainPhotoAlt;

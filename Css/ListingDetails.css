@@ -965,18 +965,46 @@ img {
   height: 460px;
   border-radius: 20px;
   overflow: hidden;
-  background:
-    linear-gradient(135deg, rgba(255, 106, 42, 0.08), rgba(53, 144, 220, 0.08)),
-    linear-gradient(180deg, #f4f7fb, #eaf0f6);
+  background: #ffffff;
   border: 1px solid #e4ebf3;
 }
 
+.gallery-stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    linear-gradient(100deg, transparent 0%, rgba(255, 255, 255, 0.8) 46%, transparent 78%),
+    linear-gradient(180deg, #ffffff, #f5f5f5);
+  background-size: 220% 100%, 100% 100%;
+  animation: gallery-stage-sheen 1.25s ease-in-out infinite;
+  opacity: 1;
+  transition: opacity 0.28s ease;
+  pointer-events: none;
+}
+
+.gallery-stage:has(img.is-loaded)::before {
+  opacity: 0;
+  animation-play-state: paused;
+}
+
+@keyframes gallery-stage-sheen {
+  0% {
+    background-position: 140% 0, 0 0, 0 0;
+  }
+  100% {
+    background-position: -40% 0, 0 0, 0 0;
+  }
+}
+
 .gallery-stage img {
+  position: relative;
+  z-index: 1;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   cursor: zoom-in;
-  background: #fff;
 }
 
 .gallery-nav,
@@ -1066,16 +1094,16 @@ img {
 .gallery-thumbs {
   margin: 12px 20px 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
+  gap: 8px;
 }
 
 .thumb-btn {
   padding: 0;
-  height: 76px;
-  border-radius: 16px;
+  height: 58px;
+  border-radius: 12px;
   overflow: hidden;
-  background: #f6f9fc;
+  background: #ffffff;
   border: 2px solid transparent;
   box-shadow: var(--shadow-soft);
   transition: 0.18s ease;
@@ -1084,7 +1112,8 @@ img {
 .thumb-btn img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  padding: 4px;
 }
 
 .thumb-btn.active {

@@ -3518,10 +3518,6 @@
         errors.push({ field: "editBrandId", message: "При мотор марката е задължителна." });
       }
 
-      if (!elements.editLicenseCategoryLookupId.value) {
-        errors.push({ field: "editLicenseCategoryLookupId", message: "Категорията книжка е задължителна." });
-      }
-
       addEditRequiredNumberError(errors, "editVehicleYear", "Годината");
       addEditRequiredNumberError(errors, "editEngineCC", "Кубиците");
       addEditRequiredNumberError(errors, "editHorsePower", "Конските сили");
