@@ -1818,7 +1818,13 @@
 
   function updateHomeSeoMetadata() {
     const meta = HOME_SEO_META[state.selectedMainCategoryCode] || HOME_SEO_META.default;
-    const canonicalUrl = new URL(meta.canonicalPath, window.location.origin).toString();
+    // Canonical must match the actual clean category URL (/obiavi/{slug} in
+    // production, legacy ?category= on plain static servers) — derive it from
+    // buildCategoryUrl instead of the hard-coded legacy path.
+    const canonicalPath = state.selectedMainCategoryCode
+      ? (window.Auth?.buildCategoryUrl?.(state.selectedMainCategoryCode) || meta.canonicalPath)
+      : "/";
+    const canonicalUrl = new URL(canonicalPath, window.location.origin).toString();
 
     document.title = meta.title;
     setMetaContent('meta[name="description"]', meta.description);

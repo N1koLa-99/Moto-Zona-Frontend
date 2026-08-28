@@ -1,0 +1,7 @@
+{
+  "name": "moto-zona-api",
+  "version": "1.0.0",
+  "description": "Managed API for moto-zona.com Static Web App (SEO prerender).",
+  "private": true,
+  "main": "listing-seo/index.js"
+}
