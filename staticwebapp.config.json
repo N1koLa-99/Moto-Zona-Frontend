@@ -22,11 +22,11 @@
     },
     {
       "route": "/obiavi/*",
-      "rewrite": "/api/listing-seo"
+      "rewrite": "/ListingDetails.html"
     },
     {
       "route": "/share/*",
-      "rewrite": "/api/listing-seo"
+      "rewrite": "/ListingDetails.html"
     }
   ]
 }
