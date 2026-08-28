@@ -49,7 +49,24 @@ function buildOriginRelativeUrl(pathname, params = {}) {
 }
 
 function shouldUseLegacyListingRoutes() {
-  return true;
+  // Clean /obiavi/{id} URLs rely on server-side rewrites.
+  // Production (Azure Static Web Apps) and the project dev-server support them;
+  // a plain static server on localhost (e.g. VS Code Live Server) does not, so
+  // fall back to legacy ?id= URLs there to avoid "Cannot GET /obiavi/..".
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  const host = String(window.location.hostname || "").toLowerCase();
+  const isLocalhost =
+    host === "localhost" ||
+    host === "127.0.0.1" ||
+    host === "::1" ||
+    host === "[::1]" ||
+    host.endsWith(".local");
+  const isProjectDevServer = window.__MOTO_ZONA_DEV_SERVER__ === true;
+
+  return isLocalhost && !isProjectDevServer;
 }
 
 function normalizeEmail(value) {

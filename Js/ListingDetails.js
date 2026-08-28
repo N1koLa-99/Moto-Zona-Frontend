@@ -390,7 +390,7 @@
   }
 
   function renderListing(listing) {
-    document.title = `Мото Зона | ${listing.title || "Обява"}`;
+    document.title = buildSeoTitle(listing);
 
     elements.heroTitle.textContent = listing.title || "Без заглавие";
     elements.heroSubtitle.textContent = buildHeroSubtitle(listing);
@@ -609,8 +609,61 @@
     }
   }
 
+  function getSeoPrice(listing) {
+    const amount = Number(listing.displayPrice ?? listing.priceEUR ?? listing.priceOriginal ?? 0);
+    const code = (listing.displayCurrencyCode || listing.currencyCode || "EUR").toUpperCase();
+    if (!Number.isFinite(amount) || amount <= 0) return null;
+    const rounded = Math.round(amount);
+    return { amount: rounded, code, text: `${rounded} ${code}` };
+  }
+
+  function buildSeoTitle(listing) {
+    const title = cleanNullableText(listing.title) || "Обява";
+    const year = cleanNullableText(listing.vehicleYear);
+    const price = getSeoPrice(listing);
+    const head = [title, year].filter(Boolean).join(" ");
+    const left = price ? `${head} — ${price.text}` : head;
+    return `${left} | Мото Зона`;
+  }
+
+  function setJsonLd(listing, meta) {
+    try {
+      const price = getSeoPrice(listing);
+      const data = {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": cleanNullableText(listing.title) || "Обява",
+        "description": meta.pageDescription,
+        "url": meta.canonicalUrl
+      };
+      if (meta.imageUrl) data.image = [meta.imageUrl];
+      const category = cleanNullableText([listing.subCategoryName, listing.subCategory2Name].filter(Boolean).join(" / "));
+      if (category) data.category = category;
+      if (listing.id !== undefined && listing.id !== null) data.sku = String(listing.id);
+      if (price) {
+        data.offers = {
+          "@type": "Offer",
+          "price": price.amount,
+          "priceCurrency": price.code,
+          "availability": "https://schema.org/InStock",
+          "url": meta.canonicalUrl
+        };
+      }
+      let element = document.getElementById("seo-jsonld");
+      if (!element) {
+        element = document.createElement("script");
+        element.type = "application/ld+json";
+        element.id = "seo-jsonld";
+        document.head.appendChild(element);
+      }
+      element.textContent = JSON.stringify(data);
+    } catch (error) {
+      /* structured data is best-effort */
+    }
+  }
+
   function updateSeoMetadata(listing) {
-    const pageTitle = `Мото Зона | ${cleanNullableText(listing.title) || "Обява"}`;
+    const pageTitle = buildSeoTitle(listing);
     const priceText = formatCurrency(
       listing.displayPrice ?? listing.priceEUR ?? listing.priceOriginal ?? 0,
       listing.displayCurrencyCode || listing.currencyCode || "EUR"
@@ -620,8 +673,8 @@
     const summary = [
       cleanNullableText(listing.title),
       typeText,
-      locationText !== "вЂ”" ? locationText : null,
-      priceText !== "вЂ”" ? priceText : null
+      locationText !== "—" ? locationText : null,
+      priceText !== "—" ? priceText : null
     ].filter(Boolean).join(" | ");
     const pageDescription = summary || "Разгледай детайли за обява в Мото Зона.";
     const imageUrl = resolveSeoImageUrl(state.photos[0]?.fileUrl || "ImagesVideos/LogoMotoZonaNew.png");
@@ -643,6 +696,7 @@
     setMetaContent('meta[name="twitter:image:alt"]', cleanNullableText(listing.title) || "Обява в Мото Зона");
     setMetaContent('meta[name="twitter:url"]', canonicalUrl, { attribute: "name", value: "twitter:url" });
     setLinkHref('link[rel="canonical"]', canonicalUrl, { rel: "canonical" });
+    setJsonLd(listing, { pageDescription, imageUrl, canonicalUrl });
   }
 
   function renderPromotionBadge(targetElement, promotionType) {
