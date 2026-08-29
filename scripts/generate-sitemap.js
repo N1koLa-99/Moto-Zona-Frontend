@@ -16,7 +16,7 @@ const path = require("path");
 
 const SITE_ORIGIN = (process.env.SITE_ORIGIN || "https://moto-zona.com").replace(/\/+$/, "");
 const API_BASE_URL = (process.env.API_BASE_URL || "https://motomarketapi.azurewebsites.net").replace(/\/+$/, "");
-const PAGE_SIZE = 200;
+const PAGE_SIZE = 100; // API rejects pageSize > 100 with HTTP 400
 const MAX_PAGES = 100;
 
 const STATIC_PATHS = [
@@ -53,16 +53,18 @@ async function fetchJsonWithRetry(url, { retries = 4, timeoutMs = 25000 } = {}) 
   for (let attempt = 0; attempt <= retries; attempt++) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
+    let nonRetryable = false;
     try {
       const res = await fetch(url, { headers: { Accept: "application/json" }, signal: controller.signal });
       clearTimeout(timer);
       if (res.ok) return res.json();
       lastError = new Error(`HTTP ${res.status}`);
-      if (res.status < 500 && res.status !== 429) throw lastError;
+      if (res.status < 500 && res.status !== 429) nonRetryable = true;
     } catch (error) {
       clearTimeout(timer);
       lastError = error;
     }
+    if (nonRetryable) throw lastError;
     if (attempt < retries) {
       const delay = Math.min(2000 * 2 ** attempt, 20000);
       console.log(`  retry ${attempt + 1}/${retries} in ${delay}ms (${lastError.message})`);
