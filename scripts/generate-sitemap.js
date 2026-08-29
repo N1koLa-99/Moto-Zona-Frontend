@@ -2,8 +2,12 @@
 /**
  * Generates sitemap.xml for moto-zona.com, including every active listing.
  * Runs at deploy time (GitHub Actions), where the public API is reachable.
- * On any failure it keeps the existing committed sitemap.xml and does NOT
- * fail the deploy.
+ *
+ * The backend App Service can be cold on the first request, so each call is
+ * retried with exponential backoff (this also warms it up). If pagination
+ * fails partway, whatever was already collected is still written. On total
+ * failure the existing committed sitemap.xml is kept and the deploy is NOT
+ * failed.
  *
  * Override via env: SITE_ORIGIN, API_BASE_URL.
  */
@@ -40,19 +44,51 @@ function isoDate(value) {
   return Number.isNaN(d.getTime()) ? null : d.toISOString().slice(0, 10);
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function fetchJsonWithRetry(url, { retries = 4, timeoutMs = 25000 } = {}) {
+  let lastError;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const res = await fetch(url, { headers: { Accept: "application/json" }, signal: controller.signal });
+      clearTimeout(timer);
+      if (res.ok) return res.json();
+      lastError = new Error(`HTTP ${res.status}`);
+      if (res.status < 500 && res.status !== 429) throw lastError;
+    } catch (error) {
+      clearTimeout(timer);
+      lastError = error;
+    }
+    if (attempt < retries) {
+      const delay = Math.min(2000 * 2 ** attempt, 20000);
+      console.log(`  retry ${attempt + 1}/${retries} in ${delay}ms (${lastError.message})`);
+      await sleep(delay);
+    }
+  }
+  throw lastError;
+}
+
 async function fetchAllListings() {
   const rows = [];
   let page = 1;
   let totalPages = 1;
   do {
     const url = `${API_BASE_URL}/api/listings/public?page=${page}&pageSize=${PAGE_SIZE}&sortBy=newest`;
-    const res = await fetch(url, { headers: { Accept: "application/json" } });
-    if (!res.ok) throw new Error(`API responded ${res.status} on page ${page}`);
-    const data = await res.json();
+    let data;
+    try {
+      data = await fetchJsonWithRetry(url, { retries: page === 1 ? 6 : 3, timeoutMs: 25000 });
+    } catch (error) {
+      console.error(`  page ${page} failed after retries (${error.message}); using ${rows.length} collected so far`);
+      break;
+    }
     const items = Array.isArray(data.items) ? data.items : [];
     for (const it of items) {
       if (it && it.id != null) {
-        rows.push({ id: it.id, lastmod: isoDate(it.updatedAt || it.publishedAt || it.createdAt) });
+        rows.push({ id: it.id, lastmod: isoDate(it.publishedAt || it.lastRefreshAt || it.updatedAt || it.createdAt) });
       }
     }
     totalPages = Math.min(Number(data.totalPages) || 1, MAX_PAGES);
@@ -76,9 +112,13 @@ function buildXml(listings) {
 
 (async () => {
   try {
+    console.log(`Fetching listings from ${API_BASE_URL} ...`);
     const listings = await fetchAllListings();
-    const xml = buildXml(listings);
-    fs.writeFileSync(path.join(__dirname, "..", "sitemap.xml"), xml, "utf8");
+    if (!listings.length) {
+      console.error("No listings fetched — keeping existing committed sitemap.xml.");
+      process.exit(0);
+    }
+    fs.writeFileSync(path.join(__dirname, "..", "sitemap.xml"), buildXml(listings), "utf8");
     console.log(`sitemap.xml written: ${listings.length} listings + ${STATIC_PATHS.length} static URLs`);
   } catch (error) {
     console.error("Sitemap generation failed, keeping existing sitemap.xml:", error.message);
